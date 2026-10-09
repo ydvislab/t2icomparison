@@ -22,11 +22,12 @@
 | `docs/DESIGN_HISTORY.md` | 系统的设计迭代、放弃的做法和原因 |
 | `docs/REVIEW_PROTO3.md` | 外部评审意见与改进计划 |
 | `docs/RUNBOOK.md` | 环境、模型、数据布局、从头复现的步骤 |
+| `docs/NEW_MODELS.md` | 补主流开源模型（Qwen-Image-2512、FLUX.2 [dev]）的方案 |
 | `experiments/hidden_or_lost/` | 背景实验一：三代模型的默认多样性与可达性（生成 + 测量） |
 | `experiments/caption_density/` | 背景实验二：引导、蒸馏、prompt 写法各自的影响（生成 + 测量） |
 | `aspects/` | 画面方面的测量：CLIP 特征与 15 个双极方面分数 |
 | `system/` | 可视比较系统（当前版本 rev4.1）及其数据构建 |
-| `annotation/` | 方面的人工核对：生成两两比较的标注页面、分析结果 |
+| `annotation/` | 方面的人工核对：方案与步骤（`PROTOCOL.md`）、标注说明（`ANNOTATOR_GUIDE.md`）、标注页面与分析程序 |
 | `results/` | 背景实验的图表、系统截图、设计迭代截图 |
 
 ## 快速运行（已有图像数据时）

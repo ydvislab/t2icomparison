@@ -1,5 +1,7 @@
 # 画面方面的人工核对
 
+> **完整方案与步骤见 `PROTOCOL.md`；给标注人的说明见 `ANNOTATOR_GUIDE.md`。** 本文件只是程序的用法。
+
 **为什么做**：系统的 15 个方面来自 CLIP，只在同一个 prompt 内比较。要确认：CLIP 说"这张更暖"时，人是否也这么看。结果进论文表 1。
 
 **怎么做**：两两比较。每个方面 16 对同 prompt 的图：
@@ -11,13 +13,19 @@
 **标注人**：2 人（负责人 + 1 位同学），各约 15–20 分钟。
 
 ## 运行
-生成标注页面（固定随机种子，可复现；2026-10-10 重新生成，与原页面逐字节相同）：
+生成标注页面（固定随机种子，可复现；2026-10-10 加入英文原始定义后重新生成，240 对与原来完全相同）：
 
 ```bash
 python3 make_pairs.py
 ```
 
-启动页面服务：
+打包给在自己电脑上标注的人（得到 `~/va4ext/annotation_package.zip`，解压后双击页面即可）：
+
+```bash
+./package.sh
+```
+
+在项目电脑上标注时，启动页面服务：
 
 ```bash
 cd ~/va4ext/annotation_aspects && python3 -m http.server 8774 --bind 127.0.0.1
@@ -29,6 +37,6 @@ cd ~/va4ext/annotation_aspects && python3 -m http.server 8774 --bind 127.0.0.1
 python3 analyze.py aspects_A.csv aspects_B.csv
 ```
 
-结果写到 `results/annotation/aspect_check.csv`。
+结果写到 `results/annotation/`（`aspect_check.csv`、`pair_answers.csv`；标注人匿名为 A、B）。原始 CSV 放在 `~/va4ext/annotation_aspects/exports/`，不进仓库。
 
 **判定**：某方面在"差距大"的对子上，人与 CLIP 方向一致率 < 75%，或"看不出"超过 40%，就标为不可靠，在论文和系统里删掉或改名。同时报告两人之间的一致性（Cohen's kappa）。

@@ -1,10 +1,10 @@
-"""Human check of the CLIP aspects used by prototype 3 (track A, CG&A paper).
+"""Human check of the CLIP aspects used by the comparison system (round 1: the 13 existing groups).
 The system only compares aspect scores *within a prompt*, so the check is pairwise and within a prompt:
 "which of these two images is more <right pole> (vs <left pole>)?".
 Per aspect: 12 large-gap pairs (one image from the prompt's top 15% and one from its bottom 15% on that aspect) test
 whether CLIP's direction matches people; 4 small-gap pairs (both from the middle 40%) show how noisy the middle is.
 15 aspects x 16 = 240 pairs, left/right order randomised; CLIP's answer is stored but never shown.
-Reused (pixel-identical) images are excluded. Writes $T2IC_DATA/annotation_aspects/ (default ~/va4ext){pairs.json, label_aspects.html, img/}.
+Reused (pixel-identical) images are excluded. Writes $T2IC_DATA/annotation_aspects/{pairs.json, label_aspects.html, img/} ($T2IC_DATA defaults to ~/va4ext).
 Usage: python3 make_pairs.py"""
 import json, os, random, re, shutil
 DATA_ROOT = os.environ.get("T2IC_DATA", os.path.expanduser("~/va4ext"))  # external data drive (images, models)
@@ -51,7 +51,7 @@ def main():
             dst = f"{OUT}/img/{pr[side]}.jpg"
             if not os.path.exists(dst):
                 shutil.copy(os.path.realpath(f"{SRC}/img/f/{pr[side]}.jpg"), dst)
-    asp = {a["key"]: dict(cn=a["cn"], lcn=a["lcn"], rcn=a["rcn"]) for a in meta["aspects"]}
+    asp = {a["key"]: dict(cn=a["cn"], lcn=a["lcn"], rcn=a["rcn"], l=a["left"], r=a["right"]) for a in meta["aspects"]}
     json.dump(dict(seed=SEED, pairs=pairs, aspects=asp), open(f"{OUT}/pairs.json", "w"), ensure_ascii=False, indent=1)
     page = open(os.path.join(HERE, "page_template.html"), encoding="utf-8").read()
     page = page.replace("/*DATA*/", "const PAIRS = " + json.dumps([{k: v for k, v in p.items() if k not in ("clip", "gap", "kind")} for p in pairs], ensure_ascii=False)

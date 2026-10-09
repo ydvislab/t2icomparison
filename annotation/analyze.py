@@ -1,9 +1,11 @@
-"""Analyse the human aspect check. Usage: python3 analyze.py aspects_A.csv aspects_B.csv
-Per aspect: on large-gap pairs, how often people agree with CLIP's direction (among pairs they did not mark "can't tell"),
-how often they could not tell, and agreement between the two annotators (Cohen's kappa over left/right/none).
-An aspect is flagged unreliable if CLIP agreement < 0.75 or "can't tell" > 40% on large-gap pairs.
-Writes results/annotation/aspect_check.csv."""
-import json, os, sys
+"""Analyse the human aspect check. Usage: python3 analyze.py aspects_<X>.csv aspects_<Y>.csv
+Per aspect: on large-gap pairs, how often people agree with CLIP's direction (among pairs they did not mark "can't tell",
+with a 95% Wilson interval), how often they could not tell, and agreement between the two annotators (Cohen's kappa over
+left/right/none). An aspect is flagged unreliable if CLIP agreement < 0.75 or "can't tell" > 40% on large-gap pairs
+(rule fixed before labelling, see PROTOCOL.md).
+Annotators are renamed A, B, ... in file order so the tracked results carry no names.
+Writes results/annotation/{aspect_check.csv, pair_answers.csv}."""
+import json, math, os, sys
 import pandas as pd
 DATA_ROOT = os.environ.get("T2IC_DATA", os.path.expanduser("~/va4ext"))  # external data drive (images, models)
 
@@ -19,19 +21,37 @@ def kappa(a, b):
     return (po - pe) / (1 - pe) if pe < 1 else 1.0
 
 
+def wilson(k, n, z=1.96):
+    if n == 0:
+        return None, None
+    p, d = k / n, 1 + z * z / n
+    c, h = (p + z * z / (2 * n)) / d, z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return round(c - h, 3), round(c + h, 3)
+
+
 def main(files):
     os.makedirs(OUT, exist_ok=True)
-    d = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
+    parts = []
+    for n, f in enumerate(files):
+        x = pd.read_csv(f)
+        x["annotator"] = chr(ord("A") + n)
+        parts.append(x)
+    d = pd.concat(parts, ignore_index=True)
     d = d.join(truth[["kind", "clip_dir", "gap"]], on="pid")
+    missing = {a: len(truth) - g.pid.nunique() for a, g in d.groupby("annotator")}
+    if any(missing.values()):
+        print("unanswered pairs per annotator:", missing)
     rows = []
     for a, g in d.groupby("aspect"):
         L = g[g.kind == "large"]
         decided = L[L.answer != "none"]
+        k = int((decided.answer == decided.clip_dir).sum())
+        lo, hi = wilson(k, len(decided))
         r = dict(aspect=a, cn=P["aspects"][a]["cn"], poles=f"{P['aspects'][a]['lcn']} ↔ {P['aspects'][a]['rcn']}",
-                 large_n=len(L), agree_clip=round((decided.answer == decided.clip_dir).mean(), 3) if len(decided) else None,
+                 large_n=len(L), agree_clip=round(k / len(decided), 3) if len(decided) else None, agree_lo=lo, agree_hi=hi,
                  cant_tell=round((L.answer == "none").mean(), 3),
                  small_cant_tell=round((g[g.kind == "small"].answer == "none").mean(), 3))
-        ann = g.annotator.unique()
+        ann = sorted(g.annotator.unique())
         if len(ann) >= 2:
             w = g.pivot_table(index="pid", columns="annotator", values="answer", aggfunc="first").dropna()
             r["kappa"] = round(kappa(w[ann[0]], w[ann[1]]), 3)
@@ -39,7 +59,16 @@ def main(files):
         rows.append(r)
     t = pd.DataFrame(rows).sort_values("agree_clip")
     t.to_csv(f"{OUT}/aspect_check.csv", index=False)
+    # one row per pair: every annotator's answer next to CLIP's, for the review meeting and the paper's error examples
+    w = d.pivot_table(index="pid", columns="annotator", values="answer", aggfunc="first")
+    pa = truth.join(w).reset_index()
+    ans = [c for c in w.columns]
+    pa["all_against_clip"] = pa.apply(lambda r: all(r[c] not in (r.clip_dir, "none") for c in ans if pd.notna(r[c])), axis=1)
+    pa["annotators_disagree"] = pa[ans].nunique(axis=1) > 1
+    pa.sort_values(["aspect", "pid"]).to_csv(f"{OUT}/pair_answers.csv", index=False)
     print(t.to_string(index=False))
+    print(f"\npairs where every annotator contradicts CLIP: {int(pa.all_against_clip.sum())}; "
+          f"pairs where annotators disagree: {int(pa.annotators_disagree.sum())}")
 
 
 if __name__ == "__main__":

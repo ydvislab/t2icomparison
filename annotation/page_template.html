@@ -58,7 +58,7 @@ function show() {
   if (i >= PAIRS.length) { $("task").style.display = "none"; $("done").style.display = "block"; return; }
   $("task").style.display = ""; $("done").style.display = "none";
   const p = PAIRS[i], a = ASP[p.aspect];
-  $("q").innerHTML = `${a.cn}：哪一张更偏 <b>${a.rcn}</b>？<small>（相对 ${a.lcn}）</small>`;
+  $("q").innerHTML = `${a.cn}：哪一张更偏 <b>${a.rcn}</b>？<small>（相对 ${a.lcn}）　英文定义：${a.l} ↔ <i>${a.r}</i></small>`;
   $("L").src = `img/${p.left}.jpg`; $("R").src = `img/${p.right}.jpg`;
   document.querySelectorAll(".btns button").forEach(b => b.classList.toggle("on", ans[p.pid]?.a === b.dataset.a));
   $("pos").textContent = `第 ${i + 1} / ${PAIRS.length} 题`; $("pp").textContent = `已答 ${n}`;
