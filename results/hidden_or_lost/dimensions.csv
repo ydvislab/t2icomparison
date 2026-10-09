@@ -1,0 +1,16 @@
+model,dim,entropy,top_share,p_a photograph,p_a painting,p_a cartoon or illustration,p_a 3D render,"p_a sketch or drawing (pencil, crayon)",p_other,p_daylight,p_night,p_sunset or golden hour,p_studio or indoor lighting,p_unclear,p_close-up,p_medium shot,p_wide shot from far away,p_vivid and colourful,p_muted or natural colours,p_black and white,"p_polished, professional-looking",p_amateur snapshot,"p_blurry, low quality or badly exposed"
+sd15,medium,0.40043716467136514,0.703125,0.63,0.026,0.094,0.229,0.021,0.0,,,,,,,,,,,,,,
+sd15,lighting,0.33126553748880716,0.796875,,,,,,,0.49,0.0,0.13,0.37,0.01,,,,,,,,,
+sd15,framing,0.3627839623042839,0.8177083333333334,,,,,,,,,,,,0.224,0.453,0.323,,,,,,
+sd15,color,0.4036623277427163,0.8385416666666666,,,,,,,,,,,,,,,0.073,0.839,0.089,,,
+sd15,quality,0.7053666210749311,0.625,,,,,,,,,,,,,,,,,,0.609,0.177,0.214
+sdxl_turbo,medium,0.375882791127073,0.7239583333333334,0.333,0.094,0.292,0.255,0.021,0.005,,,,,,,,,,,,,,
+sdxl_turbo,lighting,0.3109308105505173,0.7708333333333334,,,,,,,0.229,0.0,0.526,0.24,0.005,,,,,,,,,
+sdxl_turbo,framing,0.21146689792122794,0.875,,,,,,,,,,,,0.188,0.417,0.396,,,,,,
+sdxl_turbo,color,0.0,1.0,,,,,,,,,,,,,,,0.0,1.0,0.0,,,
+sdxl_turbo,quality,0.30834252750882657,0.8229166666666666,,,,,,,,,,,,,,,,,,0.734,0.062,0.203
+klein4b,medium,0.24591888319668231,0.7760416666666666,0.411,0.0,0.005,0.583,0.0,0.0,,,,,,,,,,,,,,
+klein4b,lighting,0.2648500120004987,0.796875,,,,,,,0.63,0.0,0.135,0.234,0.0,,,,,,,,,
+klein4b,framing,0.0934245416712111,0.9583333333333334,,,,,,,,,,,,0.161,0.458,0.38,,,,,,
+klein4b,color,0.017733861551064416,0.9947916666666666,,,,,,,,,,,,,,,0.0,0.995,0.005,,,
+klein4b,quality,0.06404697145197281,0.9791666666666666,,,,,,,,,,,,,,,,,,0.979,0.021,0.0

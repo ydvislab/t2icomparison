@@ -1,0 +1,25 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Large artefacts live in $T2IC_DATA (default ~/va4ext), never in git
+*.safetensors
+*.ckpt
+*.pt
+*.npz
+data/
+outputs/
+
+# Raw annotation exports (personal data); only the aggregated results/annotation/ is tracked
+aspects_*.csv
+
+# Local Claude settings
+.claude/settings.local.json

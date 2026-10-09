@@ -1,0 +1,31 @@
+       condition model              weights  steps  cfg   style  vendi  dim_entropy  adherence
+       klein_min klein      FLUX.2-klein-4B      4  1.0 minimal  1.830        0.128      0.979
+     klein_dense klein      FLUX.2-klein-4B      4  1.0   dense  1.842        0.152      1.000
+      klein_open klein      FLUX.2-klein-4B      4  1.0    open  1.841        0.093      1.000
+  kbase_cfg1_min klein FLUX.2-klein-base-4B     28  1.0 minimal  5.949        0.403      0.875
+kbase_cfg1_dense klein FLUX.2-klein-base-4B     28  1.0   dense  5.925        0.478      0.833
+  kbase_cfg4_min klein FLUX.2-klein-base-4B     28  4.0 minimal  2.315        0.141      1.000
+  sd15_cfg75_min  sd15                 sd15     25  7.5 minimal  4.088        0.290      0.958
+sd15_cfg75_dense  sd15                 sd15     25  7.5   dense  3.924        0.207      0.979
+ sd15_cfg75_open  sd15                 sd15     25  7.5    open  4.488        0.318      0.917
+   sd15_cfg1_min  sd15                 sd15     25  1.0 minimal  6.704        0.484      0.625
+
+Key contrasts (paired by subject, bootstrap over subjects):
+vendi            sd15_cfg1_min - kbase_cfg1_min    : +0.75  95% CI [+0.06, +1.41]  (5/6 subjects positive)
+vendi           kbase_cfg1_min - kbase_cfg4_min    : +3.63  95% CI [+2.86, +4.41]  (6/6 subjects positive)
+vendi           kbase_cfg4_min - klein_min         : +0.49  95% CI [+0.44, +0.54]  (6/6 subjects positive)
+vendi              klein_dense - klein_min         : +0.01  95% CI [-0.14, +0.17]  (3/6 subjects positive)
+vendi               klein_open - klein_min         : +0.01  95% CI [-0.14, +0.15]  (4/6 subjects positive)
+vendi         kbase_cfg1_dense - kbase_cfg1_min    : -0.02  95% CI [-0.24, +0.19]  (4/6 subjects positive)
+vendi         sd15_cfg75_dense - sd15_cfg75_min    : -0.16  95% CI [-0.63, +0.30]  (2/6 subjects positive)
+vendi          sd15_cfg75_open - sd15_cfg75_min    : +0.40  95% CI [-0.25, +1.09]  (4/6 subjects positive)
+vendi           sd15_cfg75_min - kbase_cfg4_min    : +1.77  95% CI [+0.87, +2.71]  (5/6 subjects positive)
+dim_entropy      sd15_cfg1_min - kbase_cfg1_min    : +0.08  95% CI [-0.04, +0.20]  (4/6 subjects positive)
+dim_entropy     kbase_cfg1_min - kbase_cfg4_min    : +0.26  95% CI [+0.16, +0.34]  (6/6 subjects positive)
+dim_entropy     kbase_cfg4_min - klein_min         : +0.01  95% CI [-0.05, +0.07]  (2/6 subjects positive)
+dim_entropy        klein_dense - klein_min         : +0.02  95% CI [+0.00, +0.05]  (3/6 subjects positive)
+dim_entropy         klein_open - klein_min         : -0.04  95% CI [-0.08, -0.00]  (1/6 subjects positive)
+dim_entropy   kbase_cfg1_dense - kbase_cfg1_min    : +0.07  95% CI [-0.02, +0.17]  (5/6 subjects positive)
+dim_entropy   sd15_cfg75_dense - sd15_cfg75_min    : -0.08  95% CI [-0.11, -0.06]  (0/6 subjects positive)
+dim_entropy    sd15_cfg75_open - sd15_cfg75_min    : +0.03  95% CI [-0.07, +0.14]  (3/6 subjects positive)
+dim_entropy     sd15_cfg75_min - kbase_cfg4_min    : +0.15  95% CI [+0.10, +0.20]  (6/6 subjects positive)

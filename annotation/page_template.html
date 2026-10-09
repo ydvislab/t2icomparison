@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>画面方面核对</title>
+<style>
+:root { color-scheme: light; --page: #f1f1ee; --panel: #fff; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781; --axis: #c3c2b7; --acc: #2a78d6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; --page: #0d0d0d; --panel: #1a1a19; --ink: #fff; --ink-2: #c3c2b7; --muted: #898781; --axis: #4a4945; --acc: #3987e5; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "PingFang SC", sans-serif; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+header { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+header h1 { font-size: 17px; margin: 0; flex: 1; }
+input, button { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--axis); border-radius: 8px; padding: 5px 10px; }
+button { cursor: pointer; }
+.bar { height: 6px; background: var(--axis); border-radius: 3px; margin: 10px 0 14px; overflow: hidden; }
+.bar div { height: 100%; background: var(--acc); }
+.q { font-size: 20px; text-align: center; margin: 8px 0 12px; }
+.q b { color: var(--acc); }
+.q small { display: block; font-size: 13px; color: var(--muted); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pair img { width: 100%; max-height: 58vh; aspect-ratio: 1; object-fit: contain; border-radius: 10px; display: block; background: var(--panel); }
+.btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 12px; }
+.btns button { padding: 12px; font-size: 15px; }
+.btns button.on { border-color: var(--acc); box-shadow: 0 0 0 2px var(--acc); }
+.foot { margin-top: 12px; color: var(--muted); font-size: 12.5px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+#intro { background: var(--panel); border-radius: 12px; padding: 14px 18px; margin-top: 12px; }
+#done { display: none; text-align: center; padding: 40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>画面方面核对（两张图比一比）</h1><label>标注人 <input id="who" size="8" placeholder="姓名缩写"></label><button id="exp">导出 CSV</button></header>
+  <div id="intro">每次给出同一个 prompt 下的两张图和一个方面（例如"光线：冷色蓝光 ↔ 暖色金光"）。请凭第一眼判断<b>哪一张更偏向右边那个描述</b>。两张差不多、或这个方面在图里看不出来，就选"看不出"。不用想太久，一题几秒即可。<br>快捷键：<b>←</b> 左边更偏 · <b>→</b> 右边更偏 · <b>↓</b> 看不出 · <b>Backspace</b> 回上一题。进度自动保存在本浏览器里；做完点"导出 CSV"把文件发回。共 240 题，约 15–20 分钟。</div>
+  <div class="bar"><div id="prog"></div></div>
+  <div id="task">
+    <div class="q" id="q"></div>
+    <div class="pair"><img id="L" alt="左"><img id="R" alt="右"></div>
+    <div class="btns"><button data-a="left">← 左边更偏</button><button data-a="none">↓ 看不出</button><button data-a="right">右边更偏 →</button></div>
+    <div class="foot"><span id="pos"></span><span id="pp"></span></div>
+  </div>
+  <div id="done"><h2>全部完成，谢谢！</h2><p>请点右上角"导出 CSV"，把文件发回。</p></div>
+</div>
+<script>
+/*DATA*/
+const $ = id => document.getElementById(id);
+let who = "", ans = {}, i = 0, t0 = performance.now();
+const key = () => `aspects_${who || "anon"}`;
+const load = () => { try { ans = JSON.parse(localStorage.getItem(key()) || "{}"); } catch (e) { ans = {}; } i = PAIRS.findIndex(p => !ans[p.pid]); if (i < 0) i = PAIRS.length; };
+const save = () => { try { localStorage.setItem(key(), JSON.stringify(ans)); } catch (e) {} };
+try { who = localStorage.getItem("aspects_who") || ""; } catch (e) {}
+$("who").value = who;
+$("who").onchange = () => { who = $("who").value.trim(); try { localStorage.setItem("aspects_who", who); } catch (e) {} load(); show(); };
+function show() {
+  const n = Object.keys(ans).length;
+  $("prog").style.width = `${100 * n / PAIRS.length}%`;
+  if (i >= PAIRS.length) { $("task").style.display = "none"; $("done").style.display = "block"; return; }
+  $("task").style.display = ""; $("done").style.display = "none";
+  const p = PAIRS[i], a = ASP[p.aspect];
+  $("q").innerHTML = `${a.cn}：哪一张更偏 <b>${a.rcn}</b>？<small>（相对 ${a.lcn}）</small>`;
+  $("L").src = `img/${p.left}.jpg`; $("R").src = `img/${p.right}.jpg`;
+  document.querySelectorAll(".btns button").forEach(b => b.classList.toggle("on", ans[p.pid]?.a === b.dataset.a));
+  $("pos").textContent = `第 ${i + 1} / ${PAIRS.length} 题`; $("pp").textContent = `已答 ${n}`;
+  if (PAIRS[i + 1]) { new Image().src = `img/${PAIRS[i + 1].left}.jpg`; new Image().src = `img/${PAIRS[i + 1].right}.jpg`; }
+  t0 = performance.now();
+}
+function answer(a) { if (i >= PAIRS.length) return; const p = PAIRS[i]; ans[p.pid] = { a, ms: Math.round(performance.now() - t0) }; save(); i++; show(); }
+document.querySelectorAll(".btns button").forEach(b => b.onclick = () => answer(b.dataset.a));
+addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+  if (e.key === "ArrowLeft") answer("left"); else if (e.key === "ArrowRight") answer("right"); else if (e.key === "ArrowDown") answer("none");
+  else if (e.key === "Backspace") { e.preventDefault(); if (i > 0) { i--; show(); } }
+});
+$("exp").onclick = () => {
+  const rows = [["annotator", "pid", "aspect", "prompt", "left", "right", "answer", "ms"]].concat(PAIRS.filter(p => ans[p.pid]).map(p => [who, p.pid, p.aspect, p.prompt, p.left, p.right, ans[p.pid].a, ans[p.pid].ms]));
+  const blob = new Blob([rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\n")], { type: "text/csv" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `aspects_${who || "anon"}.csv`; a.click();
+};
+load(); show();
+</script>
+</body>
+</html>

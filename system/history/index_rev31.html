@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多模型输出比较</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --page: #eeeeea; --panel: #ffffff; --side: #2b2b29; --side-ink: #ecebe6; --side-mut: #a3a29c; --card: #f6f6f3; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10); --other: #b4b2a9;
+  --g0: #2a78d6; --g1: #eb6834; --g2: #1baf7a;
+  --g0s: rgba(42,120,214,.15); --g1s: rgba(235,104,52,.15); --g2s: rgba(27,175,122,.17);
+  --sel: #4a3aa7; --sels: rgba(74,58,167,.14); --bub: rgba(11,11,11,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --page: #0d0d0d; --panel: #1a1a19; --side: #121211; --side-ink: #ecebe6; --side-mut: #898781; --card: #222220; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10); --other: #5f5e5a;
+    --g0: #3987e5; --g1: #d95926; --g2: #199e70;
+    --g0s: rgba(57,135,229,.2); --g1s: rgba(217,89,38,.2); --g2s: rgba(25,158,112,.22);
+    --sel: #9085e9; --sels: rgba(144,133,233,.2); --bub: rgba(255,255,255,.05);
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body.viz-root { background: var(--page); color: var(--ink); font: 12px/1.4 system-ui, -apple-system, "PingFang SC", "Segoe UI", sans-serif; display: grid; grid-template-columns: 210px minmax(0, 1fr); min-width: 1240px; min-height: 720px; }
+select, button { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--axis); border-radius: 6px; padding: 2px 6px; }
+button { cursor: pointer; } button:hover { border-color: var(--ink-2); }
+/* dark sidebar (PrompTHis-like) */
+aside { background: var(--side); color: var(--side-ink); display: flex; flex-direction: column; min-height: 0; padding: 12px 10px; gap: 4px; }
+aside .brand { font-size: 15px; font-weight: 700; margin: 0 4px 6px; }
+aside .brand small { display: block; font-size: 11px; font-weight: 400; color: var(--side-mut); margin-top: 2px; }
+aside h3 { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; color: var(--side-mut); margin: 10px 4px 4px; }
+aside .pl button { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--side-ink); padding: 4px 8px; border-radius: 6px; }
+aside .pl button:hover { background: rgba(255,255,255,.07); }
+aside .pl button.on { background: rgba(255,255,255,.14); font-weight: 650; }
+aside .gl { flex: 1; min-height: 0; overflow: auto; }
+aside .fam { font-size: 11px; color: var(--side-mut); margin: 6px 4px 2px; }
+aside .g { display: grid; grid-template-columns: 14px 10px 1fr auto; gap: 5px; align-items: center; padding: 2px 4px; border-radius: 5px; cursor: pointer; }
+aside .g:hover { background: rgba(255,255,255,.07); }
+aside .g .dot { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--side-mut); }
+aside .g .nm { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+aside .g .n { font-size: 10.5px; color: var(--side-mut); }
+aside .g.hid .nm { color: var(--side-mut); text-decoration: line-through; }
+aside .g .warn { color: #eda100; font-size: 11px; }
+aside .note { font-size: 10.5px; color: var(--side-mut); margin: 6px 4px 0; line-height: 1.45; }
+/* main area */
+.app { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+header { flex: none; display: flex; align-items: center; gap: 12px; padding: 6px 12px; background: var(--panel); border-bottom: 1px solid var(--grid); white-space: nowrap; }
+header .state { display: flex; gap: 6px; align-items: center; color: var(--ink-2); overflow: hidden; flex: 1; }
+header label { color: var(--ink-2); }
+.chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 5px; font-weight: 600; color: var(--ink); background: var(--card); white-space: nowrap; }
+.chip button { border: 0; background: none; padding: 0 0 0 2px; color: var(--muted); }
+.dash { flex: 1; min-height: 0; display: grid; gap: 8px; padding: 8px;
+  grid-template-columns: minmax(0, 58fr) minmax(360px, 42fr);
+  grid-template-rows: minmax(0, 60fr) minmax(0, 40fr);
+  grid-template-areas: "map mx" "st sel"; }
+.panel { background: var(--panel); border: 1px solid var(--ring); border-radius: 12px; padding: 7px 10px 8px; display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; }
+.ph { flex: none; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ph h2 { font-size: 13px; font-weight: 650; margin: 0; }
+.ph .tag { font-size: 10px; font-weight: 700; color: var(--muted); border: 1px solid var(--grid); border-radius: 4px; padding: 0 4px; }
+.ph .q { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--axis); color: var(--muted); font-size: 10px; display: inline-flex; align-items: center; justify-content: center; cursor: help; position: relative; }
+.ph .q:hover .qt { display: block; }
+.qt { display: none; position: absolute; top: 20px; left: -8px; z-index: 30; width: 380px; white-space: normal; background: var(--panel); color: var(--ink); border: 1px solid var(--ring); border-radius: 8px; padding: 8px 10px; box-shadow: 0 6px 24px rgba(0,0,0,.18); font-size: 12px; line-height: 1.5; font-weight: 400; }
+.ph .sp { flex: 1; }
+.ph .tools { display: flex; gap: 10px; color: var(--ink-2); align-items: center; }
+.body { flex: 1; min-height: 0; position: relative; }
+#pmap { grid-area: map; } #pmx { grid-area: mx; } #pst { grid-area: st; } #psel { grid-area: sel; }
+/* A: image map */
+.map { position: absolute; inset: 0; background: var(--card); border-radius: 10px; overflow: hidden; cursor: crosshair; user-select: none; }
+.map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map .th { position: absolute; transform: translate(-50%, -50%); border-radius: 3px; box-shadow: 0 0 0 1.5px var(--tc, var(--other)); z-index: 2; background: var(--card); }
+.map .th img { width: 100%; height: 100%; display: block; border-radius: 3px; }
+.map .th.fade { opacity: .22; }
+.map .th.hl { box-shadow: 0 0 0 2.5px var(--sel); z-index: 3; }
+.map .ann { position: absolute; z-index: 5; background: var(--panel); border: 1px solid var(--ring); border-radius: 7px; padding: 3px 7px; font-size: 11px; line-height: 1.35; max-width: 210px; box-shadow: 0 2px 8px rgba(0,0,0,.08); cursor: pointer; }
+.map .ann b { font-weight: 650; }
+.map .ann .a { color: var(--ink-2); }
+.map .ann:hover { box-shadow: 0 0 0 2px var(--sel); }
+.map .brush { position: absolute; border: 1.5px dashed var(--sel); background: var(--sels); pointer-events: none; z-index: 6; }
+.map .lg { position: absolute; left: 8px; right: 8px; bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--ink-2); z-index: 5; pointer-events: none; }
+.map .lg span { background: var(--panel); padding: 1px 6px; border-radius: 5px; }
+.map .lg i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 3px; vertical-align: -1px; }
+.map .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); padding: 20px; text-align: center; }
+/* B: matrix */
+.mx { position: absolute; inset: 0; }
+.mx table { border-collapse: separate; border-spacing: 1px 0; table-layout: fixed; }
+.mx th { font-weight: 500; color: var(--ink-2); vertical-align: bottom; padding: 0; overflow: hidden; }
+.mx th.gh { cursor: pointer; }
+.mx th.gh .av { display: block; margin: 0 auto 2px; border-radius: 4px; box-shadow: 0 0 0 2px var(--hc, transparent); }
+.mx th.gh .nm { font-size: 10px; line-height: 1.15; text-align: center; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; word-break: break-all; height: 35px; }
+.mx th.gh.foc .nm { color: var(--ink); font-weight: 700; }
+.mx th.gh.ref .nm { text-decoration: underline; }
+.mx .comp { height: 6px; margin: 2px 3px 0; background: var(--grid); border-radius: 2px; overflow: hidden; }
+.mx .comp div { height: 100%; background: var(--sel); }
+.mx td.an { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; padding-right: 6px; }
+.mx td.an small { color: var(--muted); }
+.mx tr.foc td { background: var(--sels); }
+.mx tr.foc td.an { font-weight: 700; }
+.mx td.c { padding: 0; cursor: pointer; }
+.mx td.c svg { display: block; }
+.mx td.c:hover { background: var(--card); }
+/* C: strips */
+#stbody { display: flex; flex-direction: column; }
+.caxis { flex: none; display: grid; grid-template-columns: 132px minmax(0, 1fr) 96px; gap: 8px; height: 28px; align-items: stretch; }
+.caxis .lab { font-size: 11px; color: var(--ink-2); align-self: center; }
+.caxis .bar { position: relative; background: var(--card); border-radius: 6px; cursor: ew-resize; user-select: none; }
+.caxis .bar .pl { position: absolute; top: 3px; font-size: 11px; color: var(--ink-2); }
+.caxis .bar .pc { position: absolute; top: 3px; left: 50%; transform: translateX(-50%); font-weight: 700; font-size: 11px; }
+.caxis .bar .b { position: absolute; top: 0; bottom: 0; background: var(--sels); border: 1px dashed var(--sel); pointer-events: none; }
+.rows { flex: 1; min-height: 0; position: relative; }
+.srow { display: grid; grid-template-columns: 132px minmax(0, 1fr) 96px; gap: 8px; align-items: end; border-top: 1px dashed var(--grid); }
+.srow .gl { align-self: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; font-size: 11px; }
+.plot { position: relative; cursor: crosshair; user-select: none; height: 100%; }
+.plot .th { position: absolute; border-radius: 3px; box-shadow: 0 0 0 1.5px var(--tc); background: var(--card); }
+.plot .th img { width: 100%; height: 100%; display: block; border-radius: 3px; }
+.plot .base { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--axis); }
+.plot .med { position: absolute; bottom: -4px; width: 2px; height: 8px; background: var(--ink); z-index: 3; }
+.plot .iqr { position: absolute; bottom: -2px; height: 4px; border-radius: 2px; opacity: .6; z-index: 3; }
+.plot .brush { position: absolute; top: 0; bottom: 0; background: var(--sels); border: 1px dashed var(--sel); pointer-events: none; }
+.cband { position: absolute; top: 0; bottom: 0; background: var(--sels); border-left: 1px dashed var(--sel); border-right: 1px dashed var(--sel); pointer-events: none; z-index: 1; }
+.dim { opacity: .16; }
+.hl { box-shadow: 0 0 0 2.5px var(--sel) !important; z-index: 2; }
+.conc { font-size: 10.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; align-self: center; }
+.conc svg { display: block; }
+/* right panel */
+#selbody { overflow: auto; padding-right: 2px; }
+h3.s { font-size: 11.5px; margin: 10px 0 4px; color: var(--ink); font-weight: 650; }
+h3.s:first-child { margin-top: 0; }
+.hint { color: var(--muted); }
+.avgs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.avgs canvas { width: 100%; aspect-ratio: 1; border-radius: 8px; background: var(--card); display: block; }
+.avgs .cap { font-size: 11px; color: var(--ink-2); text-align: center; margin-top: 2px; }
+.why .r { display: grid; grid-template-columns: 64px 1fr 64px 40px; gap: 5px; align-items: center; padding: 1px 0; cursor: pointer; }
+.why .r:hover { background: var(--card); }
+.why .r .l { text-align: right; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.why .r .rr { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.why .r .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.why .r .bar { position: relative; height: 10px; }
+.why .r .bar .mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--axis); }
+.why .r .bar div.b { position: absolute; top: 2px; height: 6px; border-radius: 2px; background: var(--sel); }
+.comp2 .r { display: grid; grid-template-columns: 124px 1fr 40px; gap: 5px; align-items: center; padding: 1px 0; }
+.comp2 .bar { height: 7px; background: var(--grid); border-radius: 3px; overflow: hidden; }
+.comp2 .bar div { height: 100%; background: var(--sel); }
+.evg { margin-bottom: 6px; }
+.evg .gn { font-size: 11px; color: var(--ink-2); margin-bottom: 2px; }
+.ev { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 4px; }
+.ev img { width: 100%; aspect-ratio: 1; display: block; border-radius: 3px; }
+.ev div { border-radius: 3px; box-shadow: 0 0 0 1.5px var(--tc, var(--other)); cursor: pointer; }
+.rank .r { display: grid; grid-template-columns: 124px 1fr 118px; gap: 6px; align-items: center; padding: 1px 0; cursor: pointer; }
+.rank .r:hover { background: var(--card); }
+.rank .d { color: var(--ink-2); font-size: 11px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.finds .f { border: 1px solid var(--grid); border-radius: 8px; padding: 5px 8px; margin-bottom: 4px; cursor: pointer; }
+.finds .f:hover { border-color: var(--ink-2); }
+.finds .f .m { font-size: 11px; color: var(--muted); }
+.tip { position: fixed; z-index: 40; pointer-events: none; background: var(--panel); border: 1px solid var(--ring); border-radius: 10px; padding: 6px; display: none; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+.tip img { width: 210px; height: 210px; display: block; border-radius: 6px; }
+.tip div { font-size: 11px; color: var(--ink-2); margin-top: 4px; max-width: 220px; }
+#help { position: fixed; z-index: 50; top: 44px; right: 12px; width: 500px; max-height: calc(100vh - 60px); overflow: auto; background: var(--panel); border: 1px solid var(--ring); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 40px rgba(0,0,0,.22); display: none; font-size: 12.5px; line-height: 1.6; }
+#help h4 { margin: 10px 0 2px; font-size: 13px; }
+#help ol { margin: 4px 0; padding-left: 18px; }
+
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 7px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; background: var(--panel); color: var(--ink-2); padding: 1px 9px; }
+.seg button.on { background: var(--ink); color: var(--panel); }
+.map .card { position: absolute; z-index: 4; background: var(--panel); border: 1px solid var(--ring); border-radius: 12px; padding: 6px 7px 7px; box-shadow: 0 2px 10px rgba(0,0,0,.08); cursor: pointer; }
+.map .card:hover { box-shadow: 0 0 0 2px var(--axis), 0 2px 10px rgba(0,0,0,.08); }
+.map .card.sel { box-shadow: 0 0 0 2.5px var(--sel); }
+.map .card .hd { display: flex; align-items: baseline; gap: 6px; font-size: 11px; color: var(--ink-2); white-space: nowrap; }
+.map .card .hd b { color: var(--ink); font-size: 12px; }
+.map .card .hd .x { margin-left: auto; color: var(--muted); }
+.map .card .cb { display: flex; height: 7px; border-radius: 3px; overflow: hidden; margin: 4px 0; background: var(--grid); }
+.map .card .cb span { height: 100%; border-right: 1px solid var(--panel); }
+.map .card .reps { display: flex; gap: 3px; }
+.map .card .reps img, .map .card .grid img { display: block; border-radius: 4px; }
+.map .card .grid { display: grid; gap: 3px; }
+.map .card .grid div { border-radius: 4px; box-shadow: 0 0 0 1.5px var(--tc, var(--other)); }
+.map .card .grid div.hl { box-shadow: 0 0 0 2.5px var(--sel); }
+.map .card .grid div.fade { opacity: .25; }
+.map .card .dv { font-size: 10.5px; color: var(--ink-2); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.map .card .badge { position: absolute; top: -9px; right: 8px; background: var(--ink); color: var(--panel); border-radius: 9px; padding: 0 7px; font-size: 10.5px; }
+aside .g { grid-template-columns: 14px 10px 1fr auto auto; }
+aside .occ { display: flex; gap: 1px; }
+aside .occ i { width: 7px; height: 11px; border-radius: 1.5px; background: rgba(255,255,255,.08); }
+aside .occh { display: flex; justify-content: flex-end; gap: 1px; margin: 0 4px 2px; font-size: 9px; color: var(--side-mut); }
+</style>
+</head>
+<body class="viz-root">
+<aside>
+  <div class="brand">多模型输出比较<small>原型 3 · rev3</small></div>
+  <h3>PROMPT</h3><div class="pl" id="plist"></div>
+  <h3>模型与设置（点名字：设为重点；点方框：显示/隐藏）</h3>
+  <div class="gl" id="glist"></div>
+  <div class="note">⚠ = 与另一组有重复图像（同设置同种子）。<br>方面分数来自 CLIP，是相对所有组的近似测量，请以图像为准。</div>
+</aside>
+<div class="app">
+<header>
+  <label>参照组 <select id="ref"></select></label>
+  <div class="state" id="state"></div>
+  <button id="helpbtn">操作说明</button>
+</header>
+<div id="help"></div>
+<div class="dash">
+  <section class="panel" id="pmap">
+    <div class="ph"><span class="tag">A</span><h2>图像地图</h2>
+      <span class="q">?<span class="qt">当前 prompt 下所有显示中的组的图，放在同一张图像空间里（CLIP 特征的 t-SNE，各组联合计算，坐标对所有组相同），相似的图离得近；缩略图已自动错开避免重叠。<br><b>彩色气泡</b> = 重点组的"领地"：气泡越小越集中，重叠说明默认结果相同。<br><b>灰色注释框</b> = 自动找出的画面相近的一团图：写明有多少张、主要来自哪些组，以及与其余图相比偏向哪些方面（相对比较，不是绝对判断）。点注释框即可选中这团图。<br>拖动框选；悬停看大图；侧栏中悬停某组会高亮它的图。</span></span>
+      <span class="sp"></span>
+      <span class="tools"><div class="seg" id="mode"><button data-m="cl" class="on">簇卡片</button><button data-m="tile">平铺全部图像</button></div><label>簇数 <select id="k"><option>3</option><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option><option>10</option></select></label><label class="tileopt"><input type="checkbox" id="ann" checked> 簇注释</label><label class="tileopt"><input type="checkbox" id="dots"> 用点</label></span></div>
+    <div class="body"><div class="map" id="map"></div></div>
+  </section>
+
+  <section class="panel" id="pmx">
+    <div class="ph"><span class="tag">B</span><h2>方面 × 组</h2>
+      <span class="q">?<span class="qt">每行一个方面（两端各一种描述），每列一个显示中的组。<b>格子里的横轴 = 该行方面的分数</b>（左端 → 右端），同一行共用这条轴。竖线 = 中位数（相对所有组，集中在哪一端），色条 = 中间 50%（越窄越集中）。左上角图例画出了这些含义。<br>选了"参照组"时，灰色底条是参照组的范围；C 中共同轴刷选后，当前方面那一行画出刷选区间；框选图片后，列头下方紫条 = 选中图占该组的比例。<br>列按"固定方式"相似度排序，行按组间差异排序。点列头：设为/取消重点组；点行名：设为当前方面。</span></span>
+      <span class="sp"></span><span class="hint" id="mxhint"></span></div>
+    <div class="body" id="mxbody"><div class="mx" id="mx"></div></div>
+  </section>
+
+  <section class="panel" id="pst">
+    <div class="ph"><span class="tag">C</span><h2 id="sttitle">细看</h2>
+      <span class="q">?<span class="qt">每行一个组（顺序同 B 的列），横轴是当前方面（共用）。图像按分数放在横轴上并向上堆叠，堆得越高 = 越多图在这里。每行下方：竖线 = 中位数，色条 = 中间 50%。右侧：离散度及其 90% 自助法区间（同一组只有 8 或 16 张图，区间越宽越不可靠）。<br><b>顶部共同轴上拖动</b>：所有组同时选中这一区间；<b>某一行里拖动</b>：只选这一组。</span></span>
+      <span class="sp"></span><span class="tools"><label><input type="checkbox" id="onlyfoc"> 只看重点组</label></span></div>
+    <div class="body" id="stbody"></div>
+  </section>
+
+  <section class="panel" id="psel">
+    <div class="ph"><h2 id="seltitle">选中的图</h2>
+      <span class="q">?<span class="qt">框选一批图后：选中与其余的平均图；来自哪些组；与同一 prompt 下其余图相比偏向哪些方面（相对比较，单位为标准差）；按组的图像证据。"记录为发现"保存当前视图和备注。没有选择时显示当前方面上各组的集中程度排名（含区间）。</span></span>
+      <span class="sp"></span><button id="savef">记录为发现</button><button id="clr2">取消选择</button></div>
+    <div class="body" id="selbody"></div>
+  </section>
+</div>
+</div>
+<div class="tip" id="tip"><img id="tipimg" alt=""><div id="tiptx"></div></div>
+<script src="data.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const FC = ["--g0", "--g1", "--g2"], FS = ["--g0s", "--g1s", "--g2s"];
+const css = v => getComputedStyle(document.body).getPropertyValue(v).trim();
+const q = (a, p) => { const s = [...a].sort((x, y) => x - y); if (!s.length) return NaN; const i = (s.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo); };
+const mean = a => a.reduce((x, y) => x + y, 0) / (a.length || 1);
+const sd = a => { const m = mean(a); return Math.sqrt(mean(a.map(x => (x - m) ** 2))) || 1; };
+const G = Object.fromEntries(META.groups.map(g => [g.key, g]));
+const asp = k => META.aspects.find(a => a.key === k);
+const S = { prompt: "a city street", ref: "", focus: ["m:sd15", "m:sdxl_turbo", "m:klein4b"], hidden: new Set(), expanded: new Set(), aspect: "tone", sel: null, selSrc: "", band: null, hover: null };
+let FINDS = []; try { FINDS = JSON.parse(localStorage.getItem("p3_findings") || "[]"); } catch (e) {}
+const saveFinds = () => { try { localStorage.setItem("p3_findings", JSON.stringify(FINDS)); } catch (e) {} };
+
+// ---- data hygiene: z-score within prompt; detect groups that share identical images (same setting, same seeds) ----
+(function standardize() { for (const a of META.aspects) for (const p of META.prompts) { const its = IMGS.filter(d => d.prompt === p), m = mean(its.map(d => d.s[a.key])), s = sd(its.map(d => d.s[a.key])); its.forEach(d => { d.z = d.z || {}; d.z[a.key] = (d.s[a.key] - m) / s; }); } })();
+const DUP = {};  // group -> {other group: number of identical images}, detected via identical aspect-score vectors
+(function findDuplicates() { const sig = new Map(); IMGS.forEach(d => { const k = d.prompt + "|" + META.aspects.map(a => d.s[a.key].toFixed(4)).join(","); if (!sig.has(k)) sig.set(k, []); sig.get(k).push(d.g); });
+  sig.forEach(gs => { if (gs.length > 1) gs.forEach(a => gs.forEach(b => { if (a !== b) { DUP[a] = DUP[a] || {}; DUP[a][b] = (DUP[a][b] || 0) + 1; } })); }); })();
+const visible = () => META.groups.map(g => g.key).filter(g => !S.hidden.has(g));
+const scope = () => IMGS.filter(d => (S.prompt === "*" || d.prompt === S.prompt) && !S.hidden.has(d.g));
+const fi = g => S.focus.indexOf(g);
+const gcol = g => fi(g) >= 0 ? `var(${FC[fi(g)]})` : "var(--other)";
+const isSel = id => !S.sel || S.sel.has(id);
+function range(k) { const v = scope().map(d => d.z[k]); const a = q(v, .01), b = q(v, .99), pad = (b - a) * .05; return [a - pad, b + pad]; }
+const rel = (a, med) => `相对所有组偏"${med > 0 ? a.rcn : a.lcn}"`;
+const cache = new Map();
+function gstats(g, k) {
+  const key = `${S.prompt}|${[...S.hidden].join()}|${g}|${k}`; if (cache.has(key)) return cache.get(key);
+  const its = scope(), v = its.filter(d => d.g === g).map(d => d.z[k]), prompts = S.prompt === "*" ? META.prompts : [S.prompt];
+  const per = prompts.map(p => { const all = its.filter(d => d.prompt === p).map(d => d.z[k]), w = its.filter(d => d.prompt === p && d.g === g).map(d => d.z[k]); return { w, den: (q(all, .75) - q(all, .25)) || 1 }; });
+  const disp = mean(per.map(x => (q(x.w, .75) - q(x.w, .25)) / x.den));
+  let rng = 12345; const rand = () => (rng = (rng * 1103515245 + 12345) % 2147483648) / 2147483648;  // deterministic bootstrap (denominator held fixed)
+  const boots = []; for (let b = 0; b < 300; b++) boots.push(mean(per.map(x => { const r = x.w.map(() => x.w[Math.floor(rand() * x.w.length)]); return (q(r, .75) - q(r, .25)) / x.den; })));
+  const res = { med: q(v, .5), lo: q(v, .25), hi: q(v, .75), disp, ci: [q(boots, .05), q(boots, .95)], n: v.length };
+  cache.set(key, res); return res;
+}
+function groupOrder() {
+  const keys = visible(), P = Object.fromEntries(keys.map(g => [g, META.aspects.flatMap(a => { const s = gstats(g, a.key); return [s.med, s.disp]; })]));
+  const dist = (a, b) => Math.sqrt(P[a].reduce((s, v, i) => s + (v - P[b][i]) ** 2, 0));
+  let cur = (S.ref && keys.includes(S.ref)) ? S.ref : (S.focus.find(g => keys.includes(g)) || keys[0]); const out = [cur], left = new Set(keys.filter(k => k !== cur));
+  while (left.size) { let best = null, bd = Infinity; left.forEach(k => { const d = dist(cur, k); if (d < bd) { bd = d; best = k; } }); out.push(best); left.delete(best); cur = best; }
+  return out;
+}
+const spreadAcross = k => { const st = visible().map(g => gstats(g, k)); return sd(st.map(s => s.med)) + 0.5 * sd(st.map(s => s.disp)); };
+const aspectOrder = () => [...META.aspects].sort((a, b) => spreadAcross(b.key) - spreadAcross(a.key));
+function mix(a, b, t) { const h = s => s.replace("#", "").match(/\w\w/g).map(x => parseInt(x, 16)); const A = h(a), B = h(b); return "#" + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, "0")).join(""); }
+function hull(pts) {
+  if (pts.length < 3) return pts; const P = [...pts].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); const lo = [], up = [];
+  for (const p of P) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+  for (const p of P.reverse()) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+function relax(pts, r, W, H, M) {  // overlap removal for thumbnails (keeps t-SNE neighbourhoods, separates marks)
+  for (let it = 0; it < 80; it++) { let moved = false;
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) { const a = pts[i], b = pts[j]; let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+      if (d < r) { if (d < 1e-3) { dx = Math.cos(i + j); dy = Math.sin(i + j); d = 1; } const m = (r - d) / 2; a.x -= dx / d * m; a.y -= dy / d * m; b.x += dx / d * m; b.y += dy / d * m; moved = true; } }
+    pts.forEach(p => { p.x = Math.max(M, Math.min(W - M, p.x)); p.y = Math.max(M, Math.min(H - M - 22, p.y)); }); if (!moved) break; }
+}
+function kmeans(pts, k) {  // deterministic farthest-point init on the 2-D map
+  const C = [pts[0]]; while (C.length < k) { let best = null, bd = -1; pts.forEach(p => { const d = Math.min(...C.map(c => (c.x - p.x) ** 2 + (c.y - p.y) ** 2)); if (d > bd) { bd = d; best = p; } }); C.push(best); }
+  let cen = C.map(c => ({ x: c.x, y: c.y })), lab = [];
+  for (let it = 0; it < 30; it++) { lab = pts.map(p => { let b = 0, bd = Infinity; cen.forEach((c, i) => { const d = (c.x - p.x) ** 2 + (c.y - p.y) ** 2; if (d < bd) { bd = d; b = i; } }); return b; });
+    cen = cen.map((c, i) => { const m = pts.filter((_, j) => lab[j] === i); return m.length ? { x: mean(m.map(p => p.x)), y: mean(m.map(p => p.y)) } : c; }); }
+  return { lab, cen };
+}
+function deviations(inS, rest) { return META.aspects.map(a => ({ a, e: mean(inS.map(d => d.z[a.key])) - mean(rest.map(d => d.z[a.key])) })).sort((x, y) => Math.abs(y.e) - Math.abs(x.e)); }
+
+// ---------- sidebar ----------
+function renderSide() {
+  $("plist").innerHTML = META.prompts.map(p => `<button data-p="${p}" class="${S.prompt === p ? "on" : ""}">${p}</button>`).join("") + `<button data-p="*" class="${S.prompt === "*" ? "on" : ""}">全部 6 个（矩阵取平均）</button>`;
+  $("plist").querySelectorAll("button").forEach(b => b.onclick = () => { S.prompt = b.dataset.p; S.sel = null; S.band = null; S.expanded.clear(); render(); });
+  const fams = [...new Set(META.groups.map(g => g.family))], C = clusters();
+  // per-group occupancy of the map's clusters: darker cell = larger share of that group's images in that cluster
+  const occ = g => { if (!C || S.hidden.has(g)) return "<span></span>"; const n = IMGS.filter(d => d.g === g && d.prompt === S.prompt).length || 1;
+    return `<span class="occ" title="这一组的图分布在各簇中的比例（簇 1–${C.cs.length}）">${C.cs.map(cl => { const v = (cl.byG[g] || 0) / n; return `<i style="background:rgba(255,255,255,${(0.08 + 0.85 * v).toFixed(2)})" title="簇 ${cl.id + 1}：${cl.byG[g] || 0}/${n}"></i>`; }).join("")}</span>`; };
+  $("glist").innerHTML = (C ? `<div class="occh" title="右侧小格 = 该组的图落在地图各簇中的比例">各簇占比 ${C.cs.map(cl => `<span style="width:7px;text-align:center">${cl.id + 1}</span>`).join("")}<span style="width:16px"></span></div>` : "") + fams.map(f => `<div class="fam">${f} 家族</div>` + META.groups.filter(g => g.family === f).map(g => {
+    const i = fi(g.key), dup = DUP[g.key] ? Object.entries(DUP[g.key]).map(([o, n]) => `${G[o].name}（${n} 张）`).join("、") : "";
+    return `<div class="g ${S.hidden.has(g.key) ? "hid" : ""}" data-g="${g.key}" title="${g.name}：${g.seeds} 个种子 / prompt${dup ? `\n与 ${dup} 图像相同` : ""}">
+      <input type="checkbox" ${S.hidden.has(g.key) ? "" : "checked"} data-vis="${g.key}"><span class="dot" style="${i >= 0 ? `background:var(${FC[i]});border-color:var(${FC[i]})` : ""}"></span>
+      <span class="nm">${g.name}${dup ? ' <span class="warn">⚠</span>' : ""}</span>${occ(g.key)}<span class="n">${g.seeds}</span></div>`; }).join("")).join("");
+  $("glist").querySelectorAll(".g").forEach(el => { el.onclick = e => { if (e.target.dataset.vis) return; toggleFocus(el.dataset.g); };
+    el.onmouseenter = () => setHover(el.dataset.g); el.onmouseleave = () => setHover(null); });
+  $("glist").querySelectorAll("input[data-vis]").forEach(c => c.onchange = () => { c.checked ? S.hidden.delete(c.dataset.vis) : S.hidden.add(c.dataset.vis); if (S.hidden.has(c.dataset.vis)) S.focus = S.focus.filter(g => g !== c.dataset.vis); S.sel = null; S.band = null; render(); });
+}
+
+// ---------- A: image map ----------
+function renderTiles() {
+  const box = $("map"); box.innerHTML = "";
+  if (S.prompt === "*") { box.innerHTML = `<div class="msg">图像地图需要在左侧选一个 prompt（不同 prompt 的图在图像空间里相距很远，放在一起没有比较意义）。</div>`; return; }
+  const W = box.clientWidth, H = box.clientHeight, M = 20, its = scope();
+  const sz = Math.max(18, Math.min(36, Math.sqrt(W * H / its.length) * 0.46)), useDots = $("dots").checked;
+  const pts = its.map(d => ({ d, x: M + d.x * (W - 2 * M), y: M + d.y * (H - 2 * M - 22) }));
+  if (!useDots) relax(pts, sz + 2, W, H, M);
+  const ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`); box.append(svg);
+  // smooth bubbles for focus groups: thick round-joined stroke around the hull of the group's marks
+  const bubble = (g, fill, stroke, dash) => { const hp = hull(pts.filter(p => p.d.g === g).map(p => [p.x, p.y])); if (!hp.length) return;
+    const d = "M" + hp.map(p => p.join(",")).join("L") + "Z";
+    const b = document.createElementNS(ns, "path"); b.setAttribute("d", d); b.setAttribute("fill", fill); b.setAttribute("stroke", fill); b.setAttribute("stroke-width", sz + 10); b.setAttribute("stroke-linejoin", "round"); svg.append(b);
+    const o = document.createElementNS(ns, "path"); o.setAttribute("d", d); o.setAttribute("fill", "none"); o.setAttribute("stroke", stroke); o.setAttribute("stroke-width", 1.2); if (dash) o.setAttribute("stroke-dasharray", "4 3"); o.setAttribute("opacity", .6); svg.append(o); };
+  S.focus.filter(g => !S.hidden.has(g)).forEach(g => bubble(g, css(FS[fi(g)]), css(FC[fi(g)])));
+  if (S.hover && fi(S.hover) < 0) bubble(S.hover, css("--bub"), css("--ink"), true);
+  // marks
+  pts.forEach(p => { const d = p.d, faded = (S.hover && d.g !== S.hover) || !isSel(d.id);
+    if (useDots) { const c = document.createElementNS(ns, "circle"); c.setAttribute("cx", p.x); c.setAttribute("cy", p.y); c.setAttribute("r", fi(d.g) >= 0 ? 4.5 : 3.5); c.setAttribute("fill", fi(d.g) >= 0 ? css(FC[fi(d.g)]) : css("--other")); c.setAttribute("opacity", faded ? .15 : .9); if (S.sel && S.sel.has(d.id)) { c.setAttribute("stroke", css("--sel")); c.setAttribute("stroke-width", 2.5); } tipOn(c, d); c.addEventListener("click", e => { e.stopPropagation(); setSel(new Set([d.id]), "单张图"); }); svg.append(c); return; }
+    const t = document.createElement("div"); t.className = "th" + (faded ? " fade" : "") + (S.sel && S.sel.has(d.id) ? " hl" : "");
+    t.style.cssText = `left:${p.x}px;top:${p.y}px;width:${sz}px;height:${sz}px;--tc:${gcol(d.g)}`; t.innerHTML = `<img src="img/t/${d.id}.jpg" alt="">`; tipOn(t, d);
+    t.onclick = e => { e.stopPropagation(); setSel(new Set([d.id]), "单张图"); }; box.append(t); });
+  // automatic cluster annotations (PrompTHis-style text boxes), describing composition and relative aspect deviations
+  if ($("ann").checked && pts.length > 12) {
+    const k = +$("k").value, km = kmeans(pts, k), cx = W / 2, cy = (H - 22) / 2, boxes = [];
+    km.cen.forEach((c, i) => { const mem = pts.filter((_, j) => km.lab[j] === i).map(p => p.d); if (mem.length < 3) return;
+      const rest = its.filter(d => !mem.includes(d)), dev = deviations(mem, rest).slice(0, 2), byG = {}; mem.forEach(d => byG[d.g] = (byG[d.g] || 0) + 1);
+      const top = Object.entries(byG).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([g, n]) => `${G[g].name} ${n}`).join("，");
+      const a = document.createElement("div"); a.className = "ann";
+      a.innerHTML = `<b>${mem.length} 张</b> · ${top}${Object.keys(byG).length > 2 ? " 等" : ""}<br><span class="a">相对偏 ${dev.map(x => x.e > 0 ? x.a.rcn : x.a.lcn).join("、")}</span>`;
+      a.onclick = e => { e.stopPropagation(); setSel(new Set(mem.map(d => d.id)), `地图上的一簇（${mem.length} 张）`); };
+      box.append(a);
+      const dx = c.x - cx, dy = c.y - cy, L = Math.hypot(dx, dy) || 1, off = sz * 1.6;
+      boxes.push({ el: a, c, w: a.offsetWidth, h: a.offsetHeight, x: c.x + dx / L * off - a.offsetWidth / 2, y: c.y + dy / L * off - a.offsetHeight / 2 });
+    });
+    // label placement: keep boxes inside the map and push overlapping boxes apart vertically
+    const clamp = b => { b.x = Math.max(4, Math.min(W - b.w - 4, b.x)); b.y = Math.max(4, Math.min(H - 26 - b.h, b.y)); };
+    boxes.forEach(clamp);
+    for (let it = 0; it < 60; it++) { let moved = false;
+      for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) { const a = boxes[i], b = boxes[j];
+        const ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) + 6, oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) + 6;
+        if (ox > 0 && oy > 0) { const s = (a.y + a.h / 2 <= b.y + b.h / 2) ? -1 : 1; a.y += s * oy / 2; b.y -= s * oy / 2; moved = true; } }
+      boxes.forEach(clamp); if (!moved) break; }
+    boxes.forEach(b => { b.el.style.left = b.x + "px"; b.el.style.top = b.y + "px";
+      const ln = document.createElementNS(ns, "line"); ln.setAttribute("x1", b.c.x); ln.setAttribute("y1", b.c.y); ln.setAttribute("x2", b.x + b.w / 2); ln.setAttribute("y2", b.y + b.h / 2);
+      ln.setAttribute("stroke", css("--muted")); ln.setAttribute("stroke-dasharray", "2 3"); svg.append(ln);
+      const dot = document.createElementNS(ns, "circle"); dot.setAttribute("cx", b.c.x); dot.setAttribute("cy", b.c.y); dot.setAttribute("r", 3); dot.setAttribute("fill", css("--muted")); svg.append(dot); });
+  }
+  box.insertAdjacentHTML("beforeend", `<div class="lg">${S.focus.filter(g => !S.hidden.has(g)).map(g => `<span><i style="background:var(${FC[fi(g)]})"></i>${G[g].name}（气泡 = 领地）</span>`).join("")}<span><i style="background:var(--other)"></i>其他显示中的组</span><span>缩略图边框 = 所属组颜色</span></div>`);
+  let p0 = null, br = null;
+  box.onmousedown = e => { if (e.target.closest(".ann")) return; const r = box.getBoundingClientRect(); p0 = [e.clientX - r.left, e.clientY - r.top]; br = Object.assign(document.createElement("div"), { className: "brush" }); box.append(br); };
+  box.onmousemove = e => { if (!p0) return; const r = box.getBoundingClientRect(), p = [e.clientX - r.left, e.clientY - r.top]; Object.assign(br.style, { left: Math.min(p0[0], p[0]) + "px", top: Math.min(p0[1], p[1]) + "px", width: Math.abs(p[0] - p0[0]) + "px", height: Math.abs(p[1] - p0[1]) + "px" }); };
+  box.onmouseup = e => { if (!p0) return; const r = box.getBoundingClientRect(), p = [e.clientX - r.left, e.clientY - r.top], a = p0; p0 = null;
+    if (Math.abs(p[0] - a[0]) < 5 && Math.abs(p[1] - a[1]) < 5) { setSel(null); return; }
+    const x0 = Math.min(a[0], p[0]), x1 = Math.max(a[0], p[0]), y0 = Math.min(a[1], p[1]), y1 = Math.max(a[1], p[1]);
+    setSel(new Set(pts.filter(q => q.x >= x0 && q.x <= x1 && q.y >= y0 && q.y <= y1).map(q => q.d.id)), "地图框选"); };
+}
+
+
+// ---------- clusters of the current prompt's images (shared by the map cards and the sidebar occupancy strips) ----------
+let CL = null;
+function clusters() {
+  if (S.prompt === "*") return null;
+  const key = `${S.prompt}|${$("k").value}|${[...S.hidden].join()}`; if (CL && CL.key === key) return CL;
+  const its = scope(), pts = its.map(d => ({ d, x: d.x, y: d.y })), k = Math.min(+$("k").value, its.length), km = kmeans(pts, k);
+  let cs = km.cen.map((c, i) => { const mem = pts.filter((_, j) => km.lab[j] === i).map(p => p.d); return { c, mem }; }).filter(x => x.mem.length);
+  cs.sort((a, b) => a.c.x - b.c.x || a.c.y - b.c.y);
+  cs.forEach((cl, i) => {
+    cl.id = i; cl.byG = {}; cl.mem.forEach(d => cl.byG[d.g] = (cl.byG[d.g] || 0) + 1);
+    const near = [...cl.mem].sort((a, b) => ((a.x - cl.c.x) ** 2 + (a.y - cl.c.y) ** 2) - ((b.x - cl.c.x) ** 2 + (b.y - cl.c.y) ** 2));
+    cl.reps = []; for (const d of near) { if (cl.reps.length >= 3) break; if (!cl.reps.some(r => r.g === d.g) || near.length <= 3) cl.reps.push(d); }
+    for (const d of near) { if (cl.reps.length >= 3) break; if (!cl.reps.includes(d)) cl.reps.push(d); }
+    cl.dev = deviations(cl.mem, its.filter(d => !cl.mem.includes(d))).slice(0, 2);
+  });
+  CL = { key, cs }; return CL;
+}
+function renderMap() {
+  const tile = $("mode").querySelector(".on").dataset.m === "tile";
+  document.querySelectorAll(".tileopt").forEach(e => e.style.display = tile ? "" : "none");
+  if (tile) return renderTiles();
+  const box = $("map"); box.innerHTML = "";
+  if (S.prompt === "*") { box.innerHTML = `<div class="msg">图像地图需要在左侧选一个 prompt。</div>`; return; }
+  const W = box.clientWidth, H = box.clientHeight, M = 12, its = scope(), C = clusters();
+  const ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`); box.append(svg);
+  const X = x => 30 + x * (W - 60), Y = y => 24 + y * (H - 60);
+  its.forEach(d => { const c = document.createElementNS(ns, "circle"); c.setAttribute("cx", X(d.x)); c.setAttribute("cy", Y(d.y)); c.setAttribute("r", 2.2);
+    c.setAttribute("fill", fi(d.g) >= 0 ? css(FC[fi(d.g)]) : css("--axis")); c.setAttribute("opacity", S.hover ? (d.g === S.hover ? .9 : .15) : .5); svg.append(c); });
+  const r = Math.max(30, Math.min(48, W / 16));
+  const expId = [...S.expanded][0];
+  const cardOf = cl => {
+    const n = cl.mem.length, el = document.createElement("div"); el.className = "card" + (S.sel && cl.mem.every(d => S.sel.has(d.id)) ? " sel" : "") + (expId === cl.id ? " sel" : "");
+    const order = groupOrder().filter(g => cl.byG[g]);
+    const bar = order.map(g => `<span style="width:${100 * cl.byG[g] / n}%;background:${fi(g) >= 0 ? `var(${FC[fi(g)]})` : "var(--other)"}" title="${G[g].name}：${cl.byG[g]} 张"></span>`).join("");
+    const top = [...order].sort((a, b) => cl.byG[b] - cl.byG[a]).slice(0, 2).map(g => `${G[g].name} ${cl.byG[g]}`).join("，");
+    const badge = S.hover && cl.byG[S.hover] ? `<span class="badge">${G[S.hover].name} ${cl.byG[S.hover]}</span>` : (S.sel ? (() => { const k = cl.mem.filter(d => S.sel.has(d.id)).length; return k ? `<span class="badge" style="background:var(--sel)">选中 ${k}</span>` : ""; })() : "");
+    el.innerHTML = `${badge}<div class="hd"><b>簇 ${cl.id + 1}</b><span>${n} 张 · ${top}${order.length > 2 ? " 等" : ""}</span></div>
+      <div class="cb" title="来源比例（彩色 = 重点组，灰色 = 其他组）">${bar}</div><div class="reps">${cl.reps.map(d => `<img src="img/t/${d.id}.jpg" width="${r}" height="${r}" data-id="${d.id}" alt="">`).join("")}</div>
+      <div class="dv">相对偏 ${cl.dev.map(x => x.e > 0 ? x.a.rcn : x.a.lcn).join("、")}</div>`;
+    el.onclick = () => { S.expanded = new Set(expId === cl.id ? [] : [cl.id]); renderMap(); };
+    el.onmousedown = e => e.stopPropagation();
+    el.querySelectorAll("[data-id]").forEach(x => tipOn(x, IMGS.find(d => d.id === x.dataset.id)));
+    box.append(el); return el;
+  };
+  // collapsed cards: rows by centroid height, ordered left-to-right inside a row -> no overlap, rough map position kept
+  const els = C.cs.map(cl => ({ cl, el: cardOf(cl) })), cw = Math.max(...els.map(e => e.el.offsetWidth)), ch = Math.max(...els.map(e => e.el.offsetHeight));
+  const perRow = Math.max(1, Math.floor((W - 2 * M) / (cw + 14))), nRows = Math.ceil(els.length / perRow);
+  const byY = [...els].sort((a, b) => a.cl.c.y - b.cl.c.y), gapY = Math.max(10, (H - 44 - nRows * ch) / (nRows + 1));
+  for (let ri = 0; ri < nRows; ri++) {
+    const row = byY.slice(ri * perRow, (ri + 1) * perRow).sort((a, b) => a.cl.c.x - b.cl.c.x), y = gapY + ri * (ch + gapY);
+    let xs = row.map(e => X(e.cl.c.x) - e.el.offsetWidth / 2);
+    for (let i = 1; i < xs.length; i++) xs[i] = Math.max(xs[i], xs[i - 1] + row[i - 1].el.offsetWidth + 14);   // sweep right
+    const over = xs.length ? xs[xs.length - 1] + row[row.length - 1].el.offsetWidth - (W - M) : 0; if (over > 0) xs = xs.map(x => x - over);
+    for (let i = xs.length - 2; i >= 0; i--) xs[i] = Math.min(xs[i], xs[i + 1] - row[i].el.offsetWidth - 14);   // sweep left
+    if (xs.length && xs[0] < M) { const sh = M - xs[0]; xs = xs.map(x => x + sh); }
+    row.forEach((e, i) => { e.el.style.left = xs[i] + "px"; e.el.style.top = y + "px";
+      const ln = document.createElementNS(ns, "line"); ln.setAttribute("x1", X(e.cl.c.x)); ln.setAttribute("y1", Y(e.cl.c.y)); ln.setAttribute("x2", xs[i] + e.el.offsetWidth / 2); ln.setAttribute("y2", y + e.el.offsetHeight / 2);
+      ln.setAttribute("stroke", css("--axis")); ln.setAttribute("stroke-dasharray", "2 3"); svg.append(ln); });
+  }
+  // one expanded cluster at a time, shown as a floating panel over the map
+  if (expId != null) {
+    const cl = C.cs.find(c => c.id === expId);
+    if (cl) {
+      const n = cl.mem.length, pw = Math.min(W - 40, Math.max(360, W * 0.62)), cols = Math.max(4, Math.ceil(Math.sqrt(n * pw / (H * 0.7)))), t = Math.max(30, Math.min(64, (pw - 24) / cols - 4));
+      const mem = groupOrder().flatMap(g => cl.mem.filter(d => d.g === g)), pan = document.createElement("div"); pan.className = "card expp";
+      pan.style.cssText = `left:${(W - pw) / 2}px;top:14px;width:${pw}px;max-height:${H - 60}px;overflow:auto;z-index:9;cursor:default`;
+      const byG = groupOrder().filter(g => cl.byG[g]);
+      pan.innerHTML = `<div class="hd"><b>簇 ${cl.id + 1} · ${n} 张</b><span>相对偏 ${cl.dev.map(x => x.e > 0 ? x.a.rcn : x.a.lcn).join("、")}</span><span class="x" data-act="sel" style="cursor:pointer">选中这一簇</span><span class="x" data-act="close" style="cursor:pointer">✕ 收起</span></div>` +
+        byG.map(g => `<div style="margin-top:6px;font-size:11px;color:var(--ink-2)">${G[g].name} · ${cl.byG[g]} 张</div><div class="grid" style="grid-template-columns:repeat(auto-fill,${t}px)">` +
+          mem.filter(d => d.g === g).map(d => `<div class="${S.sel ? (S.sel.has(d.id) ? "hl" : "fade") : ""}" style="--tc:${gcol(d.g)}" data-id="${d.id}"><img src="img/t/${d.id}.jpg" width="${t}" height="${t}" alt=""></div>`).join("") + `</div>`).join("");
+      pan.onmousedown = e => e.stopPropagation();
+      pan.onclick = e => { const act = e.target.dataset.act, id = e.target.closest("[data-id]")?.dataset.id;
+        if (act === "close") { S.expanded.clear(); renderMap(); } else if (act === "sel") setSel(new Set(cl.mem.map(d => d.id)), `簇 ${cl.id + 1}（${n} 张）`); else if (id) setSel(new Set([id]), "单张图"); };
+      box.append(pan); pan.querySelectorAll("[data-id]").forEach(x => tipOn(x, IMGS.find(d => d.id === x.dataset.id)));
+    }
+  }
+  box.insertAdjacentHTML("beforeend", `<div class="lg"><span>每张卡片 = 画面相近的一簇图（点击展开该簇的全部图像）</span><span>彩条 = 来源比例：${S.focus.filter(g => !S.hidden.has(g)).map(g => `<i style="background:var(${FC[fi(g)]})"></i>${G[g].name}`).join(" ")} <i style="background:var(--other)"></i>其他</span><span>背景小点 = 每张图在图像空间中的位置</span></div>`);
+  let p0 = null, br = null;  // rectangle brush on the background still selects images by position
+  box.onmousedown = e => { const r = box.getBoundingClientRect(); p0 = [e.clientX - r.left, e.clientY - r.top]; br = Object.assign(document.createElement("div"), { className: "brush" }); box.append(br); };
+  box.onmousemove = e => { if (!p0) return; const r = box.getBoundingClientRect(), p = [e.clientX - r.left, e.clientY - r.top]; Object.assign(br.style, { left: Math.min(p0[0], p[0]) + "px", top: Math.min(p0[1], p[1]) + "px", width: Math.abs(p[0] - p0[0]) + "px", height: Math.abs(p[1] - p0[1]) + "px" }); };
+  box.onmouseup = e => { if (!p0) return; const r = box.getBoundingClientRect(), p = [e.clientX - r.left, e.clientY - r.top], a = p0; p0 = null;
+    if (Math.abs(p[0] - a[0]) < 5 && Math.abs(p[1] - a[1]) < 5) { setSel(null); return; }
+    const x0 = Math.min(a[0], p[0]), x1 = Math.max(a[0], p[0]), y0 = Math.min(a[1], p[1]), y1 = Math.max(a[1], p[1]);
+    setSel(new Set(its.filter(d => X(d.x) >= x0 && X(d.x) <= x1 && Y(d.y) >= y0 && Y(d.y) <= y1).map(d => d.id)), "地图框选（按图像位置）"); };
+}
+
+// ---------- B: matrix ----------
+function legendSVG(w, h) {
+  const y = h - 22, x0 = 8, x1 = w - 8, ink = css("--ink"), mut = css("--muted"), ink2 = css("--ink-2");
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><text x="${x0}" y="12" font-size="10.5" fill="${ink2}">格内横轴 = 该行方面的分数</text><text x="${x0}" y="26" font-size="10.5" fill="${ink2}">← 左端描述　　　右端描述 →</text>
+    <line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="${css("--axis")}"/><rect x="${x0 + (x1 - x0) * .35}" y="${y - 5}" width="${(x1 - x0) * .3}" height="10" rx="2" fill="${ink2}" opacity=".45"/>
+    <line x1="${x0 + (x1 - x0) * .48}" x2="${x0 + (x1 - x0) * .48}" y1="${y - 8}" y2="${y + 8}" stroke="${ink}" stroke-width="1.8"/><text x="${x0 + (x1 - x0) * .48}" y="${y - 11}" font-size="10" fill="${mut}" text-anchor="middle">中位数</text>
+    <text x="${x0 + (x1 - x0) * .5}" y="${y + 18}" font-size="10" fill="${mut}" text-anchor="middle">色条 = 中间 50%（越窄越集中）</text></svg>`;
+}
+function renderMatrix() {
+  const order = groupOrder(), aspects = aspectOrder(), body = $("mxbody"), box = $("mx");
+  const labelW = Math.min(170, Math.max(140, body.clientWidth * 0.26)), avS = S.prompt === "*" ? 0 : 22, headH = Math.max(avS + 35 + 6 + 8, 76);
+  const cw = Math.max(18, Math.floor((body.clientWidth - labelW - order.length) / order.length));
+  const rh = Math.max(13, Math.floor((body.clientHeight - headH - 2) / aspects.length));
+  $("mxhint").textContent = S.ref ? `参照组：${G[S.ref].name}（灰色底条）` : "";
+  let h = `<table style="width:${labelW + order.length * (cw + 1)}px"><colgroup><col style="width:${labelW}px">${order.map(() => `<col style="width:${cw}px">`).join("")}</colgroup><thead><tr style="height:${headH}px"><th>${legendSVG(labelW - 4, headH)}</th>`;
+  order.forEach(g => { const f = fi(g), its = scope().filter(d => d.g === g), c = S.sel ? its.filter(d => S.sel.has(d.id)).length / (its.length || 1) : 0;
+    h += `<th class="gh${f >= 0 ? " foc" : ""}${S.ref === g ? " ref" : ""}" data-g="${g}" title="${G[g].name}（${G[g].seeds} 个种子 / prompt）；点击设为或取消重点组" style="--hc:${f >= 0 ? `var(${FC[f]})` : "transparent"}">` +
+      (avS ? `<img class="av" src="${its[0]?.avg}" alt="" style="width:${Math.min(avS, cw - 4)}px;height:${Math.min(avS, cw - 4)}px">` : "") +
+      `<div class="nm">${G[g].name}${DUP[g] ? " ⚠" : ""}</div><div class="comp">${S.sel ? `<div style="width:${c * 100}%"></div>` : ""}</div></th>`; });
+  h += `</tr></thead><tbody>`;
+  aspects.forEach(a => {
+    const [lo, hi] = range(a.key), gw = cw - 2, gh = rh - 2, Xs = v => 2 + (gw - 4) * Math.max(0, Math.min(1, (v - lo) / (hi - lo))), ref = S.ref && !S.hidden.has(S.ref) ? gstats(S.ref, a.key) : null, m = gh / 2;
+    const band = S.band && S.band.k === a.key ? `<rect x="${Xs(S.band.lo)}" y="0" width="${Math.max(1, Xs(S.band.hi) - Xs(S.band.lo))}" height="${gh}" fill="${css("--sels")}" stroke="${css("--sel")}" stroke-dasharray="2 2"/>` : "";
+    h += `<tr class="${S.aspect === a.key ? "foc" : ""}" style="height:${rh}px"><td class="an" data-a="${a.key}" title="${a.left} ↔ ${a.right}">${a.cn} <small>${a.lcn} ↔ ${a.rcn}</small></td>`;
+    order.forEach(g => { const s = gstats(g, a.key), f = fi(g), col = f >= 0 ? css(FC[f]) : css("--ink-2");
+      h += `<td class="c" data-a="${a.key}" data-g="${g}"><svg width="${gw}" height="${gh}" viewBox="0 0 ${gw} ${gh}">${band}<line x1="2" x2="${gw - 2}" y1="${m}" y2="${m}" stroke="${css("--grid")}"/>` +
+        (ref && g !== S.ref ? `<rect x="${Xs(ref.lo)}" y="${m - gh * .38}" width="${Math.max(1.5, Xs(ref.hi) - Xs(ref.lo))}" height="${gh * .76}" rx="2" fill="${css("--axis")}" opacity=".75"/>` : "") +
+        `<rect x="${Xs(s.lo)}" y="${m - gh * .24}" width="${Math.max(1.5, Xs(s.hi) - Xs(s.lo))}" height="${gh * .48}" rx="2" fill="${col}" opacity="${f >= 0 ? .8 : .45}"/>` +
+        `<line x1="${Xs(s.med)}" x2="${Xs(s.med)}" y1="${m - gh * .42}" y2="${m + gh * .42}" stroke="${css("--ink")}" stroke-width="1.6"/>` +
+        `<title>${G[g].name} · ${a.cn}（${a.lcn} ↔ ${a.rcn}）：中位数${rel(a, s.med)}；离散度 ${s.disp.toFixed(2)}（90% 区间 ${s.ci[0].toFixed(2)}–${s.ci[1].toFixed(2)}，n=${s.n}）</title></svg></td>`; });
+    h += `</tr>`;
+  });
+  box.innerHTML = h + `</tbody></table>`;
+  box.querySelectorAll("th.gh").forEach(th => { th.onclick = () => toggleFocus(th.dataset.g); th.onmouseenter = () => setHover(th.dataset.g); th.onmouseleave = () => setHover(null); });
+  box.querySelectorAll("td.an").forEach(td => td.onclick = () => { S.aspect = td.dataset.a; S.band = null; render(); });
+  box.querySelectorAll("td.c").forEach(td => td.onclick = () => { S.aspect = td.dataset.a; S.band = null; if (fi(td.dataset.g) < 0) toggleFocus(td.dataset.g, true); render(); });
+}
+
+// ---------- C: strips with common axis ----------
+function renderStrips() {
+  const a = asp(S.aspect), body = $("stbody"); body.innerHTML = "";
+  $("sttitle").textContent = `细看：各组在"${a.cn}"上（${a.lcn} ↔ ${a.rcn}）`;
+  const groups = groupOrder().filter(g => !$("onlyfoc").checked || fi(g) >= 0);
+  if (!groups.length) { body.innerHTML = `<p class="hint">没有可显示的组。</p>`; return; }
+  const [lo, hi] = range(S.aspect);
+  const ax = document.createElement("div"); ax.className = "caxis";
+  ax.innerHTML = `<div class="lab">共同轴：拖动 = 所有组一起选</div><div class="bar" id="cbar"><span class="pl" style="left:6px">← ${a.lcn}</span><span class="pc">${a.cn}</span><span class="pl" style="right:6px">${a.rcn} →</span></div><div class="lab">离散度 · 90% 区间</div>`;
+  body.append(ax);
+  const rows = document.createElement("div"); rows.className = "rows"; body.append(rows);
+  const rowH = Math.floor(rows.clientHeight / groups.length), plotW = rows.clientWidth - 132 - 96 - 16;
+  const sz = Math.max(10, Math.min(28, rowH - 6)), cols = Math.max(4, Math.floor(plotW / (sz + 2)));
+  const cmax = Math.max(1.6, ...groups.map(g => gstats(g, S.aspect).ci[1]));
+  groups.forEach(g => {
+    const st = gstats(g, S.aspect), f = fi(g), data = scope().filter(d => d.g === g).sort((x, y) => x.z[S.aspect] - y.z[S.aspect]);
+    const row = document.createElement("div"); row.className = "srow"; row.style.height = rowH + "px";
+    row.innerHTML = `<div class="gl" title="${G[g].name}（${G[g].seeds} 个种子 / prompt）；点击设为或取消重点组">${f >= 0 ? `<span class="chip" style="background:var(${FS[f]})">${G[g].name}</span>` : G[g].name}${DUP[g] ? " ⚠" : ""}</div>`;
+    const plot = document.createElement("div"); plot.className = "plot"; row.append(plot);
+    const X = v => 4 + 86 * Math.min(1, v / cmax), col = f >= 0 ? css(FC[f]) : css("--ink-2");
+    row.insertAdjacentHTML("beforeend", `<div class="conc" title="离散度 ${st.disp.toFixed(2)}，90% 自助法区间 ${st.ci[0].toFixed(2)}–${st.ci[1].toFixed(2)}，n=${st.n}">${st.disp.toFixed(2)} <span class="hint">[${st.ci[0].toFixed(2)}, ${st.ci[1].toFixed(2)}]</span><svg width="94" height="8"><line x1="4" x2="90" y1="4" y2="4" stroke="${css("--grid")}" stroke-width="4" stroke-linecap="round"/><line x1="${X(st.ci[0])}" x2="${X(st.ci[1])}" y1="4" y2="4" stroke="${col}" stroke-width="4" stroke-linecap="round" opacity=".45"/><circle cx="${X(st.disp)}" cy="4" r="3" fill="${col}"/></svg></div>`);
+    row.querySelector(".gl").onclick = () => toggleFocus(g);
+    rows.append(row);
+    layoutRow(plot, data, lo, hi, sz, cols, g, st, rowH);
+  });
+  if (S.band && S.band.k === S.aspect) {
+    const X = v => 132 + 8 + Math.max(0, Math.min(1, (v - lo) / (hi - lo))) * plotW;
+    rows.insertAdjacentHTML("afterbegin", `<div class="cband" style="left:${X(S.band.lo)}px;width:${Math.max(2, X(S.band.hi) - X(S.band.lo))}px"></div>`);
+    $("cbar").insertAdjacentHTML("beforeend", `<div class="b" style="left:${(S.band.lo - lo) / (hi - lo) * 100}%;width:${(S.band.hi - S.band.lo) / (hi - lo) * 100}%"></div>`);
+  }
+  const bar = $("cbar"); let x0 = null, bb = null;
+  bar.onmousedown = e => { x0 = e.clientX - bar.getBoundingClientRect().left; bb = Object.assign(document.createElement("div"), { className: "b" }); bar.append(bb); };
+  bar.onmousemove = e => { if (x0 == null) return; const x1 = e.clientX - bar.getBoundingClientRect().left; bb.style.left = Math.min(x0, x1) + "px"; bb.style.width = Math.abs(x1 - x0) + "px"; };
+  bar.onmouseup = e => { if (x0 == null) return; const W = bar.clientWidth, x1 = e.clientX - bar.getBoundingClientRect().left, a0 = Math.min(x0, x1), b0 = Math.max(x0, x1); x0 = null;
+    if (b0 - a0 < 4) { setSel(null); return; }
+    const vlo = lo + a0 / W * (hi - lo), vhi = lo + b0 / W * (hi - lo), shown = new Set(groups);
+    S.band = { k: S.aspect, lo: vlo, hi: vhi };
+    setSel(new Set(scope().filter(d => shown.has(d.g) && d.z[S.aspect] >= vlo && d.z[S.aspect] <= vhi).map(d => d.id)), `共同轴刷选：所有${$("onlyfoc").checked ? "重点" : "显示中的"}组在"${asp(S.aspect).cn}"上的一段`, true); };
+}
+function layoutRow(plot, data, lo, hi, sz, cols, g, st, rowH) {
+  const W = plot.clientWidth, cw = W / cols, stack = new Array(cols).fill(0), k = S.aspect, f = fi(g);
+  const pos = data.map(d => { const c = Math.max(0, Math.min(cols - 1, Math.floor((d.z[k] - lo) / (hi - lo) * cols))); return { d, c, h: stack[c]++ }; });
+  const tallest = Math.max(1, ...stack), step = tallest > 1 ? Math.min(sz + 2, (rowH - 6 - sz) / (tallest - 1)) : sz + 2;
+  plot.innerHTML = `<div class="base"></div>`;
+  const X = v => Math.max(0, Math.min(1, (v - lo) / (hi - lo))) * W;
+  plot.insertAdjacentHTML("beforeend", `<div class="iqr" style="left:${X(st.lo)}px;width:${Math.max(2, X(st.hi) - X(st.lo))}px;background:${f >= 0 ? `var(${FC[f]})` : "var(--ink-2)"}"></div><div class="med" style="left:${X(st.med) - 1}px"></div>`);
+  pos.forEach(({ d, c, h }) => { const t = document.createElement("div"); t.className = "th" + (isSel(d.id) ? (S.sel ? " hl" : "") : " dim");
+    t.style.cssText = `width:${sz}px;height:${sz}px;left:${c * cw + (cw - sz) / 2}px;bottom:${3 + h * step}px;--tc:${gcol(g)}`;
+    t.innerHTML = `<img src="img/t/${d.id}.jpg" alt="" loading="lazy">`; tipOn(t, d); t.onclick = e => { e.stopPropagation(); setSel(new Set([d.id]), "单张图"); }; plot.append(t); });
+  let x0 = null, br = null;
+  plot.onmousedown = e => { if (e.target.closest(".th")) return; x0 = e.clientX - plot.getBoundingClientRect().left; br = Object.assign(document.createElement("div"), { className: "brush" }); plot.append(br); };
+  plot.onmousemove = e => { if (x0 == null) return; const x1 = e.clientX - plot.getBoundingClientRect().left; br.style.left = Math.min(x0, x1) + "px"; br.style.width = Math.abs(x1 - x0) + "px"; };
+  plot.onmouseup = e => { if (x0 == null) return; const x1 = e.clientX - plot.getBoundingClientRect().left, a = Math.min(x0, x1), b = Math.max(x0, x1); x0 = null;
+    if (b - a < 4) { setSel(null); return; } const vlo = lo + a / W * (hi - lo), vhi = lo + b / W * (hi - lo);
+    setSel(new Set(data.filter(d => d.z[k] >= vlo && d.z[k] <= vhi).map(d => d.id)), `${G[g].name} 在"${asp(k).cn}"上的一段`); };
+}
+
+// ---------- right panel ----------
+function avgCanvas(cv, ids) { const ctx = cv.getContext("2d"); cv.width = 128; cv.height = 128; let i = 0; ids.forEach(id => { const im = new Image(); im.onload = () => { i++; ctx.globalAlpha = 1 / i; ctx.drawImage(im, 0, 0, 128, 128); }; im.src = `img/t/${id}.jpg`; }); }
+function renderSel() {
+  const box = $("selbody"), its = scope();
+  $("savef").style.display = S.sel ? "" : "none"; $("clr2").style.display = S.sel ? "" : "none";
+  let h = "";
+  if (!S.sel || !S.sel.size) {
+    $("seltitle").textContent = "概况";
+    const a = asp(S.aspect), st = visible().map(g => ({ g, ...gstats(g, S.aspect) })).sort((x, y) => x.disp - y.disp), mx = Math.max(...st.map(s => s.ci[1]));
+    h += `<h3 class="s">在"${a.cn}"上，各组从最集中到最分散（点 = 离散度，横线 = 90% 区间）</h3><div class="rank">` + st.map(s => { const col = fi(s.g) >= 0 ? css(FC[fi(s.g)]) : css("--ink-2"), X = v => 4 + 120 * v / mx;
+      return `<div class="r" data-g="${s.g}"><span style="${fi(s.g) >= 0 ? "font-weight:700" : ""}">${G[s.g].name}${DUP[s.g] ? " ⚠" : ""}</span><svg width="128" height="10"><line x1="4" x2="124" y1="5" y2="5" stroke="${css("--grid")}" stroke-width="3"/><line x1="${X(s.ci[0])}" x2="${X(s.ci[1])}" y1="5" y2="5" stroke="${col}" stroke-width="3" opacity=".45"/><circle cx="${X(s.disp)}" cy="5" r="3.2" fill="${col}"/></svg><span class="d">${s.disp.toFixed(2)} · ${rel(a, s.med)}</span></div>`; }).join("") + `</div>`;
+    h += `<div class="hint" style="margin-top:6px">区间互相重叠的组，集中程度的差别还不能确定（每组只有 8 或 16 张图）。框选图片后这里会解释选中的图。</div>`;
+  } else {
+    const inS = its.filter(d => S.sel.has(d.id)), rest = its.filter(d => !S.sel.has(d.id));
+    $("seltitle").textContent = `选中的图（${inS.length} 张）`;
+    h += `<div class="hint">${S.selSrc}</div><h3 class="s">选中的平均 vs 其余的平均</h3><div class="avgs"><div><canvas id="avA"></canvas><div class="cap">选中 ${inS.length} 张</div></div><div><canvas id="avB"></canvas><div class="cap">其余 ${rest.length} 张</div></div></div>`;
+    h += `<h3 class="s">来自哪些组（占该组的比例）</h3><div class="comp2">`;
+    const comp = visible().map(g => [g, its.filter(d => d.g === g).length, inS.filter(d => d.g === g).length]).filter(x => x[1] > 0);
+    comp.filter(x => x[2] > 0).sort((a, b) => b[2] / b[1] - a[2] / a[1]).forEach(([g, n, k]) => { h += `<div class="r"><span>${G[g].name}${DUP[g] ? " ⚠" : ""}</span><div class="bar"><div style="width:${100 * k / n}%"></div></div><span class="hint">${k}/${n}</span></div>`; });
+    const none = comp.filter(x => x[2] === 0).length; if (none) h += `<div class="hint">另有 ${none} 个组没有图被选中</div>`;
+    h += `</div>`;
+    if (inS.length >= 2 && rest.length >= 2) {
+      h += `<h3 class="s">与本 prompt 其余图相比，相对偏向哪一端（标准差；点击设为当前方面）</h3><div class="why">`;
+      deviations(inS, rest).slice(0, 8).forEach(({ a, e }) => { const w = Math.min(50, Math.abs(e) * 25);
+        h += `<div class="r" data-a="${a.key}"><span class="l">${a.lcn}</span><div class="bar"><div class="mid"></div><div class="b" style="${e >= 0 ? "left:50%" : `left:${50 - w}%`};width:${w}%"></div></div><span class="rr">${a.rcn}</span><span class="v">${e >= 0 ? "+" : ""}${e.toFixed(2)}</span></div>`; });
+      h += `</div>${inS.length < 5 ? `<div class="hint">选中的图少于 5 张，结论不稳定。</div>` : ""}`;
+    }
+    h += `<h3 class="s">图像证据（按组）</h3>`;
+    groupOrder().forEach(g => { const m = inS.filter(d => d.g === g); if (!m.length) return;
+      h += `<div class="evg"><div class="gn">${G[g].name} · ${m.length} 张</div><div class="ev">` + m.map(d => `<div style="--tc:${gcol(g)}" data-id="${d.id}"><img src="img/t/${d.id}.jpg" alt=""></div>`).join("") + `</div></div>`; });
+  }
+  h += `<h3 class="s">发现记录（${FINDS.length}）${FINDS.length ? ` <button id="expf" style="font-size:11px">导出</button>` : ""}</h3><div class="finds">` +
+    (FINDS.length ? FINDS.map((f, i) => `<div class="f" data-i="${i}"><div>${f.note || "（无备注）"}</div><div class="m">${f.prompt} · ${asp(f.aspect)?.cn || f.aspect} · ${f.ids.length} 张 · ${f.time}</div></div>`).join("") : `<div class="hint">选中一批图后点"记录为发现"，写一句你看到了什么。</div>`) + `</div>`;
+  box.innerHTML = h;
+  if (S.sel) { avgCanvas($("avA"), its.filter(d => S.sel.has(d.id)).map(d => d.id)); avgCanvas($("avB"), its.filter(d => !S.sel.has(d.id)).map(d => d.id)); }
+  box.querySelectorAll(".why .r").forEach(r => r.onclick = () => { S.aspect = r.dataset.a; S.band = null; render(); });
+  box.querySelectorAll(".rank .r").forEach(r => r.onclick = () => toggleFocus(r.dataset.g));
+  box.querySelectorAll(".ev div").forEach(el => tipOn(el, IMGS.find(d => d.id === el.dataset.id)));
+  box.querySelectorAll(".finds .f").forEach(el => el.onclick = () => { const f = FINDS[+el.dataset.i]; Object.assign(S, { prompt: f.prompt, aspect: f.aspect, focus: [...f.focus], band: f.band || null }); S.sel = new Set(f.ids); S.selSrc = `发现：${f.note}`; render(); });
+  if ($("expf")) $("expf").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(FINDS, null, 1)], { type: "application/json" })); a.download = "findings.json"; a.click(); };
+}
+
+// ---------- shared state ----------
+function toggleFocus(g, silent) { if (S.hidden.has(g)) return; const i = fi(g); if (i >= 0) S.focus.splice(i, 1); else { if (S.focus.length >= 3) S.focus.shift(); S.focus.push(g); } if (!silent) render(); }
+function setSel(s, src, keepBand) { S.sel = s && s.size ? s : null; S.selSrc = src || ""; if (!(keepBand && S.sel)) S.band = null; render(); }
+function setHover(g) { S.hover = g; renderMap(); $("mx").querySelectorAll("th.gh").forEach(th => th.style.outline = th.dataset.g === g ? `2px dashed ${css("--ink")}` : ""); }
+function renderState() {
+  let h = `<span>重点组：</span>` + (S.focus.length ? S.focus.map((g, i) => `<span class="chip" style="background:var(${FS[i]})">${G[g].name}<button data-g="${g}" title="取消">×</button></span>`).join("") : `<span class="hint">无</span>`);
+  h += `<span>· prompt：<b>${S.prompt === "*" ? "全部" : S.prompt}</b> · 当前方面：<b>${asp(S.aspect).cn}</b>（${asp(S.aspect).lcn} ↔ ${asp(S.aspect).rcn}）· 显示 ${visible().length}/${META.groups.length} 组</span>`;
+  if (S.sel) h += `<span>· 已选 ${S.sel.size} 张</span>`;
+  $("state").innerHTML = h;
+  $("state").querySelectorAll(".chip button").forEach(b => b.onclick = () => toggleFocus(b.dataset.g));
+}
+function tipOn(el, d) {
+  el.addEventListener("mouseenter", () => { $("tipimg").src = `img/f/${d.id}.jpg`; $("tiptx").textContent = `${G[d.g].name} · ${d.prompt} · 种子 ${d.seed} · ${asp(S.aspect).cn}：相对所有图 ${d.z[S.aspect] >= 0 ? "+" : ""}${d.z[S.aspect].toFixed(2)}`; $("tip").style.display = "block"; });
+  el.addEventListener("mousemove", e => { const t = $("tip"); t.style.left = Math.min(innerWidth - 240, e.clientX + 14) + "px"; t.style.top = Math.min(innerHeight - 270, e.clientY + 14) + "px"; });
+  el.addEventListener("mouseleave", () => $("tip").style.display = "none");
+}
+function render() { cache.clear(); renderSide(); renderState(); renderMap(); renderMatrix(); renderStrips(); renderSel(); }
+
+$("help").innerHTML = `<b>目标</b>：比较多个模型或生成设置在同一 prompt 下的输出，看<b>每个模型把哪些方面"定"住了、定在哪里、彼此有什么不同</b>，并始终能回到图像本身核对。
+<h4>界面</h4>左侧深色栏：prompt 列表、模型与设置列表（点名字设为重点组，点方框显示/隐藏；⚠ 表示与另一组有相同的图）。中间上方 <b>A 图像地图</b>（主视图）、右上 <b>B 方面 × 组矩阵</b>、中下 <b>C 细看条带</b>、右下 <b>选中的图</b>。
+<h4>1. 先看全局</h4><ol><li>A：图像按画面相似度摊开，彩色气泡是重点组的领地（越小越集中）；灰色注释框自动概括每一团图：多少张、主要来自哪些组、相对偏向哪些方面。</li><li>B：每格横轴是该行方面的分数；竖线 = 中位数，色条 = 中间 50%。看哪一列普遍很窄（这个模型很单一），哪一行竖线差得远（各模型把这个方面定在不同地方）。</li></ol>
+<h4>2. 选组、选方面</h4><ol><li>侧栏或 B 列头点组名：设为/取消重点组（最多 3 个，蓝/橙/青）；方框可隐藏不关心的组（组多时用）。</li><li>点 B 行名：设为当前方面，C 显示所有组在这个方面上的图。</li></ol>
+<h4>3. 刷选与解释</h4><ol><li>A 里框选，或点注释框选中一整团；C 顶部共同轴拖动 = 所有组一起选；C 某行拖动 = 只选这一组。</li><li>右下：选中与其余的平均图、来自哪些组、相对偏向哪些方面（点一行设为当前方面去 C 核对）、按组的图像。</li><li>"记录为发现"保存视图和备注。Esc 取消选择。</li></ol>
+<h4>读数时注意</h4>所有"偏向"都是<b>相对所有组</b>的比较，不是绝对判断；离散度带有 90% 自助法区间，区间重叠的差别不能当真；方面分数来自 CLIP，请以图像为准。`;
+$("helpbtn").onclick = () => { const h = $("help"); h.style.display = h.style.display === "block" ? "none" : "block"; };
+$("clr2").onclick = () => setSel(null);
+$("savef").onclick = () => { if (!S.sel) return; const note = prompt("写一句你看到了什么（会和当前视图一起保存）", ""); if (note === null) return;
+  FINDS.unshift({ note, prompt: S.prompt, aspect: S.aspect, focus: [...S.focus], band: S.band, ids: [...S.sel], src: S.selSrc, time: new Date().toLocaleString() }); saveFinds(); renderSel(); };
+$("ref").append(new Option("无", "")); META.groups.forEach(g => $("ref").append(new Option(g.name, g.key)));
+$("ref").onchange = e => { S.ref = e.target.value; render(); };
+["ann", "dots"].forEach(id => $(id).onchange = renderMap); $("onlyfoc").onchange = renderStrips;
+$("k").onchange = () => { S.expanded.clear(); render(); };
+$("mode").querySelectorAll("button").forEach(b => b.onclick = () => { $("mode").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); renderMap(); });
+
+addEventListener("keydown", e => { if (e.key === "Escape") { setSel(null); $("help").style.display = "none"; } });
+let rt = null; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 120); });
+render();
+</script>
+</body>
+</html>

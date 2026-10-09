@@ -1,0 +1,11 @@
+# Generation and features (run with $T2IC_DATA/env/bin/python; versions used 2026-10-10)
+torch>=2.14
+diffusers>=0.41.0.dev0   # needs Flux2KleinPipeline; install from GitHub if no release has it
+transformers>=5.18
+numpy
+pandas
+Pillow
+
+# Build, analysis and figures (system python3)
+scikit-learn
+matplotlib
