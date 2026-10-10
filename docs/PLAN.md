@@ -2,6 +2,8 @@
 
 > Updated 2026-10-10 after the owner refocused the paper on the models themselves. Earlier versions (system-centred) are in git history. Current state: `STATUS.md`. Prompt set: `PROMPTS.md`. Novelty check: `NOVELTY_CHECK.md`.
 
+> **2026-10-11:** `RESEARCH_PROPOSAL.md` v2 narrows the questions below after an external review (`REVIEW_PROPOSAL.md`): guidance as the primary intervention, cross-model and subject structure descriptive, 4–6 validated aspects, calibrated anchors. Pending owner decisions are listed in its §9; this plan is updated once they are made.
+
 ## 1. Positioning
 - **The paper is a study of the models.** It asks what text-to-image models decide when a prompt leaves attributes unspecified, and where those decisions come from.
 - **The visual comparison system is the instrument** that makes the study possible and checkable. Its design goes into the method section; it is a contribution, but not the headline.
