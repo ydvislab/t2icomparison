@@ -1,39 +1,92 @@
-# 投稿计划（IEEE CG&A 常规稿）
+# Plan
 
-> 目标：尽快写完、录用、上线；**2026 年 11 月中旬投稿**。没有贴合的开放专刊，走常规投稿，随时可投。
+> Updated 2026-10-10 after the owner refocused the paper on the models themselves. Earlier versions (system-centred) are in git history. Current state: `STATUS.md`. Prompt set: `PROMPTS.md`. Novelty check: `NOVELTY_CHECK.md`.
 
-## 1. 论文定位
-- **读者**：模型开发者和评测者（离线、多组对齐比较）。
-- **贡献**：① 比较生成默认的方法（位置 / 集中程度 / 外观占比分开，以及比较成立的条件）；② 可视比较系统；③ 使用案例、专家反馈与设计经验。
-- **不是**：新的多样性指标；关于某个模型行为的新发现（默认多样性下降已由 DIMCIM 发表，只作背景）。
-- **范围边界**：本仓库只做"跨模型、跨设置的离线比较"。面向创作者、在生成过程中使用的交互工具不属于本论文，不在本仓库中。
+## 1. Positioning
+- **The paper is a study of the models.** It asks what text-to-image models decide when a prompt leaves attributes unspecified, and where those decisions come from.
+- **The visual comparison system is the instrument** that makes the study possible and checkable. Its design goes into the method section; it is a contribution, but not the headline.
+- **Not claimed:** that default diversity falls as models improve (DIMCIM), or that guidance reduces diversity (CFG literature, ICLR 2026 stage-wise CFG analysis). These are background.
+- **Scope:** offline comparison of many models and settings. Interactive tools for creators are out of scope.
 
-## 2. CG&A 硬性要求（官方作者须知，2026-10-07 核对）
-- 必须用 CG&A 模板；**最多 14 页**（含标题、作者、摘要、图注、致谢、参考文献、作者简介），全文约 **8000 词**；摘要 ≤ **150 词**。
-- **参考文献最多 20 篇**（非综述），超了直接退回。
-- 可加 1–3 个侧栏（每个 200–500 词，不超过全文 10%，侧栏内的引用不计入 20 篇）。
-- 面向学术和业界的广泛读者，接受系统描述、设计 / 案例 / 评估研究。
-- 首轮评审目标约 2 个月；录用后需要一段宣传短视频（终稿时提交）。
+## 2. Research questions
+**Main question:** When a prompt leaves attributes unspecified, what do text-to-image models decide, and what determines those decisions?
 
-## 3. 时间表
-| 周 | 日期 | 任务 | 谁 | 状态 |
-|---|---|---|---|---|
-| 1 | 10/7–10/13 | 定稿提纲；准备方面人工核对材料 | 执行方 | **完成**（`docs/OUTLINE.md`、`annotation/`） |
-| 2 | 10/14–10/20 | 第一轮人工核对（每人约 15–20 分钟）并分析；补主流开源模型 | 负责人 + 1 位学生；执行方 | 核对材料已就绪 |
-| 3 | 10/21–10/27 | 第二轮核对（新模型 + 改名的方面，每人约 10 分钟）；按核对结果修正方面；系统小改（常驻小图例、层次、放大当前方面的图像分布、投影图上少量带锚点的缩略图）；跑使用案例、出图 | 执行方 | |
-| 4 | 10/28–11/3 | 英文全文初稿（执行方起草，负责人修改）；专家反馈 3–5 场 | 执行方；负责人约人 | |
-| 5 | 11/4–11/10 | 修改；外部评审；套 CG&A 模板；核对 20 篇引用；投稿 | 双方 | |
+| | Question | Answered by |
+|---|---|---|
+| **RQ1: What is fixed** | Which unspecified attributes does each model concentrate, and on which values? Do different models settle on a shared default or on model-specific ones? | Location and spread per aspect across all models at default settings; cross-model agreement of locations |
+| **RQ2: What causes it** | Which factor (guidance strength, distillation, model scale within a family, model family, the product layer of closed services) moves *location* (where outputs settle) and which moves *spread* (how tightly)? | Designed pairs that differ in one factor where possible (section 4) |
+| **RQ3: How stable** | Are defaults global (a house style) or subject-dependent (e.g. a composition that reverses between "a house" and "a kitchen")? | Per-prompt and per-category consistency of each effect |
 
-## 4. 负责人的决定
-| 事项 | 决定（2026-10-10） |
+Measurement validity is a precondition for all three: aspects pass a human check, and control prompts confirm that each aspect moves when the attribute is requested.
+
+## 3. Prompts
+24 minimal prompts in 6 categories × 4, plus 6 control prompts. See `PROMPTS.md`. 32 seeds per main prompt for open models, 16 for controls and for closed models. One fixed seed list per prompt, shared by all open-model groups.
+
+## 4. Models and settings
+Settings marked "verify" must be checked against the official model card and the installed diffusers version before generation.
+
+| Group | Model | Setting | Role |
+|---|---|---|---|
+| G1 | Stable Diffusion 1.5 | model-card default (CFG 7.5, 50 steps, 512²) | Earlier generation (existing data) |
+| G2 | SDXL base 1.0 | model-card default (verify) | Distillation pair with G3; Stability generation ladder |
+| G3 | SDXL-Turbo | 1 step, CFG 0, 512² | Distilled (existing data) |
+| G4 | SD3.5 Large | model-card default (verify) | Stability generation ladder; another family |
+| G5 | FLUX.2 [dev] 32B | model-card default (guidance 4, verify steps) | Scale within the FLUX.2 family |
+| G6 | FLUX.2 klein-base 4B | CFG 4 | Guidance pair with G7; scale pair with G5 |
+| G7 | FLUX.2 klein-base 4B | CFG 1 | Guidance pair with G6 |
+| G8 | FLUX.2 klein 4B | 4 steps, CFG 1 (distilled) | Distillation pair with G6 |
+| G9 | Qwen-Image-2512 | true CFG 4, 50 steps, empty negative prompt | Another family (LLM text encoder) |
+| G10 | Qwen-Image-2512 | true CFG 1 | Guidance pair with G9: tests whether the guidance effect generalises across families |
+| G11 | FLUX.2 klein-base 9B | model-card default (CFG 4, 50 steps) | Scale ladder 4B → 9B → 32B with G6 and G5; distillation pair with G12 |
+| G12 | FLUX.2 klein 9B | model-card default (distilled; verify steps) | Distillation pair with G11 |
+| C1 | GPT-image (OpenAI API) | API default; rewriting off if possible | Product default |
+| C2 | Gemini image model (Google API) | API default | Product default |
+| C3 | Seedream (ByteDance, Volcengine API) | API default; rewriting on/off if it can be toggled | Product default; product-layer effect |
+
+Designed comparisons for RQ2:
+- **Guidance:** G6 vs G7 and G9 vs G10. Each pair changes only guidance, in two families.
+- **Distillation:** G2 vs G3, G6 vs G8 and G11 vs G12. Distillation also changes steps and guidance; this is reported as the distillation package, not as a single factor.
+- **Scale within a family:** G6 (4B) → G11 (9B) → G5 (32B). The two klein-base models share architecture family, settings (CFG 4, 50 steps) and release, so 4B vs 9B is the cleanest scale contrast; the 32B [dev] model also differs in training and is reported as a family-internal contrast.
+- **Generation within a vendor:** G1 → G2 → G4.
+- **Family at defaults:** G4 vs G5 vs G9.
+- **Product layer:** C1–C3. Settings are not declared, so they are compared on location and spread only, with no attribution.
+
+Dropped: HunyuanImage (too large; not needed for any comparison).
+
+## 5. Venue limits (IEEE CG&A, checked 2026-10-07)
+- CG&A template; at most 14 pages including title, authors, abstract, captions, acknowledgements, references and bios; about 8000 words; abstract ≤150 words.
+- **At most 20 references** (hard limit). 1–3 sidebars of 200–500 words each; sidebar citations do not count toward the 20.
+- First-round review target is about 2 months; a short promotional video is needed for the final version.
+- Open question: whether CG&A remains the best venue for a model-centred study (see section 7).
+
+## 6. Timeline
+| Week | Dates | Tasks | Who |
+|---|---|---|---|
+| 1 | 10/7–10/13 | Outline; human-check materials; refocus on the models; prompt set; server environment | Done except environment |
+| 2 | 10/14–10/20 | Download models; CUDA generation scripts; generate G1–G12 (about 10,400 images); closed-model API runs; round 1 human check of aspects (existing pairs) | Executor; owner + 1 student for annotation; owner for API keys |
+| 3 | 10/21–10/27 | Aspect scores for all groups; control-prompt check; round 2 human check on new images; analysis for RQ1–RQ3 with per-prompt and per-category statistics | Executor; owner + student |
+| 4 | 10/28–11/3 | Scale the system to about 13 groups; figures; English draft; expert feedback sessions | Executor drafts, owner revises; owner arranges experts |
+| 5 | 11/4–11/10 | Revision; external review; CG&A template; verify the 20 references; submit | Both |
+
+This timeline is tight for a study of this size. Week 2 is the critical path.
+
+## 7. Owner decisions
+| Item | Decision |
 |---|---|
-| 是否补主流开源模型 | **补**。方案见 `docs/NEW_MODELS.md` |
-| 专家反馈 | 用课题组自己的专家（3–5 位），由负责人安排 |
-| 作者顺序与单位 | 之后再定 |
-| 人工核对 | **开始**。方案与步骤见 `annotation/PROTOCOL.md`，负责人与一位学生标注 |
+| Add open models | **Yes**: G2, G4, G5, G9, G10 (2026-10-10); G11, G12 added the same day for the scale ladder |
+| Closed models | Generated by the owner locally with `experiments/model_study/closed/` (2026-10-10) |
+| Closed models | **Yes**, three product defaults (2026-10-10) |
+| HunyuanImage | **No** (2026-10-10) |
+| Paper focus | **The models**; the system is the instrument (2026-10-10) |
+| Prompt set | **24 prompts** in `PROMPTS.md` (2026-10-10) |
+| Human check | Started; protocol in `annotation/PROTOCOL.md` |
+| Expert feedback | 3–5 experts from the group, arranged by the owner |
+| Venue and deadline | **Open:** keep CG&A in mid-November, or change |
+| Author order and affiliations | Later |
 
-## 5. 需要负责人做的事
-1. 和一位学生各做一遍方面人工核对，导出 CSV（步骤见 `annotation/PROTOCOL.md`）。
-2. 安排 3–5 位课题组专家，时间在 10/28–11/3；确认单位是否要求伦理审查。
-3. 若补模型：确认 H200 可用；FLUX.2 [dev] 需要在 Hugging Face 上由本人接受非商业许可。
-4. 外部评审额度可用时通知执行方。
+## 8. Owner to-do
+1. API keys for the closed models: set them as environment variables on the server yourself (keys never go into the repository or the chat). State which of the three are available.
+2. FLUX.2 [dev] licence: accept the non-commercial licence on Hugging Face with your own account. The server reaches Hugging Face only through a mirror, so check whether a ModelScope copy exists before arranging a token.
+3. Do round 1 of the aspect human check with one student and export the CSV (`annotation/PROTOCOL.md`).
+4. Arrange 3–5 experts for 10/28–11/3; check whether ethics review is required.
+5. Decide the venue and deadline (section 7).

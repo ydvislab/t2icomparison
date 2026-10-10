@@ -11,7 +11,7 @@ When a prompt leaves an attribute unspecified (lighting, framing, palette, mediu
 ## Repository layout
 | Path | Contents |
 |---|---|
-| `experiments/` | Background studies: generation and measurement code |
+| `experiments/` | Generation and measurement code: background studies and the model study (`experiments/model_study/`) |
 | `aspects/` | Aspect measurement: CLIP features and bipolar aspect scores |
 | `system/` | The comparison system and its data build |
 | `annotation/` | Human check of the aspects: protocol, guide, labelling page, analysis |

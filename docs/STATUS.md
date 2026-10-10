@@ -1,48 +1,60 @@
-# 现状（2026-10-10）
+# Status (2026-10-10)
 
-> 一页看清：有什么证据、系统做到哪、论文还缺什么。计划与时间表见 `PLAN.md`，提纲见 `OUTLINE.md`。
+> One page: what evidence exists, where the work stands, and what is missing. Plan and timeline: `PLAN.md`. Outline: `OUTLINE.md` (still written for the earlier system-centred framing; to be revised).
 
-## 1. 一句话
-模型越来越多地替用户决定没写出来的画面属性（**生成默认**）；我们提出一种比较生成默认的方法，并实现一个以图像为证据的可视比较系统，帮助模型开发者和评测者看清：不同模型或设置在哪些方面替用户做了决定、决定成了什么、彼此差在哪里。
+## 1. In one sentence
+When a prompt leaves an attribute unspecified, the text-to-image model decides it (a **generation default**). This study asks what models decide, whether different models decide the same thing, and which factor (guidance, distillation, scale, family, product layer) is responsible. A visual comparison system that ties every reading back to the images is the instrument.
 
-## 2. 背景证据（只作动机，不是贡献）
-全部为本机小规模实验，测量来自 DINOv2 / VLM，未经人工核对。
-- **默认多样性随模型进步下降**（`experiments/hidden_or_lost/RESULTS.md`，1368 张）：SD1.5 → SDXL-Turbo → FLUX.2 klein，同一句极简 prompt 下 16 张图的 Vendi 为 7.45 → 3.47 → 2.79，12 个主题全部下降；但明确要求时照做率上升（非典型要求 0.73 → 0.73 → 0.93）。此发现已由 DIMCIM 发表。
-- **主要来自采样设置**（`experiments/caption_density/RESULTS.md`，480 张）：同一个 klein-base，CFG 1→4 时 Vendi 5.95 → 2.32（6/6）；klein（另换权重、4 步、CFG 1）再低 0.49；改 prompt 写法或笼统要求"任何风格"几乎无效（±0.01）。引导、蒸馏降低多样性也是已知现象。
-- **真正的缺口**：一个多样性数字说不出"统一在什么上"。例如 SDXL-Turbo 统一的是色调（偏棕褐），klein 统一的是内容和构图。
+**Direction change on 2026-10-10:** the paper's focus moved from the system to the models. Research questions RQ1–RQ3 are in `PLAN.md` §2. A study needs more prompts, seeds and models than the earlier 13 groups × 6 prompts, so most of the measurement will be redone at the new scale.
 
-## 3. 数据与测量
-- **13 组**：3 个模型（SD1.5、SDXL-Turbo、klein，各 16 个种子）+ 10 种设置（klein、klein-base、SD1.5 的不同引导、prompt 写法，各 8 个种子）；**6 个共同的极简 prompt**；共 768 张（760 张不同：咖啡上 SD1.5 CFG7.5·极简 的 8 张与 SD1.5 组相同，已逐像素查出）。
-- **15 个画面方面**（`aspects/aspects.py`）：每个是一对英文描述（如 natural neutral colors ↔ sepia brown tones），分数 = CLIP ViT-L/14 与右端的相似度 − 与左端的相似度；在每个 prompt 内相对全部 13 组标准化。
-- **位置** = 中位数；**集中程度** = 某组中间 50% 的宽度 ÷ 本 prompt 全部图的中间 50% 宽度；两者都有 90% 自助法区间。
-- **人工核对**（`annotation/PROTOCOL.md`）：240 对同 prompt 图，每方面 12 对差距大 + 4 对差距小；判定规则已事先定下。**页面和打包已就绪，等负责人和一位学生标注**；新模型加入后补第二轮。
+## 2. Novelty (`NOVELTY_CHECK.md`)
+- **Already published, used only as background:** default diversity falls as models improve (DIMCIM); guidance reduces diversity (CFG literature; stage-wise CFG analysis, ICLR 2026); attribute-level diversity scores for 5 models (attribute-conditional benchmark, ICLR 2026); default shift under acceleration in closed vocabularies (DefaultShift, Aug 2026); embedding-space homogenization of DALL-E 3 and Imagen 4 (a Zenodo preprint, not peer reviewed).
+- **Open, and the target of this study:** *what* each model fixes (location, not only spread), whether models share defaults, which factor moves location versus spread, and whether defaults depend on the subject.
+- New related work to add: GROVE (IEEE VIS 2026, distributions of LM outputs), DyEval (TVCG 2026), Vipera (CHI 2026), CHI 2026 diversity metrics vs human judgement.
+- The novelty check was done without the planned cross-model reviewer (Codex could not start locally). Re-run it with the dossier in `.aris/novelty/` when available.
 
-## 4. 系统（rev4.1，`system/`）
-| 视图 | 回答什么 |
+## 3. Pilot evidence (small, local, motivation only)
+Measured with DINOv2 / VLM; not human-checked.
+- **Default diversity falls across model generations** (`experiments/hidden_or_lost/RESULTS.md`, 1,368 images): Vendi for 16 images of the same minimal prompt drops from SD1.5 7.45 to SDXL-Turbo 3.47 to klein 2.79, and it drops for all 12 subjects. Compliance when an attribute is requested rises (atypical requests 0.73, 0.73, 0.93).
+- **Mostly due to sampling settings** (`experiments/caption_density/RESULTS.md`, 480 images): within klein-base, CFG 1→4 lowers Vendi from 5.95 to 2.32 (6/6 subjects). Distilled klein lowers it a further 0.49. Prompt phrasing, including "any style", changes it by about ±0.01.
+- **What is fixed differs by model:** SDXL-Turbo converges on palette (sepia/brown), while klein converges on content and composition. Turbo's composition median is +1.31 on "a house" and −1.33 on "a kitchen", and pooling the two cancels it out (+0.07).
+
+## 4. Study design (approved 2026-10-10; details in `PLAN.md` §3–4)
+- **Prompts:** 24 minimal prompts in 6 categories plus 6 control prompts (`PROMPTS.md`).
+- **Groups:** 12 open-model groups (SD1.5, SDXL base, SDXL-Turbo, SD3.5 Large, FLUX.2 [dev], klein-base 4B at CFG 4 and 1, klein 4B, klein-base 9B, klein 9B, Qwen-Image-2512 at CFG 4 and 1) and 3 closed product defaults (GPT-image, Gemini image, Seedream).
+- **Samples:** 32 seeds per main prompt for open models, which is about 10,400 images. 16 per prompt for closed models, which is about 1,440 API calls.
+- **Measurement:** 15 bipolar aspects (`aspects/aspects.py`, CLIP ViT-L/14), standardized within each prompt. Location is the median; spread is the group IQR divided by the pooled IQR; both have bootstrap intervals. Prompt-implied aspects are excluded per prompt. The human check decides which aspects stay, and the control prompts check that each aspect responds.
+
+## 5. Infrastructure
+- **GPU server:** 2 × H200 NVL (141 GB each). This project uses GPU 0 only.
+- **Code and data on the server:** everything is in the owner's workspace `yd/t2icomparison/` on the data disk (`code/`, `data/` = `T2IC_DATA`, `ops/`, `logs/`); see `docs/RUNBOOK.md` §5. GPU 0 is used for this project and GPU 1 is reserved for another project.
+- **Network:** Hugging Face and GitHub are not reachable directly. The hf-mirror and ModelScope mirrors and the PyPI mirrors (Tsinghua, Aliyun) work. Aliyun stalled on large wheels, so the environment uses Tsinghua.
+- **Environment:** `data/env` (Python 3.10, torch 2.14.1, diffusers 0.41.0 from PyPI, which is expected to include `Flux2KleinPipeline`, transformers ≥ 5.18). Installation is in progress, and the GPU check is pending.
+- **Weights already on the server** (from other projects; to be linked, not copied): FLUX.2 klein 4B, DINOv2-base, SDXL base 1.0 (Hugging Face cache). Qwen-Image-Edit-2511 is present but is an editing model, not the text-to-image Qwen-Image-2512.
+- **Still to download:** SD1.5, SDXL-Turbo, klein-base 4B, SD3.5 Large, FLUX.2 [dev], Qwen-Image-2512, CLIP ViT-L/14, Qwen3.5-4B.
+- **Generation scripts** hard-code Apple `mps`. They need a CUDA version before any run on the server.
+
+## 6. System (rev4.1, `system/`)
+| View | Question it answers |
 |---|---|
-| 方面 × 组矩阵 | 每个方面上每组的位置（中位数竖线）和集中程度（中间 50% 色条）；同一行共用一条轴；可叠加参照组 |
-| 方面分布条带 | 当前方面上每组的**全部图像**按真实分数排开；共用轴刷选一次选中所有组的同一区间 |
-| 图像空间 | 每个 prompt 内所有组共用的 t-SNE 投影；用于发现意外外观并框选（线圈只用于追踪某组样本在哪，不读集中程度） |
-| 选中面板 | 每组被选中的比例 k/N（含 0）；选中图与其余图相比在哪些方面相对偏向；图像本身 |
-| 设置与记录 | 悬停组名看设置；与参照组逐项对比，改了不止一项时提示"不能归因"；记录发现时连同比较条件一起保存 |
+| Aspect × group matrix | Location (median tick) and spread (middle-50% bar) of every group on every aspect; one shared axis per row; optional reference group |
+| Aspect distribution strip | Every image of every group placed at its score on the current aspect; one brush on the shared axis selects the same interval in all groups |
+| Image space | Per-prompt t-SNE shared by all groups, for finding unexpected appearances; hulls only locate groups and are not read as spread |
+| Selection panel | Share k/N per group (including 0); aspects on which the selection is skewed; the images |
+| Settings and log | Settings on hover; differences from the reference group, with a "cannot attribute" warning when more than one setting differs; findings saved with their comparison conditions |
 
-外部评审（`REVIEW_PROTO3.md`）：问题意义 7、可视化贡献 3、成熟度 2；改进计划 8 项中第 1–4 项已在 rev4.1 完成并逐条验证。第 5 项（常驻小图例、层次、放大当前方面的图像分布、投影图上少量带锚点的缩略图）计划在第 3 周做。
+Built for 13 groups × 6 prompts. It must scale to about 13 groups × 24 prompts and handle groups whose settings are undeclared (the closed models).
 
-## 5. 初步观察（CLIP 测量，未经人工核对，只作案例线索）
-- "城市街道"：SDXL-Turbo 16 张中 15 张挤在投影中的一小块，相对其余图偏"绘画插画""暖色金光""低饱和""复古棕褐"；klein 集中在另一块；SD1.5 分布最广。
-- 同一模型在不同 prompt 上可以相反：Turbo 的构图中位数在"房子"上 +1.31、"厨房"上 −1.33，合并后互相抵消（+0.07）。
-- 同一批 Turbo 图同时被判为"更像绘画"和"更写实"：说明自动测量必须看图核实。
+## 7. Missing for the paper
+1. **Generation at the new scale** (week 2): all open groups and the closed-model API runs.
+2. **Human check of aspects** (weeks 2–3): round 1 on the existing pairs; round 2 on images from the new models. Known ambiguous aspects: "tone" mixes era with palette, "composition" mixes centring with symmetry, and "quality" measures professional versus casual wording.
+3. **Analysis for RQ1–RQ3** (week 3): effects must hold across prompts and categories, not only in the pooled data.
+4. **System scaling and figures** (weeks 3–4).
+5. **Expert feedback** (week 4): 3–5 experts, about 40 minutes each.
+6. **Writing** (weeks 4–5): English, ≤20 references, 1–2 sidebars. The outline must be rewritten for the model-centred framing.
 
-## 6. 论文还缺什么（按 CG&A 的要求）
-CG&A 接受"系统 + 案例 + 专家反馈"，不要求受控实验；但下面几项是录用的底线：
-1. **方面的人工核对**（第 2 周）：决定哪些方面保留、改名、删除；结果进论文表 1。已知含混的方面："色调"混了新旧与配色，"构图"混了居中与对称，"画质"测的是"专业摆拍 vs 随手拍"的措辞。
-2. **模型代表性**（负责人已决定补，第 2 周）：现在只有 SD1.5、SDXL-Turbo、klein 及 klein-base，都是小模型或蒸馏模型、512/768 分辨率。建议补 Qwen-Image 与 FLUX.2 [dev]。
-3. **系统小改**（第 3 周）：评审第 5 项。
-4. **使用案例与出图**（第 3 周）：案例一 同一 FLUX.2 家族内的设置差异；案例二 跨世代模型各自统一在什么上（含房子 / 厨房的反转）；案例三 测量出错如何被发现。
-5. **专家反馈**（第 4 周）：3–5 位，每人约 40 分钟。
-6. **写作**（第 4–5 周）：英文全文，≤20 篇参考文献，1–2 个侧栏。
-
-## 7. 主要风险
-- **与 ViBEx 太近**：增量必须落在"多组对齐比较 + 位置 / 范围 / 占比分开 + 设置溯源 + 看图核实"这个组合上（见 `RELATED_WORK.md`）。
-- **测量不可靠**：若多数方面通不过人工核对，就缩减方面数量，或改成人工定义加 VLM 判断。
-- **小样本**：每组 8–16 张，只能说"在这批样本中集中"，不能说模型"固定了"某属性。
+## 8. Main risks
+- **Time:** about 10,000 images, two human-check rounds and a reframed paper in 5 weeks. The venue and deadline are still open (`PLAN.md` §7).
+- **Measurement:** if most aspects fail the human check, reduce the aspect set, or switch to human-defined aspects judged by a VLM.
+- **Overlap:** the "how much" findings are taken. Every claim must be about *what* is fixed and *why*.
+- **Closed models:** settings, seeds and model versions are not under our control, and services may rewrite prompts. Closed-model results are therefore reported as product defaults with dated API versions, never attributed to a single factor.

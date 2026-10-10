@@ -1,5 +1,7 @@
 # 补主流开源模型：方案（2026-10-10 负责人决定补）
 
+> **Superseded on 2026-10-10:** the model list, prompts and sample sizes are now in `PLAN.md` §3–4 and `PROMPTS.md`. The model-card settings below are still the starting point for G5 and G9.
+
 ## 1. 为什么补
 现有的 13 组只来自 SD1.5、SDXL-Turbo、FLUX.2 klein 4B 及 klein-base 4B，都是小模型或蒸馏模型，分辨率 512 / 768。外部评审已指出"还不算真正的多模型比较"，CG&A 审稿人也很可能会问。
 

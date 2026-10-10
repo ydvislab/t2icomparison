@@ -62,5 +62,30 @@ python3 build.py
 
 **4.5 人工核对**（`annotation/`）：见 `annotation/README.md`。
 
-## 5. 加入新模型（计划，尚未执行）
-在远程 GPU 服务器上生成，按原生分辨率，6 个共同 prompt × 16 个种子；把图像和 `meta.csv`（列与现有的一致：job、subject、probe、prompt、seed、model、year、size、steps、cfg、seconds）放到 `$T2IC_DATA/hidden_or_lost/<新模型键>/`，在 `experiments/hidden_or_lost/config.py` 的 `GENERATORS`、`aspects/build.py` 的 `DATASETS` 和 `system/build.py` 的 `GROUPS`、`CKPT` 中各加一行，再依次运行 4.3、4.4。服务器的登录信息只放在本人的 `~/.ssh/config`，不进仓库。
+## 5. Model study on the GPU server
+Server login details live only in the owner's `~/.ssh/config` (host alias `h200`) and never in this repository.
+
+**Layout on the server:** everything lives under the owner's workspace `yd/t2icomparison/` on the data disk:
+`code/` (working copy), `data/` (`$T2IC_DATA`), `ops/` (server-only scripts) and `logs/`. Start every session with `source ops/env.sh`. It sets `T2IC_DATA`, puts the environment first on `PATH` and pins `CUDA_VISIBLE_DEVICES=0`, because GPU 1 is reserved for another project.
+
+**Network constraints:** the server cannot reach huggingface.co or GitHub directly. Use hf-mirror.com and ModelScope for weights and the Tsinghua PyPI mirror for packages; the Aliyun mirror stalls on large wheels. The total inbound bandwidth is about 9 MB/s, shared by all downloads. Sync code from the local machine (for example `tar -cf - experiments docs | ssh h200 'tar -C <code dir> -xf -'`), not through `git pull`.
+
+**Environment** (`$T2IC_DATA/env`): Python 3.10 venv. Install with uv, because pip's connections stall on this network:
+```bash
+uv pip install --python $T2IC_DATA/env/bin/python torch==2.14.1 torchvision diffusers==0.41.0 "transformers>=5.18" accelerate safetensors sentencepiece protobuf numpy pandas Pillow scikit-learn matplotlib huggingface_hub modelscope
+```
+diffusers 0.41.0 from PyPI includes `Flux2KleinPipeline`, `Flux2Pipeline` and `QwenImagePipeline`.
+
+**Weights** (`python experiments/model_study/download_models.py [name ...]`, about 280 GB in total):
+- `clip-vit-large-patch14`, `sd15` (fp16), `sdxl-turbo` (fp16), `Qwen3.5-4B`, `FLUX.2-klein-base-4B` and `Qwen-Image-2512` from hf-mirror.
+- `sd35-large`, `FLUX.2-dev`, `FLUX.2-klein-base-9B` and `FLUX.2-klein-9B` from ModelScope, because they are gated on Hugging Face.
+- Shared components are linked, not downloaded twice:
+  - `FLUX.2-klein-base-4B/{text_encoder,tokenizer,vae}` link to `FLUX.2-klein-4B`.
+  - `FLUX.2-klein-9B/{text_encoder,tokenizer,vae}` link to `FLUX.2-klein-base-9B`.
+  - Both pairs were checked to be identical by file hash.
+- `FLUX.2-klein-4B`, `dinov2-base` and `sdxl` (SDXL base 1.0, fp16) were already on the server and are linked into `$T2IC_DATA/models`.
+- FLUX.2 [dev] and the klein 9B models are under the FLUX Non-Commercial License (research use).
+
+**Open-model generation:** `python experiments/model_study/open/gen.py <group> [--batch 4]` writes `$T2IC_DATA/model_study/open/<group>/<job>.png` and `meta.csv`. Jobs come from `experiments/model_study/prompts.py`: 24 prompts × 32 seeds plus 6 controls × 16. Each image has its own generator seeded with the job seed, so outputs do not depend on the batch size. The script is resumable.
+
+**Closed models:** run locally; see `experiments/model_study/closed/README.md`. Copy the results to `$T2IC_DATA/model_study/closed/` on the server.

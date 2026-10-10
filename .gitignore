@@ -23,3 +23,6 @@ aspects_*.csv
 
 # Local Claude settings
 .claude/settings.local.json
+
+# Local review dossiers and traces
+.aris/
