@@ -6,7 +6,7 @@ Status: approved by the owner on 2026-10-10. Nothing has been generated with it 
 1. **Minimal and underspecified.** Each prompt names only the subject: no words for medium, lighting, framing, colour, quality or style.
 2. **Uncontroversial.** Everyday subjects only: no abstract concepts, demographic groups, children, religious or cultural events, brands, real people, or text rendering.
 3. **Defaults must be visible.** Each subject leaves most of the 15 aspects open: it could plausibly be shown day or night, as a photo or a painting, close or far, warm or cool, plain or busy. Subjects that fix many aspects by themselves are avoided.
-4. **Keep the 12 earlier subjects** (marked ●) so that existing SD1.5, SDXL-Turbo and klein images remain comparable and reusable.
+4. **Keep the 12 earlier subjects** (marked ●) so that the study can be checked against the pilot findings on the same subjects. The pilot images themselves are not reused: the study regenerates every group with its own settings (e.g. SD1.5 at 50 steps instead of 25, SDXL-Turbo at 1 step instead of 4, klein at 1024² instead of 768²) and a new seed list.
 5. **Balanced categories:** 6 categories × 4 prompts. A finding is reported for a model only if it holds in most categories; otherwise it is reported as category-specific.
 6. **Prompt-implied aspects are excluded per prompt** (e.g. in/out for "a kitchen") from location and spread statistics.
 

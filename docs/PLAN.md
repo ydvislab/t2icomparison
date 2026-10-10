@@ -27,9 +27,9 @@ Settings marked "verify" must be checked against the official model card and the
 
 | Group | Model | Setting | Role |
 |---|---|---|---|
-| G1 | Stable Diffusion 1.5 | model-card default (CFG 7.5, 50 steps, 512²) | Earlier generation (existing data) |
+| G1 | Stable Diffusion 1.5 | model-card default (CFG 7.5, 50 steps, 512²) | Earlier generation (regenerated; the pilot images used 25 steps and other seeds) |
 | G2 | SDXL base 1.0 | model-card default (verify) | Distillation pair with G3; Stability generation ladder |
-| G3 | SDXL-Turbo | 1 step, CFG 0, 512² | Distilled (existing data) |
+| G3 | SDXL-Turbo | 1 step, CFG 0, 512² | Distilled (regenerated; the pilot images used 4 steps and other seeds) |
 | G4 | SD3.5 Large | model-card default (verify) | Stability generation ladder; another family |
 | G5 | FLUX.2 [dev] 32B | model-card default (guidance 4, verify steps) | Scale within the FLUX.2 family |
 | G6 | FLUX.2 klein-base 4B | CFG 4 | Guidance pair with G7; scale pair with G5 |
