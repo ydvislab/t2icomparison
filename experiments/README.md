@@ -17,4 +17,5 @@ The main study of the paper: what text-to-image models decide when a prompt leav
 | `prompts.py` | 24 minimal prompts (6 categories), 6 control prompts, prompt-implied aspects to exclude, and the job and seed list shared by all groups |
 | `download_models.py` | Downloads weights in diffusers layout from hf-mirror / ModelScope, resumable |
 | `open/` | Open-model groups G01–G12 (`config.py`, settings from the model cards) and the CUDA generation script `gen.py` |
+| `anchors/` | Calibration anchors: explicit pole requests that define the calibrated aspect scale; the pilot job set, its analysis and the decision rules (`anchors/README.md`) |
 | `closed/` | Closed-model product defaults (OpenAI, Gemini, Seedream) run locally through their APIs; see `closed/README.md` |

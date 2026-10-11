@@ -88,4 +88,6 @@ diffusers 0.41.0 from PyPI includes `Flux2KleinPipeline`, `Flux2Pipeline` and `Q
 
 **Open-model generation:** `python experiments/model_study/open/gen.py <group> [--batch 4]` writes `$T2IC_DATA/model_study/open/<group>/<job>.png` and `meta.csv`. Jobs come from `experiments/model_study/prompts.py`: 24 prompts × 32 seeds plus 6 controls × 16. Each image has its own generator seeded with the job seed, but in bf16 the GPU kernels still change pixels slightly with the batch size (the content stays the same). Keep the batch size fixed for a whole group: the study uses `--batch 4` for every group, the value is recorded in `meta.csv`, and a resumed run with a different batch size is refused. The script is resumable.
 
+**Calibration anchors:** `python experiments/model_study/open/gen.py <group> --jobset anchor_pilot` writes `$T2IC_DATA/model_study/anchors_pilot/<group>/`; scoring with `aspects/score.py` and analysis with `experiments/model_study/anchors/analyze_pilot.py`. Steps and decision rules: `experiments/model_study/anchors/README.md`.
+
 **Closed models:** run locally; see `experiments/model_study/closed/README.md`. Copy the results to `$T2IC_DATA/model_study/closed/` on the server.

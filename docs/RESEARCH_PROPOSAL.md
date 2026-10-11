@@ -1,6 +1,6 @@
 # Research proposal: visual auditing of appearance defaults in text-to-image models
 
-> v2, 2026-10-11, revised after an adversarial external review of v1 (`REVIEW_PROPOSAL.md`, which also summarizes what v1 proposed). Venue: IEEE CG&A regular paper, mid-November 2026. Generation of G01–G12 is running with the design in `PLAN.md` §3–4; nothing here requires regenerating it. Items marked **[decision]** need the owner.
+> v2, 2026-10-11, revised after an adversarial external review of v1 (`REVIEW_PROPOSAL.md`, which also summarizes what v1 proposed). Venue: IEEE CG&A regular paper, mid-November 2026. Generation of G01–G12 is running with the design in `PLAN.md` §3–4; nothing here requires regenerating it. Owner decisions are in §9.
 
 ## 1. What changed from v1
 - **Claims narrowed.** v1 asked what *determines* defaults across five factors. The design cannot support that: family, scale and product contrasts change several things at once, and DefaultShift already covers distillation replacements, including direction of moved mass versus entropy change and guidance probes. v2 claims a validated visual audit with bounded empirical findings.
@@ -13,7 +13,7 @@
 
 Contribution type for CG&A: an applied visual method for auditing generative models, demonstrated on a 12-configuration study, with bounded findings and an expert evaluation. Not claimed: a general explanation of what determines defaults; a new diversity metric; that diversity falls as models improve.
 
-**[decision 1]** Paper framing. The 2026-10-10 plan made "the models" the headline and the system an instrument. The review argues that at CG&A, with this design, the defensible headline is the *audit method* with the model findings as its evidence. Proposed title: *Visual Auditing of Appearance Defaults in Text-to-Image Models*.
+**Framing (decided 2026-10-11):** the audit method is the headline and the model findings are its evidence. Working title: *Visual Auditing of Appearance Defaults in Text-to-Image Models*.
 
 ## 3. Questions and what each can show
 | | Question | Comparisons | Type |
@@ -31,6 +31,7 @@ Start from the 15 CLIP bipolar aspects (`aspects/aspects.py`) and keep **4–6**
 
 ### 4.2 Reference-prompt calibration (anchors)
 - For each retained aspect, subject and pole: an explicit request prompt from a fixed template (e.g. "a city street, in warm golden light").
+- **Pilot (decided 2026-10-11):** 2 aspects × 6 subjects × 2 poles × 3 phrasings × 2 references × 8 seeds = 1,152 images; jobs, decision rules and server steps in `experiments/model_study/anchors/README.md`.
 - Two reference configurations (G08 klein 4B and G09 Qwen-Image-2512, recommended settings), **8 seeds** each: 6 aspects × 24 subjects × 2 poles × 2 references × 8 = **4,608 images**, before exclusions. Pilot on 2 aspects × 6 subjects first, with 2–3 alternative pole phrasings.
 - Calibrated location x = (median − L)/(R − L) and calibrated width w = IQR/(R − L), where L and R are the reference medians for the two poles. Values outside [0, 1] are kept. 0 and 1 are request-conditioned reference points in score units, not physical endpoints or perceptual units, and 0.5 is not "neutral".
 - Calibration is computed per reference model as well as pooled; results are shown with each reference alone. Anchor uncertainty is propagated by resampling anchor images. Cells with an unstable or small gap (R − L) are excluded rather than rescued.
@@ -46,7 +47,7 @@ Start from the 15 CLIP bipolar aspects (`aspects/aspects.py`) and keep **4–6**
 
 ## 5. Analysis
 - **Effect sizes first.** For each contrast and cell: Δx (calibrated location shift) and the log ratio of IQRs (within the cell, so no pooled denominator), with intervals.
-- **Practical margins fixed before analysis [decision 2]:** e.g. |Δx| ≥ 0.15 counts as a displacement, |log IQR ratio| ≥ log 1.5 as a change in concentration. "Same place" requires the interval for Δx to lie within the margin (equivalence), not a non-significant shift.
+- **Practical margins fixed before analysis (frozen after the anchor pilot):** e.g. |Δx| ≥ 0.15 counts as a displacement, |log IQR ratio| ≥ log 1.5 as a change in concentration. "Same place" requires the interval for Δx to lie within the margin (equivalence), not a non-significant shift.
 - **Uncertainty:** hierarchical bootstrap: resample subjects within categories, resample whole image score vectors within groups (keeping seed pairing within a checkpoint), resample anchor images per reference.
 - **Primary tests (pre-declared, corrected together):** for Q1, the median Δx and the median log IQR ratio across subjects, per family and aspect. Everything per cell is shown but treated as exploratory.
 - **Subject dependence (Q2):** within-subject contrasts between configurations, and how their sign and size vary across the sampled subjects; category estimates with leave-one-category-out sensitivity. No variance-decomposition claim.
@@ -83,9 +84,8 @@ The review judged a location–spread scatter with arrows to be a useful convent
 | Nov 2–8 | Expert evaluation; sensitivity checks (anchors, encoder, categories); no new scope |
 | Nov 9–15 | Adversarial review, reproducibility audit, figures, submission |
 
-## 9. Decisions needed from the owner
-1. Framing: audit method as headline (recommended) or model study as headline.
-2. Practical margins for "displacement" and "concentration" (proposal in §5).
-3. Approve anchors (4,608 images, pilot first) and the SigLIP 2 check.
-4. Aspect reduction to 4–6 after round 1.
-5. Closed models move to a sidebar.
+## 9. Owner decisions (2026-10-11)
+1. Framing: **the audit method is the headline** (review recommendation adopted).
+2. Anchors: **pilot first** (`experiments/model_study/anchors/`); the full set is sized after the pilot.
+3. Following the review: SigLIP 2 sensitivity check; closed models in a sidebar; aspects reduced to 4–6 after round 1.
+4. Practical margins: the values in §5 are provisional and are frozen after the anchor pilot, before any study data is analysed.

@@ -1,17 +1,15 @@
-# Status (2026-10-10)
+# Status (2026-10-11)
 
-> One page: what evidence exists, where the work stands, and what is missing. Plan and timeline: `PLAN.md`. Outline: `OUTLINE.md` (still written for the earlier system-centred framing; to be revised).
+> One page: what evidence exists, where the work stands, and what is missing. Questions and methods: `RESEARCH_PROPOSAL.md` v2. Plan, generation design and decisions: `PLAN.md`. Outline: `OUTLINE.md` v2.
 
 ## 1. In one sentence
-When a prompt leaves an attribute unspecified, the text-to-image model decides it (a **generation default**). This study asks what models decide, whether different models decide the same thing, and which factor (guidance, distillation, scale, family, product layer) is responsible. A visual comparison system that ties every reading back to the images is the instrument.
+When a prompt leaves appearance unspecified, a text-to-image model decides it (a **generation default**). The paper presents a **visual audit method** that tells evaluators whether a change of model or setting *displaces* appearance (outputs settle elsewhere) or *concentrates* it (outputs settle more tightly in the same place), whether a pooled conclusion holds for every subject, and that traces every reading to the images. A study of 12 open configurations is its evidence; guidance in two families is the primary intervention.
 
-**Direction change on 2026-10-10:** the paper's focus moved from the system to the models. Research questions RQ1–RQ3 are in `PLAN.md` §2. A study needs more prompts, seeds and models than the earlier 13 groups × 6 prompts, so most of the measurement will be redone at the new scale.
+**Direction changes:** 2026-10-10 the focus moved from the system to the models; 2026-10-11, after an external review (`REVIEW_PROPOSAL.md`: significance 7, novelty 4, soundness 3, venue fit 5 for the v1 proposal), the owner made the audit method the headline and narrowed the claims.
 
-## 2. Novelty (`NOVELTY_CHECK.md`)
-- **Already published, used only as background:** default diversity falls as models improve (DIMCIM); guidance reduces diversity (CFG literature; stage-wise CFG analysis, ICLR 2026); attribute-level diversity scores for 5 models (attribute-conditional benchmark, ICLR 2026); default shift under acceleration in closed vocabularies (DefaultShift, Aug 2026); embedding-space homogenization of DALL-E 3 and Imagen 4 (a Zenodo preprint, not peer reviewed).
-- **Open, and the target of this study:** *what* each model fixes (location, not only spread), whether models share defaults, which factor moves location versus spread, and whether defaults depend on the subject.
-- New related work to add: GROVE (IEEE VIS 2026, distributions of LM outputs), DyEval (TVCG 2026), Vipera (CHI 2026), CHI 2026 diversity metrics vs human judgement.
-- The novelty check was done without the planned cross-model reviewer (Codex could not start locally). Re-run it with the dossier in `.aris/novelty/` when available.
+## 2. Novelty (`RESEARCH_PROPOSAL.md` §7)
+- **Taken, background only:** default diversity falls as models improve (DIMCIM, GRADE); guidance reduces diversity (CFG literature, stage-wise CFG analysis); distilled replacements shift attribute distributions, with direction of moved mass separated from entropy change and with guidance probes (DefaultShift, which also audits background, lighting and viewpoint); prompt-conditioned appearance differences between models can be discovered (CompCon, VisDiff).
+- **Remaining:** a validated visual audit on shared, calibrated, interpretable axes across many declared configurations, with visible measurement uncertainty; and the within-model guidance contrast in two families on scene-level appearance.
 
 ## 3. Pilot evidence (small, local, motivation only)
 Measured with DINOv2 / VLM; not human-checked.
@@ -19,7 +17,7 @@ Measured with DINOv2 / VLM; not human-checked.
 - **Mostly due to sampling settings** (`experiments/caption_density/RESULTS.md`, 480 images): within klein-base, CFG 1→4 lowers Vendi from 5.95 to 2.32 (6/6 subjects). Distilled klein lowers it a further 0.49. Prompt phrasing, including "any style", changes it by about ±0.01.
 - **What is fixed differs by model:** SDXL-Turbo converges on palette (sepia/brown), while klein converges on content and composition. Turbo's composition median is +1.31 on "a house" and −1.33 on "a kitchen", and pooling the two cancels it out (+0.07).
 
-## 4. Study design (approved 2026-10-10; details in `PLAN.md` §3–4)
+## 4. Study design (approved 2026-10-10; questions narrowed 2026-10-11, see `RESEARCH_PROPOSAL.md` §3)
 - **Prompts:** 24 minimal prompts in 6 categories plus 6 control prompts (`PROMPTS.md`).
 - **Groups:** 12 open-model groups (SD1.5, SDXL base, SDXL-Turbo, SD3.5 Large, FLUX.2 [dev], klein-base 4B at CFG 4 and 1, klein 4B, klein-base 9B, klein 9B, Qwen-Image-2512 at CFG 4 and 1) and 3 closed product defaults (GPT-image, Gemini image, Seedream).
 - **Samples:** 32 seeds per main prompt for open models, which is about 10,400 images. 16 per prompt for closed models, which is about 1,440 API calls.
@@ -46,15 +44,16 @@ Measured with DINOv2 / VLM; not human-checked.
 Built for 13 groups × 6 prompts. It must scale to about 13 groups × 24 prompts and handle groups whose settings are undeclared (the closed models).
 
 ## 7. Missing for the paper
-1. **Generation at the new scale** (week 2): all open groups and the closed-model API runs.
-2. **Human check of aspects** (weeks 2–3): round 1 on the existing pairs; round 2 on images from the new models. Known ambiguous aspects: "tone" mixes era with palette, "composition" mixes centring with symmetry, and "quality" measures professional versus casual wording.
-3. **Analysis for RQ1–RQ3** (week 3): effects must hold across prompts and categories, not only in the pooled data.
-4. **System scaling and figures** (weeks 3–4).
-5. **Expert feedback** (week 4): 3–5 experts, about 40 minutes each.
-6. **Writing** (weeks 4–5): English, ≤20 references, 1–2 sidebars. The outline must be rewritten for the model-centred framing.
+1. **Generation at the new scale** (week 2): all open groups (running on the server) and the closed-model API runs.
+2. **Calibration anchor pilot** (week 2): 1,152 images from G08 and G09; code and decision rules in `experiments/model_study/anchors/`; the full anchor set is sized after the pilot.
+3. **Human check of aspects** (weeks 2–3): round 1 on the existing 240 pairs screens aspects (reduce to 4–6); round 2 is redesigned with graded pairs and the new models, and also checks anchor fidelity.
+4. **Analysis** (week 3): Q1 guidance (primary), Q2 descriptive structure, Q3 one distillation case; practical margins frozen after the anchor pilot; hierarchical bootstrap.
+5. **Views and figures for the three audit tasks** (weeks 3–4); the system scales from 13 groups × 6 prompts to 15 groups × 24 subjects.
+6. **Expert evaluation** (week 4): 3–5 experts, the three tasks, against a box-plot or score-table-plus-image-grid baseline.
+7. **Writing** (weeks 4–5): English, ≤20 references, 2 sidebars; outline v2 in `OUTLINE.md`.
 
 ## 8. Main risks
-- **Time:** about 10,000 images, two human-check rounds and a reframed paper in 5 weeks. The venue and deadline are still open (`PLAN.md` §7).
-- **Measurement:** if most aspects fail the human check, reduce the aspect set, or switch to human-defined aspects judged by a VLM.
-- **Overlap:** the "how much" findings are taken. Every claim must be about *what* is fixed and *why*.
-- **Closed models:** settings, seeds and model versions are not under our control, and services may rewrite prompts. Closed-model results are therefore reported as product defaults with dated API versions, never attributed to a single factor.
+- **Time:** about 10,000 study images, 1,152 pilot and about 4,600 full anchor images, two human-check rounds and a reframed paper in 5 weeks.
+- **Measurement:** if most aspects fail validation, keep fewer; an aspect whose anchors do not separate is dropped or reported uncalibrated.
+- **Novelty:** DefaultShift and CompCon are close; every claim must rest on the calibrated, validated visual audit and the guidance contrast, not on "what is fixed" in general.
+- **Closed models:** settings, seeds and versions are not under our control; sidebar only, dated, no attribution.
