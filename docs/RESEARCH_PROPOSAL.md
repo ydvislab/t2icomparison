@@ -23,7 +23,7 @@ Contribution type for CG&A: an applied visual method for auditing generative mod
 | **Q3 (case)** | What does a distillation package change? | G07 → G08 (klein 4B: same CFG 1; steps 50 → 4 and checkpoint change) | One package case, positioned against DefaultShift |
 | Sidebar | Closed product defaults (C1–C3) | Descriptive, dated API versions | No attribution |
 
-Dropped as hypotheses: family relocates (not separable), scale (one pair; text encoder also changes between klein 4B and 9B, to be verified from the official configuration), product layer (no intervention), mode amplification (needs an errors-in-variables design; exploratory only).
+Dropped as hypotheses: family relocates (not separable), scale (one pair; the text encoder also changes between klein 4B and 9B: Qwen3 2560-d vs 4096-d, verified 2026-10-12, `PROVENANCE.md`), product layer (no intervention), mode amplification (needs an errors-in-variables design; exploratory only).
 
 ## 4. Measurement
 ### 4.1 Aspects
