@@ -23,32 +23,66 @@ For each aspect, a phrasing is usable if, for both reference models:
 
 Among usable phrasings, prefer one that does not repeat the CLIP pole text. If no phrasing passes for an aspect, that aspect is not calibrated and is dropped or reported uncalibrated. The thresholds above are fixed before the pilot is run.
 
-### Steps on the GPU server
-Run after `source ops/env.sh` in the project folder (`docs/RUNBOOK.md` §5), from `code/experiments/model_study/`. The study generation has priority on GPU 0; run the pilot between groups or when the GPU is free.
+### Steps (copy and run)
+Run on the computer that can reach the GPU server (host alias `h200` in `~/.ssh/config`). Set once per terminal the project folder on the server, i.e. the folder that holds `code/`, `data/`, `ops/` and `logs/`:
 
 ```bash
-python open/gen.py G08_klein4b --jobset anchor_pilot --batch 4
+export T2IC_REMOTE=<project folder on the server>
+```
+
+**1. Send the latest code to the server** (from the root of this repository; it pulls from GitHub first, because the server cannot reach GitHub):
+
+```bash
+ops_local/sync_up.sh
+```
+
+**2. Log in and open a tmux session** (the run continues if the connection drops; reattach with `tmux attach -t anchors`):
+
+```bash
+ssh h200
 ```
 
 ```bash
-python open/gen.py G09_qwen_image_cfg4 --jobset anchor_pilot --batch 4
+tmux new -s anchors
 ```
+
+**3. On the server: load the environment and run the pilot.** `run_pilot.sh` generates, scores (including the study images of G08 and G09 if they are finished) and analyses. It is resumable: rerunning skips finished images.
 
 ```bash
-python ../../aspects/score.py $T2IC_DATA/model_study/anchors_pilot/G08_klein4b $T2IC_DATA/model_study/anchors_pilot/G09_qwen_image_cfg4
+cd $T2IC_REMOTE && source ops/env.sh && cd code
 ```
 
-If the study images of G08 and G09 are finished, score them as well so that x can be computed:
+If the study generation still needs the GPU, run klein 4B first (4 steps, quick):
 
 ```bash
-python ../../aspects/score.py $T2IC_DATA/model_study/open/G08_klein4b $T2IC_DATA/model_study/open/G09_qwen_image_cfg4
+experiments/model_study/anchors/run_pilot.sh G08_klein4b
 ```
+
+Then Qwen-Image (50 steps at 1328², much slower) when GPU 0 is free; check memory with `nvidia-smi` first:
 
 ```bash
-python anchors/analyze_pilot.py
+experiments/model_study/anchors/run_pilot.sh G09_qwen_image_cfg4
 ```
 
-Results go to `results/anchors_pilot/` (`cells.csv`, `phrasings.csv`, `references.csv`; small, tracked) and contact sheets to `$T2IC_DATA/model_study/anchors_pilot/sheets/` (not tracked). Copy the results folder and the sheets back to the local machine for review.
+Or both in one go when the GPU is free:
+
+```bash
+experiments/model_study/anchors/run_pilot.sh
+```
+
+**4. Back on the local computer: fetch the results** (tables to `results/anchors_pilot/`, contact sheets to `$T2IC_DATA/model_study/anchors_pilot/sheets/`):
+
+```bash
+ops_local/fetch_anchor_pilot.sh
+```
+
+**5. Commit the tables** so the analysis can continue on any machine (the contact sheets stay local):
+
+```bash
+git add results/anchors_pilot && git commit -m "Anchor pilot results" && git push
+```
+
+`run_pilot.sh` with `DRY_RUN=1` prints the commands without running them. The individual commands it runs are `open/gen.py <group> --jobset anchor_pilot --batch 4`, `aspects/score.py <dirs>` and `anchors/analyze_pilot.py`.
 
 ### Local smoke test (2026-10-11)
 `gen.py` with `--jobset anchor_pilot --seeds 1 --limit 24 --batch 1 --device mps` on G08 (klein 4B), then `score.py` and `analyze_pilot.py`, ran end to end on a Mac (about 80 s per 1024² image on MPS). Those images are only a code test and are not used. One seed per prompt is too few for the statistics (every AUC is 0 or 1), but the contact sheet already showed that the close-up phrasing "{s}, filling the whole frame" produced a medium shot, which is the kind of failure the pilot is meant to catch.

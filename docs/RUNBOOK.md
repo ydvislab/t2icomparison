@@ -68,7 +68,7 @@ Server login details live only in the owner's `~/.ssh/config` (host alias `h200`
 **Layout on the server:** one self-contained folder per project under the owner's workspace; this project is `yd/t2icomparison/` on the data disk:
 `code/` (working copy), `data/` (`$T2IC_DATA`), `ops/` (server-only scripts) and `logs/`. Start every session with `source ops/env.sh`. It sets `T2IC_DATA`, puts the environment first on `PATH` and pins `CUDA_VISIBLE_DEVICES=0`, because GPU 1 is reserved for another project.
 
-**Network constraints:** the server cannot reach huggingface.co or GitHub directly. Use hf-mirror.com and ModelScope for weights and the Tsinghua PyPI mirror for packages; the Aliyun mirror stalls on large wheels. The total inbound bandwidth is about 9 MB/s, shared by all downloads. Sync code from the local machine (for example `tar -cf - experiments docs | ssh h200 'tar -C <code dir> -xf -'`), not through `git pull`.
+**Network constraints:** the server cannot reach huggingface.co or GitHub directly. Use hf-mirror.com and ModelScope for weights and the Tsinghua PyPI mirror for packages; the Aliyun mirror stalls on large wheels. The total inbound bandwidth is about 9 MB/s, shared by all downloads. Sync code from the local machine with `ops_local/sync_up.sh` (it pulls from GitHub, then copies the code folders over SSH; see `ops_local/README.md`), not through `git pull` on the server.
 
 **Environment** (`$T2IC_DATA/env`): Python 3.10 venv. Install with uv, because pip's connections stall on this network:
 ```bash
