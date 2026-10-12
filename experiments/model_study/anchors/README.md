@@ -17,7 +17,7 @@ Purpose: choose the phrasing of the full anchor set on evidence and check that t
 ### What the pilot decides
 For each aspect, a phrasing is usable if, for both reference models:
 1. **Separation:** AUC ≥ 0.9 in every subject, and the 90% interval of the gap R − L excludes 0;
-2. **Side effects:** the median off-target |AUC − 0.5| is below 0.3 (the request does not mainly change another aspect);
+2. **Side effects:** the median off-target |AUC − 0.5| is below 0.3 (the request does not mainly change another aspect). *Revised 2026-10-12 after the pilot (documented deviation, owner decision): with 8 + 8 images the AUC rule saturates at 0.5 and cannot discriminate, so side effects are compared by size instead; the median over subjects of max |g| on another aspect / |g| on the target aspect must be at most 0.5. See `results/anchors_pilot/NOTES.md`.*
 3. **Stability:** if the default images are scored, the calibrated default position x changes by less than 0.15 across phrasings (the practical margin in the proposal);
 4. **Fidelity:** the contact sheets show the requested pole and the subject is preserved (checked by eye; human check round 2 covers it formally).
 

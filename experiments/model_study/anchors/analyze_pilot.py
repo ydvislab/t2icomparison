@@ -9,7 +9,11 @@ Per group x aspect x subject x phrasing:
   L, R      median target-aspect score of left-pole / right-pole requests
   gap       R - L, with a 90% bootstrap interval (images resampled within each pole)
   auc       P(score of a right-pole image > score of a left-pole image); 1 = perfectly separated
-  off_auc   largest |AUC - 0.5| over the other 14 aspects (scale-free side effect), and which aspect
+  off_auc   largest |AUC - 0.5| over the other 14 aspects, and which aspect (original rule; saturates at 0.5 with 8 + 8
+            images, so it cannot discriminate; kept for the record)
+  g         standardized effect of the request on the target aspect: Hedges' g of right- vs left-pole scores
+  off_ratio largest |g| over the other 14 aspects divided by |g| on the target aspect, and which aspect (revised side-
+            effect rule, owner decision 2026-10-12: usable if the median over subjects is at most 0.5)
   x         (median score of the default images - L) / gap, if default images are available
 Writes results/anchors_pilot/{cells.csv, phrasings.csv, references.csv} and contact sheets
 $T2IC_DATA/model_study/anchors_pilot/sheets/<group>_<aspect>.jpg (rows: pole x phrasing per subject; columns: seeds).
@@ -37,6 +41,13 @@ def auc(lo, hi):
     return float(((hi > lo) + 0.5 * (hi == lo)).mean())
 
 
+def hedges_g(lo, hi):
+    lo, hi = np.asarray(lo, float), np.asarray(hi, float)
+    n1, n2 = len(lo), len(hi)
+    sp = np.sqrt(((n1 - 1) * lo.var(ddof=1) + (n2 - 1) * hi.var(ddof=1)) / (n1 + n2 - 2))
+    return (hi.mean() - lo.mean()) / sp * (1 - 3 / (4 * (n1 + n2) - 9))
+
+
 def gap_ci(lo, hi, n=1000):
     b = [np.median(rng.choice(hi, len(hi))) - np.median(rng.choice(lo, len(lo))) for _ in range(n)]
     return np.percentile(b, [5, 95])
@@ -62,9 +73,13 @@ def cells(group, A, D):
         c_lo, c_hi = gap_ci(lo[asp].values, hi[asp].values)
         off = {b: abs(auc(lo[b], hi[b]) - 0.5) for b in KEYS if b != asp}
         worst = max(off, key=off.get)
+        g = hedges_g(lo[asp], hi[asp])
+        goff = {b: abs(hedges_g(lo[b], hi[b])) for b in KEYS if b != asp}
+        gworst = max(goff, key=goff.get)
         r = dict(group=group, aspect=asp, subject=subj, phrasing=v, n_left=len(lo), n_right=len(hi), L=round(L, 5),
                  R=round(R, 5), gap=round(R - L, 5), gap_lo=round(c_lo, 5), gap_hi=round(c_hi, 5),
-                 auc=round(auc(lo[asp], hi[asp]), 3), off_auc=round(off[worst], 3), off_aspect=worst)
+                 auc=round(auc(lo[asp], hi[asp]), 3), off_auc=round(off[worst], 3), off_aspect=worst,
+                 g=round(g, 2), off_ratio=round(goff[gworst] / abs(g), 3), off_ratio_aspect=gworst)
         if D is not None and (D.subject == subj).any() and R != L:
             r["x_default"] = round((float(np.median(D[D.subject == subj][asp])) - L) / (R - L), 3)
         rows.append(r)
@@ -106,7 +121,8 @@ def main(groups):
     C.to_csv(f"{OUT}/cells.csv", index=False)
     # one row per group x aspect x phrasing, summarised over subjects
     agg = dict(subjects=("subject", "nunique"), auc_min=("auc", "min"), auc_median=("auc", "median"),
-               gap_lo_min=("gap_lo", "min"), off_auc_median=("off_auc", "median"), off_auc_max=("off_auc", "max"))
+               gap_lo_min=("gap_lo", "min"), off_auc_median=("off_auc", "median"), off_auc_max=("off_auc", "max"),
+               g_median=("g", "median"), off_ratio_median=("off_ratio", "median"), off_ratio_max=("off_ratio", "max"))
     P = C.groupby(["group", "aspect", "phrasing"]).agg(**agg).reset_index()
     if "x_default" in C:
         # sensitivity of the calibrated default position to the phrasing: range of x over phrasings, per subject
