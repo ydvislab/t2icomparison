@@ -32,7 +32,16 @@
 | kappa 低、两人各有理解 | 改名或换更具体的英文描述，进入第二轮重新核对 |
 | 已知含混的方面（色调、构图、画质）即使通过 | 结合逐对明细看是否需要改名 |
 
-## 5. 步骤
+## 5. Round 1 on the study images (change of 2026-10-12, owner decision)
+Round 1 no longer uses the 240 pairs drawn from the pilot images (`make_pairs.py`), because the paper does not use those images: every group was regenerated with new settings, 24 prompts and new models. Round 1 now draws its pairs from the study images with `make_pairs_study.py`. The design and the decision rule in §2 and §4 are unchanged: per aspect, 12 large-gap and 4 small-gap pairs, 240 in total, 2 independent annotators, and the agreement and "can't tell" thresholds fixed before labelling. What changes:
+- **Source:** the study groups that were generated and CLIP-scored when the package was built: G01 SD1.5, G02 SDXL base, G03 SDXL-Turbo, G06/G07 klein-base 4B (CFG 4 / 1) and G08 klein 4B. The list is stored in `pairs.json`.
+- **Subjects:** each aspect's 16 pairs use 16 different subjects of the 24, spread over the 6 categories. An aspect is never asked for a subject that implies it (`prompts.EXCLUDED`, e.g. in/out for "a kitchen").
+- **Images:** no image appears in more than one pair. Images are shown as 512 px JPEG.
+- **Seed:** 20261012.
+- **Steps:** build the package on the server with `python annotation/make_pairs_study.py --zip`, which writes `$T2IC_DATA/annotation_study_package.zip`. Annotators label exactly as in the steps below. Analyse with `python annotation/analyze.py --pairs $T2IC_DATA/annotation_study/pairs.json aspects_X.csv aspects_Y.csv`; results go to `results/annotation_study/`.
+- **Round 2** then covers the groups generated later (G04, G05, G09–G12) and any renamed aspects.
+
+## 5a. 步骤（原计划，第一轮已改用研究图像，见上一节）
 ### 第一轮：现有 13 组（现在开始，目标 10/20 前完成）
 1. **执行方**（已完成）：生成标注页面，`python3 make_pairs.py`。
 2. **执行方**：打包给学生，`./package.sh`，得到 `~/va4ext/annotation_package.zip`（约 16 MB，含页面、353 张图和标注说明）。

@@ -1,4 +1,6 @@
-"""Analyse the human aspect check. Usage: python3 analyze.py aspects_<X>.csv aspects_<Y>.csv
+"""Analyse the human aspect check. Usage: python3 analyze.py [--pairs PAIRS_JSON] aspects_<X>.csv aspects_<Y>.csv
+--pairs defaults to $T2IC_DATA/annotation_aspects/pairs.json (pilot-image round); the study-image round 1 uses
+$T2IC_DATA/annotation_study/pairs.json (make_pairs_study.py), and its results go to results/annotation_study/.
 Per aspect: on large-gap pairs, how often people agree with CLIP's direction (among pairs they did not mark "can't tell",
 with a 95% Wilson interval), how often they could not tell, and agreement between the two annotators (Cohen's kappa over
 left/right/none). An aspect is flagged unreliable if CLIP agreement < 0.75 or "can't tell" > 40% on large-gap pairs
@@ -9,8 +11,13 @@ import json, math, os, sys
 import pandas as pd
 DATA_ROOT = os.environ.get("T2IC_DATA", os.path.expanduser("~/va4ext"))  # external data drive (images, models)
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../results/annotation")
-P = json.load(open(os.path.join(DATA_ROOT, "annotation_aspects/pairs.json")))
+ARGS = sys.argv[1:]
+PAIRS = os.path.join(DATA_ROOT, "annotation_aspects/pairs.json")
+if ARGS[:1] == ["--pairs"]:
+    PAIRS, ARGS = ARGS[1], ARGS[2:]
+P = json.load(open(PAIRS, encoding="utf-8"))
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../results",
+                   "annotation_study" if P.get("source") == "model_study/open" else "annotation")
 truth = pd.DataFrame(P["pairs"]).rename(columns={"clip": "clip_dir"}).set_index("pid")
 
 
@@ -72,4 +79,4 @@ def main(files):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main(ARGS)
