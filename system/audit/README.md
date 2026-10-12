@@ -1,0 +1,31 @@
+# Audit tool (rev5)
+
+Visual audit of appearance defaults for the model study (`docs/RESEARCH_PROPOSAL.md` §6). It replaces the rev4.1 comparison system in `system/` (kept as design history) for the three audit tasks:
+- **T1, displacement vs concentration:** for a contrast A → B, does each subject's output distribution move, tighten or widen?
+- **T2, pooled vs per subject:** does the median over subjects hold for every subject?
+- **T3, trace to images:** every reading leads back to the images, and the tool shows when a contrast changes more than one declared setting.
+
+## Build and run
+On the GPU server, after `source ops/env.sh`:
+```bash
+python system/audit/build.py
+```
+It writes `$T2IC_DATA/audit_tool/` (page, `data.js`, 192 px thumbnails). Serve that folder with any static server:
+```bash
+cd $T2IC_DATA/audit_tool && python -m http.server 8772 --bind 127.0.0.1
+```
+To use it from another computer, open an SSH tunnel and browse to http://127.0.0.1:8772/:
+```bash
+ssh -N -L 8772:127.0.0.1:8772 h200
+```
+Rebuild whenever more groups have been generated and CLIP-scored. The scale is marked provisional (amber dot, top right) until all 12 open configurations are included.
+
+## Views
+| View | Encoding | Interaction |
+|---|---|---|
+| Header | A and B selectors with their colours (blue, orange); chips for every declared setting that differs; ⚠ n when more than one differs (not attributable to one setting) | swap A and B |
+| Five scatter plots (retained aspects) | one dot per subject: x = location shift Δ = (median_B − median_A) / s_aspect, y = log IQR ratio (spread); shaded bands = frozen practical margins (\|Δ\| < 0.5, ratio within 1/1.5–1.5); diamond = median over subjects with a hierarchical bootstrap 90% interval | hover a dot to highlight the same subject in all five plots and preview it below, click to pin; hover the diamond for the pooled estimate and how many subjects moved each way |
+| Distributions of one subject | smooth kernel density curves of A and B per aspect on a common axis (scale units, 0 = A's median); rug ticks are the individual images | click a row to choose the aspect; hover a tick to highlight the image |
+| Image strips | all images of A and B for the subject, sorted by the chosen aspect from the left pole to the right pole | hover an image to highlight its tick and enlarge it |
+
+Numbers appear only in tooltips. Intervals are 90% bootstrap intervals with 400 resamples, paired by seed when A and B share the same weights. The display labels ("displaced", "same place") follow the frozen margins; the primary analysis is done separately in a script, not in the tool.

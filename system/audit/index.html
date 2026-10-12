@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Default Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f5f6f8; --panel: #ffffff; --ink: #1f2328; --ink-2: #4b5260; --muted: #8a909a; --faint: #c9cdd4;
+  --grid: #eef0f3; --band: rgba(31,35,40,.045); --dot: #b4b9c2;
+  --a: #4c78a8; --b: #f58518; --hl: #7b61ff; --warn: #c27c0e; --shadow: 0 1px 2px rgba(16,24,40,.04), 0 6px 20px rgba(16,24,40,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --faint: #3a3f48;
+    --grid: #23272e; --band: rgba(255,255,255,.05); --dot: #5c626d; --a: #6f9ccf; --b: #f7a24b; --hl: #9d8bff; --warn: #e3a33a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --faint: #3a3f48;
+  --grid: #23272e; --band: rgba(255,255,255,.05); --dot: #5c626d; --a: #6f9ccf; --b: #f7a24b; --hl: #9d8bff; --warn: #e3a33a;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--page); color: var(--ink); font: 14px/1.45 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-feature-settings: "tnum"; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 12px; padding: 14px 18px 16px;
+  min-width: 1280px; min-height: 780px; height: 100vh; overflow: hidden; }
+header { display: flex; align-items: center; gap: 12px; }
+header h1 { font-size: 18px; font-weight: 650; margin: 0 14px 0 0; letter-spacing: -.01em; }
+.pill { display: flex; align-items: center; gap: 8px; background: var(--panel); border-radius: 999px; padding: 6px 8px 6px 14px; box-shadow: var(--shadow); }
+.pill i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+.pill select { border: 0; background: transparent; font: inherit; font-weight: 600; color: var(--ink); outline: none; cursor: pointer; padding-right: 4px; }
+.iconbtn { width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--panel); box-shadow: var(--shadow); color: var(--ink-2); font-size: 16px; cursor: pointer; }
+.iconbtn:hover { color: var(--ink); }
+.diff { display: flex; gap: 6px; margin-left: 4px; }
+.diff span { font-size: 13px; color: var(--ink-2); background: var(--panel); border-radius: 999px; padding: 4px 10px; box-shadow: var(--shadow); }
+.diff span.warn { color: var(--warn); font-weight: 600; }
+header .status { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+header .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); display: inline-block; }
+.scatters { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.card { background: var(--panel); border-radius: 14px; box-shadow: var(--shadow); min-width: 0; min-height: 0; position: relative; transition: box-shadow .2s; }
+.card.on { box-shadow: 0 0 0 2px var(--hl), var(--shadow); }
+.card h2 { font-size: 15px; font-weight: 600; margin: 0; padding: 12px 16px 0; display: flex; align-items: center; gap: 10px; }
+.bottom { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 12px; min-height: 0; }
+.bottom .card { display: flex; flex-direction: column; }
+.bottom .body { flex: 1; min-height: 0; overflow: auto; padding: 4px 16px 12px; }
+.card h2 select { margin-left: auto; font: inherit; font-size: 14px; font-weight: 500; border: 0; background: var(--page); border-radius: 999px; padding: 4px 10px; color: var(--ink); cursor: pointer; }
+svg { display: block; overflow: visible; }
+svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
+.grid line { stroke: var(--grid); }
+.band { fill: var(--band); }
+.zero { stroke: var(--faint); stroke-width: 1; }
+.subj { fill: var(--dot); stroke: var(--panel); stroke-width: 1.5; cursor: pointer; transition: fill .15s; }
+.subj.on { fill: var(--hl); }
+.ci { stroke: var(--hl); stroke-width: 2; stroke-linecap: round; opacity: 0; transition: opacity .15s; }
+.ci.on { opacity: .55; }
+.pool path { fill: var(--panel); stroke: var(--ink); stroke-width: 2; }
+.pool line { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; opacity: .8; }
+.pole { font-size: 12px; fill: var(--muted); }
+.ridge .area { stroke-width: 2; stroke-linejoin: round; }
+.ridge .rowlab { fill: var(--ink-2); font-size: 14px; font-weight: 600; cursor: pointer; }
+.ridge .row { cursor: pointer; transition: opacity .2s; }
+.rug { stroke-width: 2.2; stroke-linecap: round; cursor: pointer; }
+.rug.hl { stroke: var(--hl) !important; stroke-width: 3.5; }
+.lane { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 4px; margin: 8px 0 4px; }
+.lane img { width: 100%; aspect-ratio: 1; display: block; border-radius: 6px; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.lane img:hover { transform: scale(1.04); }
+.lane img.hl { box-shadow: 0 0 0 3px var(--hl); }
+.lanehead { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-weight: 600; color: var(--ink-2); }
+.lanehead i { width: 10px; height: 10px; border-radius: 50%; }
+.grad { height: 4px; border-radius: 2px; margin: 6px 0 2px; }
+.grad + .ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.tip { position: fixed; pointer-events: none; background: var(--panel); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(16,24,40,.18);
+  display: none; z-index: 9; font-size: 13px; color: var(--ink-2); max-width: 300px; }
+.tip b { color: var(--ink); font-weight: 600; }
+.tip img { width: 200px; height: 200px; display: block; border-radius: 8px; margin-top: 8px; }
+.tip .bar { display: grid; grid-template-columns: 64px 1fr; gap: 4px 8px; margin-top: 6px; align-items: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Default Audit</h1>
+  <div class="pill"><i style="background:var(--a)"></i><select id="selA"></select></div>
+  <button class="iconbtn" id="swap" title="swap">⇄</button>
+  <div class="pill"><i style="background:var(--b)"></i><select id="selB"></select></div>
+  <div class="diff" id="diff"></div>
+  <div class="status" id="status"></div>
+</header>
+<section class="scatters" id="scatters"></section>
+<section class="bottom">
+  <div class="card"><h2><span id="subjName"></span><select id="selS"></select></h2><div class="body" id="ridge"></div></div>
+  <div class="card" id="stripCard"><h2><span id="stripName"></span></h2><div class="body" id="strip"></div></div>
+</section>
+<div class="tip" id="tip"></div>
+<script src="d3.min.js"></script>
+<script src="data.js"></script>
+<script>
+"use strict";
+const ASP = META.aspects, RET = ASP.filter(a => a.retained), AIDX = Object.fromEntries(ASP.map((a, i) => [a.key, i]));
+const SUBJ = META.subjects, G = Object.fromEntries(META.groups.map(g => [g.id, g]));
+const M_LOC = META.margins.location, M_LR = META.margins.log_iqr, NBOOT = 400, DUR = 450;
+const st = { A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, job: null };
+const $ = id => document.getElementById(id), tip = $("tip");
+const cur = () => st.hover ?? st.subj;
+const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
+
+// ---------------- statistics ----------------
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const q = (s, p) => d3.quantileSorted(s, p);
+function mi(v) { const s = Float64Array.from(v).sort(); return { med: q(s, .5), iqr: q(s, .75) - q(s, .25) }; }
+function contrast() {
+  const A = st.A, B = st.B, paired = G[A].settings.weights === G[B].settings.weights, R = {};
+  for (const a of ASP) {
+    const ai = 3 + AIDX[a.key], sc = META.scale[a.key], cells = [];
+    SUBJ.forEach((s, si) => {
+      if (s.excluded.includes(a.key)) return;
+      const ra = SCORES[A][si], rb = SCORES[B][si];
+      if (!ra?.length || !rb?.length) return;
+      const xa = ra.map(r => r[ai]), xb = rb.map(r => r[ai]), sa = mi(xa), sb = mi(xb);
+      const rand = rng(1009 * si + 7 * AIDX[a.key] + 1), bd = new Float64Array(NBOOT), bl = new Float64Array(NBOOT);
+      const byK = paired ? new Map(rb.map(r => [r[0], r[ai]])) : null;
+      for (let b = 0; b < NBOOT; b++) {
+        const pa = [], pb = [];
+        for (let i = 0; i < xa.length; i++) { const j = Math.floor(rand() * xa.length); pa.push(xa[j]); if (paired) pb.push(byK.get(ra[j][0])); }
+        if (!paired) for (let i = 0; i < xb.length; i++) pb.push(xb[Math.floor(rand() * xb.length)]);
+        const ba = mi(pa), bb = mi(pb); bd[b] = (bb.med - ba.med) / sc; bl[b] = Math.log(bb.iqr / ba.iqr);
+      }
+      const sd = Float64Array.from(bd).sort(), sl = Float64Array.from(bl).sort();
+      cells.push({ si, d: (sb.med - sa.med) / sc, lr: Math.log(sb.iqr / sa.iqr), dlo: q(sd, .05), dhi: q(sd, .95), llo: q(sl, .05), lhi: q(sl, .95), bd, bl });
+    });
+    const cats = d3.group(cells, c => SUBJ[c.si].category), rand = rng(31 + AIDX[a.key]), pd = [], pl = [];
+    for (let b = 0; b < NBOOT; b++) {
+      const vd = [], vl = [];
+      for (const cs of cats.values()) for (let i = 0; i < cs.length; i++) { const c = cs[Math.floor(rand() * cs.length)]; vd.push(c.bd[b]); vl.push(c.bl[b]); }
+      pd.push(d3.median(vd)); pl.push(d3.median(vl));
+    }
+    pd.sort((x, y) => x - y); pl.sort((x, y) => x - y);
+    R[a.key] = { cells, pool: { d: d3.median(cells, c => c.d), lr: d3.median(cells, c => c.lr), dlo: q(pd, .05), dhi: q(pd, .95), llo: q(pl, .05), lhi: q(pl, .95) } };
+  }
+  return R;
+}
+const verdict = (lo, hi, m) => lo > -m && hi < m ? "same" : (lo >= m || hi <= -m) ? "moved" : "unclear";
+
+// ---------------- header ----------------
+function header() {
+  const opts = META.groups.map(g => `<option value="${g.id}">${g.label}</option>`).join("");
+  $("selA").innerHTML = opts; $("selB").innerHTML = opts;
+  st.A = G.G07_klein_base4b_cfg1 ? "G07_klein_base4b_cfg1" : META.groups[0].id;
+  st.B = G.G06_klein_base4b_cfg4 ? "G06_klein_base4b_cfg4" : META.groups[1].id;
+  $("selA").value = st.A; $("selB").value = st.B;
+  $("selA").onchange = e => { st.A = e.target.value; update(); };
+  $("selB").onchange = e => { st.B = e.target.value; update(); };
+  $("swap").onclick = () => { [st.A, st.B] = [st.B, st.A]; $("selA").value = st.A; $("selB").value = st.B; update(); };
+  $("selS").innerHTML = d3.groups(SUBJ.map((s, i) => ({ ...s, i })), s => s.category)
+    .map(([c, ss]) => `<optgroup label="${c}">${ss.map(s => `<option value="${s.i}">${s.name}</option>`).join("")}</optgroup>`).join("");
+  $("selS").onchange = e => pick(+e.target.value, st.aspect);
+  if (META.scale_provisional) {
+    $("status").innerHTML = `<i></i>${META.groups.length} / ${META.all_groups}`;
+    $("status").title = `Scale is provisional: computed from ${META.groups.length} of ${META.all_groups} configurations.`;
+  }
+}
+function diffChips() {
+  const a = G[st.A].settings, b = G[st.B].settings;
+  const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(k => String(a[k]) !== String(b[k]));
+  const tail = v => String(v ?? "–").split("/").pop().replace(/^guidance_scale = |^true_cfg_scale = /, "");
+  const chips = keys.filter(k => k !== "weights" && k !== "pipeline").map(k => `<span title="${k}">${tail(a[k])} → ${tail(b[k])}</span>`);
+  if (keys.includes("weights")) chips.unshift(`<span title="weights">${tail(a.weights)} → ${tail(b.weights)}</span>`);
+  if (keys.length > 1) chips.unshift(`<span class="warn" title="${keys.length} declared settings differ: the difference cannot be attributed to one of them">⚠ ${keys.length}</span>`);
+  $("diff").innerHTML = chips.slice(0, 7).join("");
+}
+
+// ---------------- scatter small multiples ----------------
+const SC = {};
+function buildScatters() {
+  const host = d3.select("#scatters"); host.selectAll("*").remove();
+  const W = (host.node().clientWidth - 4 * 12) / 5, H = Math.min(W * .86, 255), m = { l: 16, r: 16, t: 10, b: 30 };
+  for (const a of RET) {
+    const card = host.append("div").attr("class", "card").attr("data-a", a.key).on("click", e => { if (e.target.tagName !== "circle") pick(st.subj, a.key); });
+    card.append("h2").text(a.key === "sat" ? "saturation" : a.key === "bg" ? "background" : a.key);
+    const svg = card.append("svg").attr("width", W).attr("height", H);
+    const s = { svg, W, H, m, x: d3.scaleLinear().range([m.l, W - m.r]), y: d3.scaleLinear().range([H - m.b, m.t]) };
+    s.bandX = svg.append("rect").attr("class", "band").attr("rx", 6);
+    s.bandY = svg.append("rect").attr("class", "band").attr("rx", 6);
+    s.zx = svg.append("line").attr("class", "zero"); s.zy = svg.append("line").attr("class", "zero");
+    svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 8).text(poleWord(a.left));
+    svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 8).attr("text-anchor", "end").text(poleWord(a.right));
+    svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", m.t + 10).attr("text-anchor", "end").text("wider");
+    svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - m.b - 6).attr("text-anchor", "end").text("tighter");
+    s.ci = svg.append("g"); s.dots = svg.append("g"); s.pool = svg.append("g").attr("class", "pool");
+    s.pool.append("line").attr("class", "px"); s.pool.append("line").attr("class", "py");
+    s.pool.append("path").attr("d", d3.symbol(d3.symbolDiamond, 150)());
+    s.pool.on("mousemove", e => showTip(e, poolTip(a))).on("mouseleave", hideTip);
+    SC[a.key] = s;
+  }
+}
+function drawScatters(animate) {
+  for (const a of RET) {
+    const s = SC[a.key], r = R[a.key], { x, y, m, W, H } = s, t = d3.transition().duration(animate ? DUR : 0).ease(d3.easeCubicInOut);
+    const xm = Math.max(1.6, d3.max(r.cells, c => Math.abs(c.d)) * 1.25), ym = Math.max(.9, d3.max(r.cells, c => Math.abs(c.lr)) * 1.25);
+    x.domain([-xm, xm]); y.domain([-ym, ym]);
+    s.bandX.transition(t).attr("x", x(-M_LOC)).attr("width", x(M_LOC) - x(-M_LOC)).attr("y", m.t).attr("height", H - m.b - m.t);
+    s.bandY.transition(t).attr("y", y(M_LR)).attr("height", y(-M_LR) - y(M_LR)).attr("x", m.l).attr("width", W - m.l - m.r);
+    s.zx.transition(t).attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.t).attr("y2", H - m.b);
+    s.zy.transition(t).attr("y1", y(0)).attr("y2", y(0)).attr("x1", m.l).attr("x2", W - m.r);
+    s.ci.selectAll("g").data(r.cells, c => c.si).join(en => { const g = en.append("g"); g.append("line").attr("class", "ci h"); g.append("line").attr("class", "ci v"); return g; })
+      .each(function (c) {
+        d3.select(this).select(".h").attr("data-s", c.si).transition(t).attr("x1", x(c.dlo)).attr("x2", x(c.dhi)).attr("y1", y(c.lr)).attr("y2", y(c.lr));
+        d3.select(this).select(".v").attr("data-s", c.si).transition(t).attr("x1", x(c.d)).attr("x2", x(c.d)).attr("y1", y(c.llo)).attr("y2", y(c.lhi));
+      });
+    s.dots.selectAll("circle").data(r.cells, c => c.si)
+      .join(en => en.append("circle").attr("class", "subj").attr("r", 5.5).attr("cx", x(0)).attr("cy", y(0))
+        .on("mouseenter", (e, c) => { st.hover = c.si; linked(); })
+        .on("mousemove", (e, c) => showTip(e, cellTip(a, c)))
+        .on("mouseleave", () => { st.hover = null; hideTip(); linked(); })
+        .on("click", (e, c) => pick(c.si, a.key)))
+      .attr("data-s", c => c.si).transition(t).attr("cx", c => x(c.d)).attr("cy", c => y(c.lr));
+    const p = r.pool;
+    s.pool.select(".px").transition(t).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
+    s.pool.select(".py").transition(t).attr("x1", x(p.d)).attr("x2", x(p.d)).attr("y1", y(p.llo)).attr("y2", y(p.lhi));
+    s.pool.select("path").transition(t).attr("transform", `translate(${x(p.d)},${y(p.lr)})`);
+  }
+  linked();
+}
+const fd = d3.format("+.2f"), fr = v => "×" + d3.format(".2f")(Math.exp(v));
+const VL = { same: "same place", moved: "displaced", unclear: "—" }, VS = { same: "same spread", moved: v => v, unclear: "—" };
+function cellTip(a, c) {
+  const vl = verdict(c.dlo, c.dhi, M_LOC), vs = verdict(c.llo, c.lhi, M_LR);
+  return `<b>${SUBJ[c.si].name}</b><div class="bar"><span>shift</span><span><b>${fd(c.d)}</b> ${vl === "moved" ? "· displaced" : vl === "same" ? "· same place" : ""}</span><span>spread</span><span><b>${fr(c.lr)}</b> ${vs === "moved" ? (c.lr < 0 ? "· tighter" : "· wider") : vs === "same" ? "· same" : ""}</span></div>`;
+}
+function poolTip(a) {
+  const r = R[a.key], p = r.pool, up = r.cells.filter(c => c.dlo >= M_LOC).length, dn = r.cells.filter(c => c.dhi <= -M_LOC).length;
+  return `<b>All subjects</b><div class="bar"><span>shift</span><span><b>${fd(p.d)}</b> [${fd(p.dlo)}, ${fd(p.dhi)}]</span><span>spread</span><span><b>${fr(p.lr)}</b> [${fr(p.llo)}, ${fr(p.lhi)}]</span><span>displaced</span><span>${dn} ← · → ${up}</span></div>`;
+}
+
+// ---------------- linked highlighting ----------------
+function linked() {
+  const s = cur();
+  d3.selectAll(".subj").classed("on", function () { return +this.dataset.s === s; }).filter(function () { return +this.dataset.s === s; }).raise();
+  d3.selectAll(".ci").classed("on", function () { return +this.dataset.s === s; });
+  d3.selectAll("#scatters .card").classed("on", function () { return this.dataset.a === st.aspect; });
+  drawRidge(); drawStrip();
+}
+function pick(si, aspect) { st.subj = si; st.aspect = aspect; st.job = null; st.hover = null; $("selS").value = si; linked(); }
+
+// ---------------- smooth distributions (ridgelines) ----------------
+function kde(vals, xs) {
+  const n = vals.length, sd = d3.deviation(vals) || .3, iqr = d3.quantile(vals, .75) - d3.quantile(vals, .25);
+  const h = 0.9 * Math.min(sd, (iqr || sd) / 1.34) * Math.pow(n, -.2) || .2;
+  return xs.map(x => [x, d3.mean(vals, v => Math.exp(-.5 * ((x - v) / h) ** 2)) / (h * Math.sqrt(2 * Math.PI))]);
+}
+function drawRidge() {
+  const si = cur(), s = SUBJ[si];
+  $("subjName").textContent = s.name;
+  const host = d3.select("#ridge"); host.selectAll("*").remove();
+  const W = host.node().clientWidth - 32, aspects = ASP.filter(a => !s.excluded.includes(a.key)), rowH = 62, m = { l: 108, r: 10 };
+  const svg = host.append("svg").attr("width", W).attr("height", aspects.length * rowH + 6).attr("class", "ridge");
+  aspects.forEach((a, i) => {
+    const ai = 3 + AIDX[a.key], sc = META.scale[a.key], ra = SCORES[st.A][si], rb = SCORES[st.B][si];
+    const ma = mi(ra.map(r => r[ai])).med, val = r => (r[ai] - ma) / sc;
+    const va = ra.map(val), vb = rb.map(val), ext = Math.max(2, d3.max([...va, ...vb], Math.abs) * 1.15);
+    const x = d3.scaleLinear([-ext, ext], [m.l, W - m.r]), xs = d3.range(81).map(k => -ext + 2 * ext * k / 80);
+    const da = kde(va, xs), db = kde(vb, xs), ymax = d3.max([...da, ...db], d => d[1]);
+    const base = 40, y = d3.scaleLinear([0, ymax], [base, 6]);
+    const area = d3.area().x(d => x(d[0])).y0(base).y1(d => y(d[1])).curve(d3.curveBasis);
+    const on = a.key === st.aspect;
+    const g = svg.append("g").attr("class", "row").attr("transform", `translate(0,${i * rowH})`).style("opacity", on ? 1 : a.retained ? .5 : .28)
+      .on("click", () => pick(si, a.key));
+    g.append("text").attr("class", "rowlab").attr("x", 0).attr("y", base - 6).text(a.key === "sat" ? "saturation" : a.key === "bg" ? "background" : a.key);
+    g.append("line").attr("class", "zero").attr("x1", m.l).attr("x2", W - m.r).attr("y1", base).attr("y2", base);
+    [[da, "var(--a)"], [db, "var(--b)"]].forEach(([d, c]) => g.append("path").attr("class", "area").attr("d", area(d)).attr("fill", c).attr("fill-opacity", .18).attr("stroke", c));
+    [[ra, va, "var(--a)", st.A, base + 6], [rb, vb, "var(--b)", st.B, base + 14]].forEach(([rows, v, c, gid, yy]) => {
+      g.selectAll(null).data(rows).join("line").attr("class", r => "rug" + (r[2] === st.job && on ? " hl" : "")).attr("stroke", c)
+        .attr("x1", (r, j) => x(v[j])).attr("x2", (r, j) => x(v[j])).attr("y1", yy - 3).attr("y2", yy + 3).attr("data-j", r => r[2])
+        .on("mouseenter", (e, r) => { if (!on) return; st.job = r[2]; markJob(); })
+        .on("mousemove", (e, r) => on && showTip(e, imgTip(gid, r)))
+        .on("mouseleave", () => { hideTip(); });
+    });
+  });
+}
+
+// ---------------- image strips ----------------
+function drawStrip() {
+  const si = cur(), a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key];
+  $("stripName").textContent = a.key === "sat" ? "saturation" : a.key === "bg" ? "background" : a.key;
+  $("strip").innerHTML = [[st.A, "var(--a)"], [st.B, "var(--b)"]].map(([g, c]) => {
+    const rows = [...SCORES[g][si]].sort((p, r) => p[ai] - r[ai]);
+    return `<div class="lanehead"><i style="background:${c}"></i>${G[g].label}</div>
+      <div class="lane">${rows.map(r => `<img src="thumbs/${g}/${r[2]}.jpg" data-g="${g}" data-j="${r[2]}" alt="">`).join("")}</div>`;
+  }).join("") + `<div class="grad" style="background:linear-gradient(90deg,var(--faint),var(--ink-2))"></div><div class="ends"><span>${poleWord(a.left)}</span><span>${poleWord(a.right)}</span></div>`;
+  $("strip").querySelectorAll("img").forEach(im => {
+    const g = im.dataset.g, r = SCORES[g][si].find(x => x[2] === im.dataset.j);
+    im.onmouseenter = () => { st.job = r[2]; markJob(); };
+    im.onmousemove = e => showTip(e, imgTip(g, r));
+    im.onmouseleave = hideTip;
+  });
+  markJob();
+}
+function markJob() {
+  document.querySelectorAll(".lane img").forEach(im => im.classList.toggle("hl", im.dataset.j === st.job));
+  d3.selectAll(".rug").classed("hl", function () { return this.dataset.j === st.job && this.parentNode.style.opacity === "1"; }).filter(function () { return this.dataset.j === st.job; }).raise();
+}
+function imgTip(g, r) { return `<b>${G[g].label}</b> · seed ${r[1]}<img src="thumbs/${g}/${r[2]}.jpg" alt="">`; }
+
+// ---------------- tooltip ----------------
+function showTip(e, html) {
+  tip.innerHTML = html; tip.style.display = "block";
+  tip.style.left = Math.min(e.clientX + 16, innerWidth - tip.offsetWidth - 10) + "px";
+  tip.style.top = Math.min(e.clientY + 16, innerHeight - tip.offsetHeight - 10) + "px";
+}
+function hideTip() { tip.style.display = "none"; }
+
+let R = null;
+function update() { diffChips(); R = contrast(); drawScatters(true); }
+header(); buildScatters(); update();
+addEventListener("resize", () => { buildScatters(); drawScatters(false); });
+</script>
+</body>
+</html>
