@@ -67,4 +67,17 @@ Round 1 no longer uses the 240 pairs drawn from the pilot images (`make_pairs.py
 表 1：每个方面一行，列出两端描述、差距大对子上的与 CLIP 一致率（含区间）、"看不出"比例、两人 kappa、处理结果（保留 / 改名 / 删除）。正文写明：两位标注人、240 + 第二轮对子、判定规则在标注前定下、碰头讨论不改答案。
 
 ## 7. 结果与决定
-（第一轮完成后填写）
+
+### Round 1 on the study images (2026-10-12), before the owner's decision
+- **Annotators:** 4 instead of 2 (the owner and three students, A–D, each independent, 240 pairs each). This is a deviation in the direction of more evidence; the decision rule of §4 is unchanged and is applied to all large-gap judgements pooled (48 per aspect). Agreement between annotators is reported as the mean pairwise Cohen's kappa and Fleiss' kappa.
+- **One annotator (C) never answered "can't tell"** (0% vs 17–39% for the others), against the guide. Their answers are kept. Robustness is shown by re-applying the rule without each annotator in turn (`results/annotation_study/leave_one_out.txt`).
+- **Results** (`results/annotation_study/aspect_check.csv`; agreement with CLIP / "can't tell" on large-gap pairs, mean pairwise kappa):
+
+| Verdict | Aspects |
+|---|---|
+| Pass with every annotator removed in turn | sat 0.92/0.00 (κ 0.58), tone 0.95/0.08 (0.41), medium 0.91/0.10 (0.46), mood 0.88/0.12 (0.64), shot 0.85/0.15 (0.45), inout 0.97/0.29 (0.59), bg 0.80/0.08 (0.43) |
+| Fail with every annotator removed in turn | style 0.15 (CLIP systematically reversed: it calls klein's polished photographs "stylized"), quality 0.45, dof 0.59, center 0.68 |
+| Borderline (the verdict depends on one annotator) | light 0.78/0.15 (κ 0.37), angle 0.77/0.35 (0.37), time 0.89/0.42 (0.33), clean 0.82/0.42 (0.17) |
+
+- **Decision on which 4–6 aspects to keep:** pending the owner (record it here).
+

@@ -3,7 +3,7 @@
 $T2IC_DATA/annotation_study/pairs.json (make_pairs_study.py), and its results go to results/annotation_study/.
 Per aspect: on large-gap pairs, how often people agree with CLIP's direction (among pairs they did not mark "can't tell",
 with a 95% Wilson interval), how often they could not tell, and agreement between the two annotators (Cohen's kappa over
-left/right/none). An aspect is flagged unreliable if CLIP agreement < 0.75 or "can't tell" > 40% on large-gap pairs
+left/right/none; with 3+ annotators the mean pairwise kappa and Fleiss' kappa). An aspect is flagged unreliable if CLIP agreement < 0.75 or "can't tell" > 40% on large-gap pairs
 (rule fixed before labelling, see PROTOCOL.md).
 Annotators are renamed A, B, ... in file order so the tracked results carry no names.
 Writes results/annotation/{aspect_check.csv, pair_answers.csv}."""
@@ -26,6 +26,17 @@ def kappa(a, b):
     po = (a == b).mean()
     pe = sum((a == c).mean() * (b == c).mean() for c in cats)
     return (po - pe) / (1 - pe) if pe < 1 else 1.0
+
+
+def fleiss(w):
+    """Fleiss' kappa over left/right/none for a pairs x annotators table of answers."""
+    cats = ["left", "right", "none"]
+    n = w.shape[1]
+    counts = pd.DataFrame({c: (w == c).sum(axis=1) for c in cats})
+    p_i = ((counts ** 2).sum(axis=1) - n) / (n * (n - 1))
+    p_j = counts.sum() / (len(w) * n)
+    pe = (p_j ** 2).sum()
+    return (p_i.mean() - pe) / (1 - pe) if pe < 1 else 1.0
 
 
 def wilson(k, n, z=1.96):
@@ -61,7 +72,14 @@ def main(files):
         ann = sorted(g.annotator.unique())
         if len(ann) >= 2:
             w = g.pivot_table(index="pid", columns="annotator", values="answer", aggfunc="first").dropna()
-            r["kappa"] = round(kappa(w[ann[0]], w[ann[1]]), 3)
+            ks = [kappa(w[x], w[y]) for i, x in enumerate(ann) for y in ann[i + 1:]]
+            r["kappa"] = round(sum(ks) / len(ks), 3)  # mean pairwise Cohen's kappa (= Cohen's kappa for 2 annotators)
+            if len(ann) >= 3:
+                r["fleiss"] = round(fleiss(w[ann]), 3)
+            # per-annotator agreement with CLIP on large-gap pairs, to spot an annotator who differs from the rest
+            for x in ann:
+                dx = decided[decided.annotator == x]
+                r[f"agree_{x}"] = round((dx.answer == dx.clip_dir).mean(), 3) if len(dx) else None
         r["reliable"] = bool(r["agree_clip"] is not None and r["agree_clip"] >= .75 and r["cant_tell"] <= .4)
         rows.append(r)
     t = pd.DataFrame(rows).sort_values("agree_clip")
