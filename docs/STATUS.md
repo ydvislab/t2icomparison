@@ -1,4 +1,4 @@
-# Status (2026-10-12)
+# Status (2026-10-12, evening)
 
 > One page: what evidence exists, where the work stands, and what is missing. Questions and methods: `RESEARCH_PROPOSAL.md` v2. Plan, generation design and decisions: `PLAN.md`. Outline: `OUTLINE.md` v2.
 
@@ -24,11 +24,11 @@ Measured with DINOv2 / VLM; not human-checked.
 - **Measurement:** 15 bipolar aspects (`aspects/aspects.py`, CLIP ViT-L/14), standardized within each prompt. Location is the median; spread is the group IQR divided by the pooled IQR; both have bootstrap intervals. Prompt-implied aspects are excluded per prompt. The human check decides which aspects stay, and the control prompts check that each aspect responds.
 
 ## 5. Infrastructure (2026-10-12)
-- **GPU server:** 2 × H200 NVL (141 GB each). Agreed split: GPU 0 for this project, GPU 1 for the TVCG2026 project. **Blocker since 2026-10-10 19:20:** a second TVCG2026 vLLM service (GLM-4.5V-FP8, port 8002) runs on GPU 0 and holds 134 GB, leaving about 7 GB. CLIP scoring fits; generation and the anchor pilot do not.
+- **GPU server:** 2 × H200 NVL (141 GB each). Agreed split: GPU 0 for this project, GPU 1 for the TVCG2026 project. A second TVCG2026 vLLM service (GLM-4.5V-FP8) had taken GPU 0 on 2026-10-10; it was stopped on 2026-10-12 at the owner's request, and GPU 0 is back with this project.
 - **Code and data on the server:** the owner's workspace `yd/t2icomparison/` (`code/`, `data/` = `T2IC_DATA`, `ops/`, `logs/`); see `docs/RUNBOOK.md` §5. The server copy of the code is at `ce17ea0`.
 - **Environment:** ready and checked (torch 2.14.1+cu130, diffusers 0.41.0, transformers 5.19.0; all six pipelines import; GPU arithmetic works).
 - **Weights:** all downloaded (about 290 GB), including FLUX.2 [dev], klein-base 9B and klein 9B. Provenance and the resulting design caveats are in `docs/PROVENANCE.md` (klein 4B vs 9B also changes the text encoder).
-- **Study generation:** G01 SD1.5, G02 SDXL base, G03 SDXL-Turbo and G08 klein 4B are complete (864 images each, `--batch 4`) and CLIP-scored (`clip_scores.csv`, `clip_emb.npz`). G04–G07 and G09–G12 wait for GPU 0. Per the proposal, the scores are not analysed before the practical margins are frozen after the anchor pilot.
+- **Study generation:** see §7 item 1 (864 images per group, `--batch 4`; tmux session `t2ic`). Groups are CLIP-scored as they finish; no contrast between groups is examined before the owner freezes the margins.
 
 ## 6. System (rev4.1, `system/`)
 | View | Question it answers |
@@ -42,16 +42,16 @@ Measured with DINOv2 / VLM; not human-checked.
 Built for 13 groups × 6 prompts. It must scale to about 13 groups × 24 prompts and handle groups whose settings are undeclared (the closed models).
 
 ## 7. Missing for the paper
-1. **Generation at the new scale** (week 2): 4 of 12 open groups done; the other 8 and the anchor pilot wait for GPU 0 (see §5); closed-model API runs by the owner.
-2. **Calibration anchor pilot** (week 2): 1,152 images from G08 and G09; code and decision rules in `experiments/model_study/anchors/`; the full anchor set is sized after the pilot.
-3. **Human check of aspects** (weeks 2–3): round 1 on the existing 240 pairs screens aspects (reduce to 4–6); round 2 is redesigned with graded pairs and the new models, and also checks anchor fidelity.
-4. **Analysis** (week 3): Q1 guidance (primary), Q2 descriptive structure, Q3 one distillation case; practical margins frozen after the anchor pilot; hierarchical bootstrap.
+1. **Generation at the new scale** (week 2): 6 of 12 open groups done (G01, G02, G03, G06, G07, G08); G09 running, then G10, G04, G11, G12, G05 (about 2 days on GPU 0); closed-model API runs by the owner.
+2. **Calibration anchor pilot: done, calibration dropped** (2026-10-12): shot failed fidelity (Qwen-Image turned close-ups of scenes into faces), light failed the revised side-effect rule; reported as a negative result (`results/anchors_pilot/NOTES.md`, `RESEARCH_PROPOSAL.md` §4.2).
+3. **Human check of aspects** (weeks 2–3): round 1 on the existing 240 pairs screens aspects (reduce to 4–6); round 2 is redesigned with graded pairs and the new models.
+4. **Analysis** (week 3): Q1 guidance (primary), Q2 descriptive structure, Q3 one distillation case; practical margins on a fixed per-aspect scale, frozen by the owner before any contrast is examined; hierarchical bootstrap.
 5. **Views and figures for the three audit tasks** (weeks 3–4); the system scales from 13 groups × 6 prompts to 15 groups × 24 subjects.
 6. **Expert evaluation** (week 4): 3–5 experts, the three tasks, against a box-plot or score-table-plus-image-grid baseline.
 7. **Writing** (weeks 4–5): English, ≤20 references, 2 sidebars; outline v2 in `OUTLINE.md`.
 
 ## 8. Main risks
-- **Time:** about 10,000 study images, 1,152 pilot and about 4,600 full anchor images, two human-check rounds and a reframed paper in 5 weeks.
+- **Time:** about 10,000 study images, two human-check rounds and a reframed paper in 5 weeks.
 - **Measurement:** if most aspects fail validation, keep fewer; an aspect whose anchors do not separate is dropped or reported uncalibrated.
 - **Novelty:** DefaultShift and CompCon are close; every claim must rest on the calibrated, validated visual audit and the guidance contrast, not on "what is fixed" in general.
 - **Closed models:** settings, seeds and versions are not under our control; sidebar only, dated, no attribution.

@@ -73,9 +73,9 @@ This timeline is tight for a study of this size. Week 2 is the critical path.
 | Prompt set | **24 prompts** in `PROMPTS.md` (2026-10-10) |
 | Human check | Round 1 (existing 240 pairs) screens aspects; round 2 to be redesigned with graded pairs and the new models (2026-10-11) |
 | Aspects | Reduce to 4–6 validated aspects after round 1 (2026-10-11) |
-| Calibration anchors | **Pilot first**: 2 aspects × 6 subjects × 2 poles × 3 phrasings × 2 reference models × 8 seeds (2026-10-11); full set after the pilot |
+| Calibration anchors | Pilot run (2 aspects × 6 subjects × 2 poles × 3 phrasings × 2 reference models × 8 seeds, 2026-10-11/12); **dropped after the pilot** (2026-10-12): shot failed fidelity, light failed the revised side-effect rule; no second post-hoc revision; full anchor set cancelled. See `RESEARCH_PROPOSAL.md` §4.2 and `results/anchors_pilot/NOTES.md` |
 | Second encoder | SigLIP 2 as a sensitivity check (2026-10-11, following the review) |
-| Practical margins | Proposed |Δx| ≥ 0.15 and IQR ratio ≥ 1.5; frozen after the anchor pilot |
+| Practical margins | Proposed: |Δ| ≥ 0.5 in units of a fixed per-aspect scale (pooled within-cell SD over all 12 open configurations) and IQR ratio ≥ 1.5; to be frozen by the owner before any contrast is examined (`RESEARCH_PROPOSAL.md` §5) |
 | Expert feedback | 3–5 experts from the group, arranged by the owner |
 | Venue and deadline | **IEEE CG&A, mid-November 2026** (2026-10-11); CVPR 2027 (deadline 2026-11-16) considered and declined for this paper (2026-10-12) |
 | Follow-up paper | A separate project (own repository, own server folder, own session) develops a method for the vision venues (ICCV 2027 or later): a displacement/concentration decomposition of guidance and a corrected guidance method. Boundary: this paper claims the visual audit method and bounded descriptive findings; the follow-up claims the mechanism and the method. Shared assets (prompt set, anchor calibration, generated images) may be reused there with citation, but neither paper reports the other's main results as its own (2026-10-12) |

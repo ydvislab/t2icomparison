@@ -1,5 +1,7 @@
 # Calibration anchors
 
+> **Outcome (2026-10-12): calibration was dropped after the pilot.** No phrasing of `shot` or `light` passed all checks (`results/anchors_pilot/NOTES.md`); the full anchor set is cancelled. The code is kept so that the pilot can be reproduced and reported as a negative result.
+
 Reference-prompt calibration for the aspect scale (`docs/RESEARCH_PROPOSAL.md` §4.2). For each subject and aspect, a reference model is asked explicitly for each pole ("a city street, in warm golden light" / "a city street, in cool blue light"). The median scores of the two request sets, L and R, define the calibrated location x = (median − L) / (R − L) of any group's default images for that subject and aspect. 0 and 1 are request-conditioned reference points in score units, not physical endpoints, and values outside [0, 1] are kept.
 
 ## Pilot (decided 2026-10-11)

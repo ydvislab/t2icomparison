@@ -19,7 +19,7 @@ When a prompt leaves lighting, framing or palette unspecified, a text-to-image m
 |---|---|---|---|
 | 1 Introduction | Defaults decide unspecified appearance; evaluators compare configurations; one score merges displacement and concentration and hides per-subject reversals; contributions | 900 | `STATUS.md`, pilot results |
 | 2 Related work | Default and diversity measurement (DefaultShift, GRADE, DIMCIM, attribute-conditional benchmark, Vendi); comparing image sets (VisDiff, CompCon); visual analytics of generated images (ViBEx, Varif.ai, CUPID, GROVE); visual comparison (Gleicher) | 700 | `RESEARCH_PROPOSAL.md` §7, `RELATED_WORK.md` |
-| 3 Audit method | 3.1 tasks T1–T3 and the evaluator's decisions; 3.2 aspects and their validation; 3.3 calibration anchors; 3.4 location, width, uncertainty, margins; 3.5 validity conditions | 1,500 | proposal §3–5, `annotation/`, `anchors/` |
+| 3 Audit method | 3.1 tasks T1–T3 and the evaluator's decisions; 3.2 aspects and their validation; 3.3 why request anchors were not used (pilot negative result); 3.4 location, width, uncertainty, margins; 3.5 validity conditions | 1,500 | proposal §3–5, `annotation/`, `anchors/` |
 | 4 Visual design | Views and how each serves T1–T3; design rationale; designs we abandoned and why (projection envelopes read as spread, pooled baselines, card summaries) | 1,300 | `system/`, `DESIGN_HISTORY.md` |
 | 5 Audit of 12 configurations | Setup (configurations, subjects, seeds, settings provenance); Q1 guidance; Q2 structure and per-subject reversals; Q3 distillation package vs DefaultShift; measurement failures the images exposed | 1,500 | study data |
 | 6 Expert evaluation | Participants, tasks, baseline condition, what changed in their judgements, difficulties | 700 | sessions in week 4 |
@@ -31,7 +31,7 @@ When a prompt leaves lighting, framing or palette unspecified, a text-to-image m
 | # | Content | Task |
 |---|---|---|
 | 1 (teaser) | Same subject and seeds at CFG 1 and CFG 4: image strips on one calibrated axis, showing a concentration and a displacement side by side | T1 |
-| 2 | Method pipeline: aspects → validation → anchors → calibrated location and width → audit views | — |
+| 2 | Method pipeline: aspects → validation → standardized location and width → audit views | — |
 | 3 | Interface overview with the three tasks marked | T1–T3 |
 | 4 | Guidance in two families: per-subject calibrated distributions, endpoints with intervals | T1 |
 | 5 | A pooled conclusion that reverses across subjects | T2 |

@@ -24,3 +24,6 @@ Check 3 (stability) is complete for G08 only. It needs the G09 study images, whi
 - **shot is not calibrated.** It is reported on the uncalibrated scale, and the Qwen-Image "close-up becomes a face" images are kept as a case study of a measurement failure caught by inspecting the images.
 - **Result for light under the revised rule (all 14 other aspects):** the median off_ratio is 0.61, 0.81 and 0.56 (phrasings 0, 1, 2) for klein 4B, and 0.59, 0.69 and 0.55 for Qwen-Image. **No phrasing passes; phrasing 2 misses narrowly.** The largest side effects are on tone, mood and time: warm/cool light requests also make the images look like golden hour or evening, and CLIP's "sepia tones" and "moody" texts respond to warm light.
 - **Sensitivity (not a rule; computed after seeing the result above):** if side effects are counted only on the candidate aspects of `RESEARCH_PROPOSAL.md` §4.1 (sat, shot, angle, dof, medium), the medians are 0.26, 0.43 and 0.43 (klein 4B) and 0.23, 0.35 and 0.29 (Qwen-Image), and every phrasing passes. Using this would be a second, post-hoc deviation and needs an explicit owner decision.
+
+## Final decision (2026-10-12)
+**No calibration in this paper** (owner chose the strict option). The post-hoc sensitivity above is not used. The G09 stability check is no longer needed. See `docs/RESEARCH_PROPOSAL.md` §4.2.

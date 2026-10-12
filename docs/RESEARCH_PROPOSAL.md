@@ -1,6 +1,6 @@
 # Research proposal: visual auditing of appearance defaults in text-to-image models
 
-> v2, 2026-10-11, revised after an adversarial external review of v1 (`REVIEW_PROPOSAL.md`, which also summarizes what v1 proposed). Venue: IEEE CG&A regular paper, mid-November 2026. Generation of G01–G12 is running with the design in `PLAN.md` §3–4; nothing here requires regenerating it. Owner decisions are in §9.
+> v2.1, 2026-10-12: calibration anchors dropped after the pilot (§4.2). v2, 2026-10-11, revised after an adversarial external review of v1 (`REVIEW_PROPOSAL.md`, which also summarizes what v1 proposed). Venue: IEEE CG&A regular paper, mid-November 2026. Generation of G01–G12 is running with the design in `PLAN.md` §3–4; nothing here requires regenerating it. Owner decisions are in §9.
 
 ## 1. What changed from v1
 - **Claims narrowed.** v1 asked what *determines* defaults across five factors. The design cannot support that: family, scale and product contrasts change several things at once, and DefaultShift already covers distillation replacements, including direction of moved mass versus entropy change and guidance probes. v2 claims a validated visual audit with bounded empirical findings.
@@ -29,33 +29,32 @@ Dropped as hypotheses: family relocates (not separable), scale (one pair; the te
 ### 4.1 Aspects
 Start from the 15 CLIP bipolar aspects (`aspects/aspects.py`) and keep **4–6** that pass all checks in §4.3. Priority candidates: lighting temperature, saturation, framing (shot), viewpoint (angle), depth of field, and medium (photo vs painting; treated as categorical if interpolation is not meaningful). Composite aspects (tone, composition, quality, mood, style, background/clutter) are dropped unless validation supports a precise reading.
 
-### 4.2 Reference-prompt calibration (anchors)
-- For each retained aspect, subject and pole: an explicit request prompt from a fixed template (e.g. "a city street, in warm golden light").
-- **Pilot (decided 2026-10-11):** 2 aspects × 6 subjects × 2 poles × 3 phrasings × 2 references × 8 seeds = 1,152 images; jobs, decision rules and server steps in `experiments/model_study/anchors/README.md`.
-- Two reference configurations (G08 klein 4B and G09 Qwen-Image-2512, recommended settings), **8 seeds** each: 6 aspects × 24 subjects × 2 poles × 2 references × 8 = **4,608 images**, before exclusions. Pilot on 2 aspects × 6 subjects first, with 2–3 alternative pole phrasings.
-- Calibrated location x = (median − L)/(R − L) and calibrated width w = IQR/(R − L), where L and R are the reference medians for the two poles. Values outside [0, 1] are kept. 0 and 1 are request-conditioned reference points in score units, not physical endpoints or perceptual units, and 0.5 is not "neutral".
-- Calibration is computed per reference model as well as pooled; results are shown with each reference alone. Anchor uncertainty is propagated by resampling anchor images. Cells with an unstable or small gap (R − L) are excluded rather than rescued.
-- Semantic exclusions (aspects implied by the prompt) and the existing 6 control prompts are kept; anchor separation answers a different question.
-- These are anchors from configurations that are themselves in the study: "fixed reference-prompt calibration", not an external ground truth.
+### 4.2 Reference-prompt calibration: dropped after the pilot (owner decision 2026-10-12)
+The anchor pilot (`results/anchors_pilot/NOTES.md`; 2 aspects × 6 subjects × 2 poles × 3 phrasings × 2 reference models × 8 seeds = 1,152 images) did not produce a usable calibration:
+- **shot:** no phrasing passed every check. In particular, Qwen-Image-2512 turned "an extreme close-up of a kitchen / a market" into close-ups of a man's face, which CLIP scored as perfectly separated (AUC 1.0).
+- **light:** every phrasing separated the poles perfectly and was faithful in the images. The side-effect rule, revised once because the original AUC rule saturates, still failed narrowly (best median ratio 0.55 against a limit of 0.5). The side effects were on tone, mood and time: requested warm or cool light also produced golden-hour or evening scenes.
+- **Decision:** no calibration in this paper. A second post-hoc revision (counting side effects only on the candidate aspects, under which light would pass) was considered and rejected to avoid further deviations. Location is measured on the standardized scale of §5. The full anchor set (about 4,600 images) is cancelled.
+- **Kept for the paper:** the pilot as a reported negative result (request prompts are not clean poles: lighting requests change time of day and mood, and wide-shot requests change the viewpoint); and the Qwen-Image face images as the "trace to evidence" case, a measurement that passes while the images fail.
+- The existing 6 control prompts (`PROMPTS.md`) remain as a basic responsiveness check for each aspect.
 
 ### 4.3 Validation
 1. **Human check, round 1** (`annotation/PROTOCOL.md`, existing 240 pairs): used as a *screen* for which aspects to keep.
-2. **Human check, round 2** (redesigned): held-out pairs spanning small, medium and large score differences, across categories and the new models, including images behind the main comparisons; abstentions reported; uncertainty clustered by item. Also checks anchor fidelity: the requested attribute is present and the subject is preserved.
+2. **Human check, round 2** (redesigned): held-out pairs spanning small, medium and large score differences, across categories and the new models, including images behind the main comparisons; abstentions reported; uncertainty clustered by item.
 3. **Second encoder** (SigLIP 2): effect magnitudes and conclusions compared, disagreements reported (not silently filtered). This is a sensitivity check, not validation.
 4. **Coupling:** correlations between retained aspects reported, so one appearance change is not counted twice.
 5. **Resolution:** resizing standardizes the encoder input only; native resolution remains part of each configuration and is declared.
 
 ## 5. Analysis
-- **Effect sizes first.** For each contrast and cell: Δx (calibrated location shift) and the log ratio of IQRs (within the cell, so no pooled denominator), with intervals.
-- **Practical margins fixed before analysis (frozen after the anchor pilot):** e.g. |Δx| ≥ 0.15 counts as a displacement, |log IQR ratio| ≥ log 1.5 as a change in concentration. "Same place" requires the interval for Δx to lie within the margin (equivalence), not a non-significant shift.
-- **Uncertainty:** hierarchical bootstrap: resample subjects within categories, resample whole image score vectors within groups (keeping seed pairing within a checkpoint), resample anchor images per reference.
+- **Effect sizes first.** For each contrast and cell (aspect × subject): the location shift Δ = (median_B − median_A) / s_aspect and the log ratio of IQRs (within the cell, so no pooled denominator), with intervals. **Proposed (pending owner freeze):** s_aspect is a fixed scale per aspect, namely the pooled within-cell standard deviation of that aspect over all study images of the 12 open configurations. It is computed once when generation is complete, before any contrast is examined, and frozen; it does not depend on which two groups are compared, and it is not recomputed if groups are hidden or added.
+- **Practical margins (proposed, pending owner freeze before any contrast is examined):** |Δ| ≥ 0.5 counts as a displacement; |log IQR ratio| ≥ log 1.5 counts as a change in concentration. "Same place" requires the interval for Δ to lie within ±0.5 (equivalence), not a non-significant shift.
+- **Uncertainty:** hierarchical bootstrap: resample subjects within categories, and resample whole image score vectors within groups (keeping seed pairing within a checkpoint).
 - **Primary tests (pre-declared, corrected together):** for Q1, the median Δx and the median log IQR ratio across subjects, per family and aspect. Everything per cell is shown but treated as exploratory.
 - **Subject dependence (Q2):** within-subject contrasts between configurations, and how their sign and size vary across the sampled subjects; category estimates with leave-one-category-out sensitivity. No variance-decomposition claim.
 - **Full distributions:** every reported result is shown with its full score distribution and images, because median and IQR can hide multiple modes and minority appearances. With 32 seeds, a mode of probability 5% is missed about 19% of the time; this limits claims about rare appearances.
 
 ## 6. The visual method
 The review judged a location–spread scatter with arrows to be a useful conventional plot, not a contribution by itself. The contribution is the **workflow** that makes three audit tasks possible, each tied to images:
-1. **Displacement vs concentration:** for a chosen contrast (e.g. CFG 1 → 4), aligned calibrated distributions per subject, faceted by aspect, showing both endpoints with intervals and anchor images.
+1. **Displacement vs concentration:** for a chosen contrast (e.g. CFG 1 → 4), aligned standardized distributions per subject, faceted by aspect, showing both endpoints with intervals.
 2. **Pooled vs per-subject:** a pooled conclusion that changes after inspecting subjects (e.g. the composition reversal between "a house" and "a kitchen").
 3. **Trace to evidence:** following an apparent difference to the images and catching a measurement failure or an invalid attribution (several settings changed).
 - Arrows are labelled as a setting change or a package replacement. No arrowhead-density contours in the main argument. The t-SNE view stays in the tool but out of the paper unless it answers a specific question.
@@ -67,25 +66,25 @@ The review judged a location–spread scatter with arrows to be a useful convent
 | **DefaultShift** (arXiv 2608.21784) | 14 distilled-replacement pairs; colour (primary), background, lighting, viewpoint by VLM in closed vocabularies; direction of moved mass vs entropy (67 of 1,152 cells with small entropy change but large shift); guidance probes (DMD2's shift aligns with increasing teacher CFG) | Object prompts and replacement pairs only; categorical TV, not calibrated continuous position and width; no within-model guidance contrast across families; no visual audit workflow. **Strongest threat.** |
 | **CompCon** (arXiv 2509.08940, ICCV 2025) | Prompt-conditioned appearance differences between models (palette, night, background, clutter, style); appendix compares four models | Discovery of differences, not calibrated location and concentration under declared settings |
 | **GRADE** (arXiv 2410.22592) | Object-attribute distributions for 12 models, entropy, "default behaviours", cross-model TVD, inverse scaling | Object attributes; no guidance contrast; no calibration |
-| **DIMCIM** (arXiv 2506.05108) | Does-It vs Can-It for underspecified vs explicit prompts | Anchors calibrate the scale; the reachability design itself is not new |
+| **DIMCIM** (arXiv 2506.05108) | Does-It vs Can-It for underspecified vs explicit prompts | Control prompts check responsiveness; the reachability design itself is not new |
 | **Attribute-conditional benchmark** (arXiv 2511.10547) | Human-evaluated diversity incl. background, architecture, weather, time of day | Diversity ranking, not location or audit |
 | **Stage-wise CFG** (arXiv 2509.22007, ICLR 2026) | Theory: guidance suppresses weaker modes and contracts within modes | Q1 is an empirical attribute-level reading; no directional prediction claimed |
 | **VisDiff** (CVPR 2024), **OpenBias** (arXiv 2404.07990), **Default Images** (arXiv 2505.09166) | Describing differences between image sets (incl. SD versions); open-set bias discovery; cross-prompt default images | Comparative image-set auditing context; must be cited |
 | ViBEx, Varif.ai; GROVE (VIS 2026) | Visual exploration of one output set; distributions of text outputs | Multi-configuration calibrated comparison with provenance |
 
-**Remaining novelty** (review: 4/10 before narrowing): a validated visual audit on shared, calibrated, interpretable coordinates, with declared configuration contrasts and visible measurement uncertainty; plus the within-model guidance result in two families on scene-level appearance. Reference budget (20) goes to the closest competing work first.
+**Remaining novelty** (review: 4/10 before narrowing; calibration dropped 2026-10-12): a validated visual audit on shared, human-checked, interpretable aspect axes, with declared configuration contrasts, visible measurement uncertainty and every reading traceable to images; plus the within-model guidance result in two families on scene-level appearance. The anchor pilot's negative result (request prompts are not clean poles) is a supporting finding, not a claim of novelty. Reference budget (20) goes to the closest competing work first.
 
 ## 8. Plan for the remaining five weeks
 | Week | Outcome |
 |---|---|
-| Oct 12–18 | Freeze Q1–Q3, primary contrasts and margins; round 1 human check; pilot anchors and phrasings; record checkpoint revisions, schedulers, text encoders and actual settings |
-| Oct 19–25 | Generation and anchors complete; round 2 validation; measurement pipeline frozen; failed aspects recorded; uncertainty for primary contrasts |
+| Oct 12–18 | Freeze Q1–Q3, primary contrasts and margins; round 1 human check; anchor pilot (done 2026-10-12: calibration dropped); record checkpoint revisions, schedulers, text encoders and actual settings |
+| Oct 19–25 | Generation complete; round 2 validation; measurement pipeline frozen; failed aspects recorded; uncertainty for primary contrasts |
 | Oct 26–Nov 1 | Analysis and full draft; only the views needed for the three tasks; expert sessions begin |
-| Nov 2–8 | Expert evaluation; sensitivity checks (anchors, encoder, categories); no new scope |
+| Nov 2–8 | Expert evaluation; sensitivity checks (encoder, categories, scale definition); no new scope |
 | Nov 9–15 | Adversarial review, reproducibility audit, figures, submission |
 
 ## 9. Owner decisions (2026-10-11)
 1. Framing: **the audit method is the headline** (review recommendation adopted).
-2. Anchors: **pilot first** (`experiments/model_study/anchors/`); the full set is sized after the pilot.
+2. Anchors: pilot first (`experiments/model_study/anchors/`); **after the pilot, calibration is dropped** (2026-10-12, §4.2).
 3. Following the review: SigLIP 2 sensitivity check; closed models in a sidebar; aspects reduced to 4–6 after round 1.
-4. Practical margins: the values in §5 are provisional and are frozen after the anchor pilot, before any study data is analysed.
+4. Practical margins: the values in §5 are provisional and are frozen by the owner before any contrast between groups is examined.
