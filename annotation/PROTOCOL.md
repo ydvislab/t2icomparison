@@ -69,15 +69,16 @@ Round 1 no longer uses the 240 pairs drawn from the pilot images (`make_pairs.py
 ## 7. 结果与决定
 
 ### Round 1 on the study images (2026-10-12), before the owner's decision
-- **Annotators:** 4 instead of 2 (the owner and three students, A–D, each independent, 240 pairs each). This is a deviation in the direction of more evidence; the decision rule of §4 is unchanged and is applied to all large-gap judgements pooled (48 per aspect). Agreement between annotators is reported as the mean pairwise Cohen's kappa and Fleiss' kappa.
-- **One annotator (C) never answered "can't tell"** (0% vs 17–39% for the others), against the guide. Their answers are kept. Robustness is shown by re-applying the rule without each annotator in turn (`results/annotation_study/leave_one_out.txt`).
-- **Results** (`results/annotation_study/aspect_check.csv`; agreement with CLIP / "can't tell" on large-gap pairs, mean pairwise kappa):
+- **Annotators:** four people labelled the 240 pairs independently (the owner and three students). **One student's labels are excluded from the primary analysis (owner decision 2026-10-12)** because that annotator never used "can't tell" (0% of 240 answers, against 17–39% for the others), contrary to the guide; the exclusion is based on this protocol violation, not on agreement with CLIP. **Primary analysis: 3 annotators (A–C), 36 large-gap judgements per aspect;** the decision rule of §4 is unchanged. The 4-annotator analysis is kept as a sensitivity check (`results/annotation_study/with_all_four/`).
+- **Results** (`results/annotation_study/aspect_check.csv`; agreement with CLIP / "can't tell" on large-gap pairs; mean pairwise kappa). "Stable" means that the verdict is the same when each annotator is removed in turn (`leave_one_out.txt`):
 
 | Verdict | Aspects |
 |---|---|
-| Pass with every annotator removed in turn | sat 0.92/0.00 (κ 0.58), tone 0.95/0.08 (0.41), medium 0.91/0.10 (0.46), mood 0.88/0.12 (0.64), shot 0.85/0.15 (0.45), inout 0.97/0.29 (0.59), bg 0.80/0.08 (0.43) |
-| Fail with every annotator removed in turn | style 0.15 (CLIP systematically reversed: it calls klein's polished photographs "stylized"), quality 0.45, dof 0.59, center 0.68 |
-| Borderline (the verdict depends on one annotator) | light 0.78/0.15 (κ 0.37), angle 0.77/0.35 (0.37), time 0.89/0.42 (0.33), clean 0.82/0.42 (0.17) |
+| Pass, stable | sat 0.92/0.00 (κ 0.67), medium 0.90/0.14 (0.50), shot 0.90/0.19 (0.55), tone 0.94/0.11 (0.29), mood 0.87/0.17 (0.71), bg 0.81/0.11 (0.33) |
+| Pass, not stable | inout 1.00/0.39 (0.81): fails without annotator C because "can't tell" reaches 0.42 |
+| Fail, stable | style 0.17/0.00 (CLIP systematically reversed: it calls klein's polished photographs "stylized"), quality 0.50/0.28, dof 0.62/0.06, center 0.65/0.28, clean 0.81/0.56, time 1.00/0.56 ("can't tell": almost all images are daytime) |
+| Fail, not stable | light 0.72/0.19 (κ 0.33; per annotator 0.91, 0.75, 0.50), angle 0.79/0.47 |
 
+- Low kappa despite passing (tone 0.29, bg 0.33) comes mostly from annotators differing on *whether* they can tell, not on direction; §4 says such aspects are considered for renaming.
 - **Decision on which 4–6 aspects to keep:** pending the owner (record it here).
 

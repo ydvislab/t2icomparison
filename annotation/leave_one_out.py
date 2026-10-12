@@ -16,7 +16,7 @@ def verdict(sub):
         agree = (dec.answer == dec["clip"]).mean(); ct = (g.answer == "none").mean()
         out[a] = ("PASS" if agree >= .75 and ct <= .4 else "fail") + f" {agree:.2f}/{ct:.2f}"
     return out
-cols = {"all 4": verdict(L)}
+cols = {f"all {len(ann)}": verdict(L)}
 for drop in ann:
     cols[f"without {drop}"] = verdict(L[L.who != drop])
 T = pd.DataFrame(cols)
