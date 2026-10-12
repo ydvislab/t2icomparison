@@ -27,7 +27,7 @@ Dropped as hypotheses: family relocates (not separable), scale (one pair; the te
 
 ## 4. Measurement
 ### 4.1 Aspects
-Start from the 15 CLIP bipolar aspects (`aspects/aspects.py`) and keep **4–6** that pass all checks in §4.3. Priority candidates: lighting temperature, saturation, framing (shot), viewpoint (angle), depth of field, and medium (photo vs painting; treated as categorical if interpolation is not meaningful). Composite aspects (tone, composition, quality, mood, style, background/clutter) are dropped unless validation supports a precise reading.
+Start from the 15 CLIP bipolar aspects (`aspects/aspects.py`) and keep **4–6** that pass all checks in §4.3. **Frozen 2026-10-12 after human check round 1:** sat, medium, shot, tone and bg (`experiments/model_study/analysis/frozen_aspects.json`; `annotation/PROTOCOL.md` §7). Of the prior candidates, light and angle failed (unstable, many "can't tell" or disagreement between annotators) and dof failed; tone stands for the coupled warm/yellowed signal (light, tone and mood move together, as the anchor pilot showed).
 
 ### 4.2 Reference-prompt calibration: dropped after the pilot (owner decision 2026-10-12)
 The anchor pilot (`results/anchors_pilot/NOTES.md`; 2 aspects × 6 subjects × 2 poles × 3 phrasings × 2 reference models × 8 seeds = 1,152 images) did not produce a usable calibration:
@@ -48,7 +48,7 @@ The anchor pilot (`results/anchors_pilot/NOTES.md`; 2 aspects × 6 subjects × 2
 - **Effect sizes first.** For each contrast and cell (aspect × subject): the location shift Δ = (median_B − median_A) / s_aspect and the log ratio of IQRs (within the cell, so no pooled denominator), with intervals. **Frozen 2026-10-12** (`experiments/model_study/analysis/frozen_margins.json`): s_aspect is a fixed scale per aspect, namely the pooled within-cell standard deviation of that aspect over all study images of the 12 open configurations. It is computed once when generation is complete, before any contrast is examined, and frozen; it does not depend on which two groups are compared, and it is not recomputed if groups are hidden or added.
 - **Practical margins (frozen 2026-10-12 by the owner, before any contrast between groups was examined):** |Δ| ≥ 0.5 counts as a displacement; |log IQR ratio| ≥ log 1.5 counts as a change in concentration. "Same place" requires the interval for Δ to lie within ±0.5 (equivalence), not a non-significant shift.
 - **Uncertainty:** hierarchical bootstrap: resample subjects within categories, and resample whole image score vectors within groups (keeping seed pairing within a checkpoint).
-- **Primary tests (pre-declared, corrected together):** for Q1, the median Δx and the median log IQR ratio across subjects, per family and aspect. Everything per cell is shown but treated as exploratory.
+- **Primary tests (pre-declared, corrected together):** for Q1, the median Δ and the median log IQR ratio across subjects, per family and retained aspect (2 × 5 × 2 = 20 tests, Holm). Everything per cell is shown but treated as exploratory.
 - **Subject dependence (Q2):** within-subject contrasts between configurations, and how their sign and size vary across the sampled subjects; category estimates with leave-one-category-out sensitivity. No variance-decomposition claim.
 - **Full distributions:** every reported result is shown with its full score distribution and images, because median and IQR can hide multiple modes and minority appearances. With 32 seeds, a mode of probability 5% is missed about 19% of the time; this limits claims about rare appearances.
 

@@ -72,7 +72,7 @@ This timeline is tight for a study of this size. Week 2 is the critical path.
 | Paper focus | ~~The models; the system is the instrument (2026-10-10)~~ → **the visual audit method is the headline; the model study is its evidence** (2026-10-11, following the external review) |
 | Prompt set | **24 prompts** in `PROMPTS.md` (2026-10-10) |
 | Human check | Round 1 (existing 240 pairs) screens aspects; round 2 to be redesigned with graded pairs and the new models (2026-10-11) |
-| Aspects | Reduce to 4–6 validated aspects after round 1 (2026-10-11) |
+| Aspects | **Frozen 2026-10-12** after round 1 (3 annotators; one excluded for never using "can't tell"): sat, medium, shot, tone, bg (`experiments/model_study/analysis/frozen_aspects.json`) |
 | Calibration anchors | Pilot run (2 aspects × 6 subjects × 2 poles × 3 phrasings × 2 reference models × 8 seeds, 2026-10-11/12); **dropped after the pilot** (2026-10-12): shot failed fidelity, light failed the revised side-effect rule; no second post-hoc revision; full anchor set cancelled. See `RESEARCH_PROPOSAL.md` §4.2 and `results/anchors_pilot/NOTES.md` |
 | Second encoder | SigLIP 2 as a sensitivity check (2026-10-11, following the review) |
 | Practical margins | **Frozen 2026-10-12**: |Δ| ≥ 0.5 in units of a fixed per-aspect scale (pooled within-cell SD over all 12 open configurations), IQR ratio ≥ 1.5, equivalence by 90% intervals; `experiments/model_study/analysis/frozen_margins.json` |

@@ -80,5 +80,5 @@ Round 1 no longer uses the 240 pairs drawn from the pilot images (`make_pairs.py
 | Fail, not stable | light 0.72/0.19 (κ 0.33; per annotator 0.91, 0.75, 0.50), angle 0.79/0.47 |
 
 - Low kappa despite passing (tone 0.29, bg 0.33) comes mostly from annotators differing on *whether* they can tell, not on direction; §4 says such aspects are considered for renaming.
-- **Decision on which 4–6 aspects to keep:** pending the owner (record it here).
+- **Decision (owner, 2026-10-12, frozen):** keep **sat, medium, shot, tone, bg** for the analysis (`experiments/model_study/analysis/frozen_aspects.json`). Of the coupled warm/dark aspects only tone is kept (mood also passed; light failed), so one appearance change is not counted twice; tone is read as a warm, yellowed, vintage-photo look. inout is shown in the tool only. light, angle and dof are reported as limitations: the human check found them unreliable on these images.
 

@@ -1,0 +1,17 @@
+{
+  "frozen": "2026-10-12",
+  "decided_by": "owner",
+  "note": "Aspects retained for the analysis after human check round 1 (annotation/PROTOCOL.md section 7; results/annotation_study/). Frozen before any contrast between study groups was examined. Do not edit; any later change is a documented deviation.",
+  "retained": {
+    "sat":    {"poles": "muted desaturated colors <-> vivid saturated colors", "round1": "agree 0.92, can't tell 0.00, kappa 0.67, stable"},
+    "medium": {"poles": "a photograph <-> a painting or illustration", "round1": "agree 0.90, can't tell 0.14, kappa 0.50, stable"},
+    "shot":   {"poles": "extreme close-up <-> wide shot from far away", "round1": "agree 0.90, can't tell 0.19, kappa 0.55, stable"},
+    "tone":   {"poles": "modern photo with natural neutral colors <-> vintage photo with sepia brown tones", "round1": "agree 0.94, can't tell 0.11, kappa 0.29, stable", "reading": "a warm, yellowed, vintage-photo look; it also carries the warm/cool signal of lighting (the anchor pilot showed light, tone and mood move together), so light and mood are not analysed separately"},
+    "bg":     {"poles": "plain simple background <-> busy detailed background", "round1": "agree 0.81, can't tell 0.11, kappa 0.33, stable"}
+  },
+  "not_retained": {
+    "failed_round1": ["style (CLIP systematically reversed)", "quality", "dof", "center", "clean", "time", "light", "angle"],
+    "passed_but_not_analysed": {"mood": "coupled with tone; tone chosen by the owner", "inout": "mostly implied by the subject; unstable can't-tell rate; shown in the tool only"}
+  },
+  "primary_tests": "Q1: 2 families (klein-base 4B G07->G06, Qwen-Image-2512 G10->G09) x 5 aspects x {location, concentration} = 20 tests, Holm-corrected together (frozen_margins.json)"
+}
