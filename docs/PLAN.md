@@ -77,7 +77,8 @@ This timeline is tight for a study of this size. Week 2 is the critical path.
 | Second encoder | SigLIP 2 as a sensitivity check (2026-10-11, following the review) |
 | Practical margins | Proposed |Δx| ≥ 0.15 and IQR ratio ≥ 1.5; frozen after the anchor pilot |
 | Expert feedback | 3–5 experts from the group, arranged by the owner |
-| Venue and deadline | **IEEE CG&A, mid-November 2026** (2026-10-11) |
+| Venue and deadline | **IEEE CG&A, mid-November 2026** (2026-10-11); CVPR 2027 (deadline 2026-11-16) considered and declined for this paper (2026-10-12) |
+| Follow-up paper | A separate project (own repository, own server folder, own session) develops a method for the vision venues (ICCV 2027 or later): a displacement/concentration decomposition of guidance and a corrected guidance method. Boundary: this paper claims the visual audit method and bounded descriptive findings; the follow-up claims the mechanism and the method. Shared assets (prompt set, anchor calibration, generated images) may be reused there with citation, but neither paper reports the other's main results as its own (2026-10-12) |
 | Author order and affiliations | Later |
 
 ## 8. Owner to-do
