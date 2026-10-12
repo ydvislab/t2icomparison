@@ -9,7 +9,9 @@ clip_scores.csv; main prompts only); each aspect's 16 pairs use 16 different sub
 an aspect is never asked for a subject that implies it (prompts.EXCLUDED, e.g. in/out for "a kitchen"); no image is
 used in more than one pair; images are stored as 512 px JPEG.
 
-Usage: python make_pairs_study.py [--zip]
+Usage: python make_pairs_study.py [--zip] [--page-only]
+--page-only rebuilds label_aspects.html (and the zip) from the existing pairs.json without resampling, e.g. after a fix
+to page_template.html; the pairs and images stay exactly the same.
 Writes $T2IC_DATA/annotation_study/{pairs.json, label_aspects.html, img/} and, with --zip,
 $T2IC_DATA/annotation_study_package.zip (page, images and the annotator guide) for annotators on their own computers.
 Analyse with: python analyze.py --pairs $T2IC_DATA/annotation_study/pairs.json aspects_X.csv aspects_Y.csv
@@ -65,7 +67,14 @@ def subjects_for(aspect, rnd):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--zip", action="store_true")
+    ap.add_argument("--page-only", action="store_true")
     a = ap.parse_args()
+    if a.page_only:
+        P = json.load(open(f"{OUT}/pairs.json", encoding="utf-8"))
+        write_page(P["pairs"], P["aspects"])
+        if a.zip:
+            write_zip()
+        return
     rnd = random.Random(SEED)
     D = load()
     used, pairs = set(), []
@@ -103,20 +112,28 @@ def main():
     groups = sorted(D.group.unique())
     json.dump(dict(seed=SEED, source="model_study/open", groups=groups, pairs=pairs, aspects=asp),
               open(f"{OUT}/pairs.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    write_page(pairs, asp)
+    print(f"{OUT}: {len(pairs)} pairs from groups {groups}; {len(os.listdir(f'{OUT}/img'))} images")
+    if a.zip:
+        write_zip()
+
+
+def write_page(pairs, asp):
     page = open(os.path.join(HERE, "page_template.html"), encoding="utf-8").read()
     shown = [{k: v for k, v in p.items() if k in ("pid", "aspect", "prompt", "left", "right")} for p in pairs]
     page = page.replace("/*DATA*/", "const PAIRS = " + json.dumps(shown, ensure_ascii=False)
                         + ";\nconst ASP = " + json.dumps(asp, ensure_ascii=False) + ";")
     open(f"{OUT}/label_aspects.html", "w", encoding="utf-8").write(page)
-    print(f"{OUT}: {len(pairs)} pairs from groups {groups}; {len(os.listdir(f'{OUT}/img'))} images")
-    if a.zip:
-        z = f"{DATA_ROOT}/annotation_study_package.zip"
-        with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED) as f:
-            f.write(f"{OUT}/label_aspects.html", "label_aspects.html")
-            f.write(os.path.join(HERE, "ANNOTATOR_GUIDE.md"), "GUIDE_zh.md")
-            for fn in sorted(os.listdir(f"{OUT}/img")):
-                f.write(f"{OUT}/img/{fn}", f"img/{fn}")
-        print(z, f"{os.path.getsize(z) / 1e6:.1f} MB")
+
+
+def write_zip():
+    z = f"{DATA_ROOT}/annotation_study_package.zip"
+    with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED) as f:
+        f.write(f"{OUT}/label_aspects.html", "label_aspects.html")
+        f.write(os.path.join(HERE, "ANNOTATOR_GUIDE.md"), "GUIDE_zh.md")
+        for fn in sorted(os.listdir(f"{OUT}/img")):
+            f.write(f"{OUT}/img/{fn}", f"img/{fn}")
+    print(z, f"{os.path.getsize(z) / 1e6:.1f} MB")
 
 
 if __name__ == "__main__":

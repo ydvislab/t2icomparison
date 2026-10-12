@@ -26,3 +26,6 @@ aspects_*.csv
 
 # Local review dossiers and traces
 .aris/
+
+# Local annotation exports (contain annotator initials); never commit
+Pliot/

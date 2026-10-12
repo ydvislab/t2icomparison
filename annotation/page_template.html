@@ -51,7 +51,14 @@ const load = () => { try { ans = JSON.parse(localStorage.getItem(key()) || "{}")
 const save = () => { try { localStorage.setItem(key(), JSON.stringify(ans)); } catch (e) {} };
 try { who = localStorage.getItem("aspects_who") || ""; } catch (e) {}
 $("who").value = who;
-$("who").onchange = () => { who = $("who").value.trim(); try { localStorage.setItem("aspects_who", who); } catch (e) {} load(); show(); };
+$("who").onchange = () => {
+  const prev = ans, nw = $("who").value.trim();
+  who = nw; try { localStorage.setItem("aspects_who", who); } catch (e) {}
+  load();
+  // keep answers given before the initials were (re)typed instead of silently switching to an empty record
+  if (!Object.keys(ans).length && Object.keys(prev).length) { ans = prev; save(); i = PAIRS.findIndex(p => !ans[p.pid]); if (i < 0) i = PAIRS.length; }
+  show();
+};
 function show() {
   const n = Object.keys(ans).length;
   $("prog").style.width = `${100 * n / PAIRS.length}%`;
@@ -65,7 +72,7 @@ function show() {
   if (PAIRS[i + 1]) { new Image().src = `img/${PAIRS[i + 1].left}.jpg`; new Image().src = `img/${PAIRS[i + 1].right}.jpg`; }
   t0 = performance.now();
 }
-function answer(a) { if (i >= PAIRS.length) return; const p = PAIRS[i]; ans[p.pid] = { a, ms: Math.round(performance.now() - t0) }; save(); i++; show(); }
+function answer(a) { if (!who) { alert("请先在右上角填写姓名缩写，再开始作答。"); $("who").focus(); return; } if (i >= PAIRS.length) return; const p = PAIRS[i]; ans[p.pid] = { a, ms: Math.round(performance.now() - t0) }; save(); i++; show(); }
 document.querySelectorAll(".btns button").forEach(b => b.onclick = () => answer(b.dataset.a));
 addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT") return;
@@ -73,6 +80,7 @@ addEventListener("keydown", e => {
   else if (e.key === "Backspace") { e.preventDefault(); if (i > 0) { i--; show(); } }
 });
 $("exp").onclick = () => {
+  if (!Object.keys(ans).length) { alert("当前姓名缩写下没有作答记录，导出的文件会是空的。请确认右上角的姓名缩写和作答时一致。"); return; }
   const rows = [["annotator", "pid", "aspect", "prompt", "left", "right", "answer", "ms"]].concat(PAIRS.filter(p => ans[p.pid]).map(p => [who, p.pid, p.aspect, p.prompt, p.left, p.right, ans[p.pid].a, ans[p.pid].ms]));
   const blob = new Blob([rows.map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\n")], { type: "text/csv" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `aspects_${who || "anon"}.csv`; a.click();
