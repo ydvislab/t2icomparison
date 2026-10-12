@@ -45,7 +45,7 @@ Built for 13 groups × 6 prompts. It must scale to about 13 groups × 24 prompts
 1. **Generation at the new scale** (week 2): 6 of 12 open groups done (G01, G02, G03, G06, G07, G08); G09 running, then G10, G04, G11, G12, G05 (about 2 days on GPU 0); closed-model API runs by the owner.
 2. **Calibration anchor pilot: done, calibration dropped** (2026-10-12): shot failed fidelity (Qwen-Image turned close-ups of scenes into faces), light failed the revised side-effect rule; reported as a negative result (`results/anchors_pilot/NOTES.md`, `RESEARCH_PROPOSAL.md` §4.2).
 3. **Human check of aspects** (weeks 2–3): round 1 on the existing 240 pairs screens aspects (reduce to 4–6); round 2 is redesigned with graded pairs and the new models.
-4. **Analysis** (week 3): Q1 guidance (primary), Q2 descriptive structure, Q3 one distillation case; practical margins on a fixed per-aspect scale, frozen by the owner before any contrast is examined; hierarchical bootstrap.
+4. **Analysis** (week 3): Q1 guidance (primary), Q2 descriptive structure, Q3 one distillation case; practical margins frozen 2026-10-12 (`experiments/model_study/analysis/frozen_margins.json`); hierarchical bootstrap.
 5. **Views and figures for the three audit tasks** (weeks 3–4); the system scales from 13 groups × 6 prompts to 15 groups × 24 subjects.
 6. **Expert evaluation** (week 4): 3–5 experts, the three tasks, against a box-plot or score-table-plus-image-grid baseline.
 7. **Writing** (weeks 4–5): English, ≤20 references, 2 sidebars; outline v2 in `OUTLINE.md`.

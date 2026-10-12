@@ -1,0 +1,18 @@
+{
+  "frozen": "2026-10-12",
+  "decided_by": "owner",
+  "note": "Frozen before any contrast between study groups was examined. Do not edit; any later change is a documented deviation.",
+  "location_effect": {
+    "definition": "Delta = (median_B - median_A) / s_aspect, per aspect x subject cell, main prompts only",
+    "s_aspect": "sqrt of the mean, over all cells (group x subject) of the 12 open configurations G01-G12 with the aspect not implied by the subject (prompts.EXCLUDED), of the within-cell sample variance (ddof=1) of that aspect's CLIP score; computed once after all 12 groups are generated and scored, then frozen; not recomputed when groups are hidden or added",
+    "displacement_margin": 0.5,
+    "same_place": "the 90% interval of Delta lies entirely within [-0.5, 0.5] (equivalence)"
+  },
+  "concentration_effect": {
+    "definition": "log(IQR_B / IQR_A), per aspect x subject cell",
+    "margin": "log(1.5)",
+    "same_spread": "the 90% interval of the log ratio lies entirely within [-log 1.5, log 1.5]"
+  },
+  "uncertainty": "hierarchical bootstrap: subjects resampled within categories; whole image score vectors resampled within groups, keeping seed pairing within a checkpoint",
+  "primary_tests": "Q1 only: median Delta and median log IQR ratio across subjects, per family (klein-base 4B G07->G06, Qwen-Image-2512 G10->G09) and retained aspect; corrected together (Holm)"
+}
