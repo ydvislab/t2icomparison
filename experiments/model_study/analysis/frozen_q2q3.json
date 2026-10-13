@@ -1,0 +1,26 @@
+{
+  "frozen": "2026-10-13",
+  "status": "pre-registration for Q2 and Q3, committed before q2_q3.py is run on the study data",
+  "disclosure": "Some contrasts were already seen in the audit tool during exploration on 2026-10-13 (the klein distillation row of the contrast overview; SDXL -> SDXL-Turbo saturation with opposite per-subject shifts; Qwen-Image framing closer; SDXL painting-like, muted and busy). Q2 and Q3 are therefore confirmatory only in the sense that their rules are fixed before the scripted run; the paper reports them as pre-specified descriptive analyses, not as blind tests. Q1 is the only blind primary analysis.",
+  "inherits": "frozen_margins.json (definitions of Delta and log IQR ratio, margins 0.5 and log 1.5, equivalence rules), frozen_aspects.json (sat, medium, shot, tone, bg), frozen_scale.json (s_aspect, never recomputed). Main prompts only (24 subjects).",
+  "seed_pairing": "As in frozen_margins.json: seeds are resampled jointly for A and B only when both are the same checkpoint; otherwise A and B are resampled independently (G07 -> G08 is therefore unpaired, although the two pipelines start from the same noise).",
+  "Q3": {
+    "question": "What does a distillation package change? (RESEARCH_PROPOSAL.md section 3)",
+    "primary_case": "klein 4B package: G07_klein_base4b_cfg1 -> G08_klein4b (checkpoint, steps 50 -> 4; CFG 1 in both)",
+    "tests": "median over subjects of Delta and of log IQR ratio, 5 aspects x 2 effects = 10 tests, Holm-corrected within Q3 (separately from Q1)",
+    "bootstrap": "10,000 replicates, seed 20261014, subjects resampled within categories, seeds resampled independently for A and B; 90% percentile intervals; two-sided bootstrap p as in q1_primary.py",
+    "verdicts": "the same rules as q1_primary.py",
+    "descriptive_packages": "G11_klein_base9b -> G12_klein9b (klein 9B package) and G02_sdxl -> G03_sdxl_turbo (SDXL -> Turbo: checkpoint, scheduler, steps 50 -> 1, CFG 5 -> 0, 1024 -> 512 px). Same estimates and 90% intervals, no p values; label 'same place' / 'same spread' if the interval lies within the margin, 'beyond margin' if the whole interval lies beyond it, otherwise 'unresolved'. Never attributed to one setting.",
+    "reversals": "for every Q3 contrast and aspect: number of subjects whose own shift is at least 0.5 in the direction opposite to the pooled median shift, with a per-subject 90% seed-bootstrap interval (2,000 replicates) that excludes 0"
+  },
+  "Q2": {
+    "question": "Where do configurations at their recommended settings settle, how far apart are they, and do the differences persist across subjects? Descriptive; no attribution to family, scale or architecture.",
+    "configurations": ["G01_sd15", "G02_sdxl", "G04_sd35_large", "G05_flux2_dev", "G06_klein_base4b_cfg4", "G08_klein4b", "G09_qwen_image_cfg4", "G11_klein_base9b"],
+    "location": "L_gs = (median of configuration g on subject s - centre_s) / s_aspect, where centre_s is the median over the 8 configurations of their medians on subject s. Typical location of g = median over subjects of L_gs; typical spread of g = median over subjects of IQR_gs / s_aspect.",
+    "pairwise": "for each of the 28 pairs and each aspect: median over subjects of Delta with a 90% hierarchical bootstrap interval; label as in the descriptive packages ('same place', 'beyond margin', 'unresolved'). Reported: the number of pairs beyond the margin per aspect.",
+    "subject_dependent_default": "configuration g has a subject-dependent default on an aspect if at least 3 subjects have L_gs >= +0.5 and at least 3 subjects have L_gs <= -0.5, each with a per-subject 90% seed-bootstrap interval (2,000 replicates; centre held fixed) that excludes 0 on that side",
+    "hidden_opposite_shifts": "a pair hides opposite shifts on an aspect if its pooled median Delta is within the margin (|Delta| < 0.5) while at least 3 subjects shift by >= +0.5 and at least 3 by <= -0.5, each with a per-subject 90% seed-bootstrap interval excluding 0. Reported also for the Q3 contrasts. These are the T2 cases (pooled vs per subject).",
+    "bootstrap": "2,000 replicates, seed 20261015, subjects resampled within categories (the same subject draw for all configurations in a replicate), seeds resampled independently per configuration; the centre is recomputed in every replicate",
+    "multiplicity": "none: Q2 is descriptive and carries no p values"
+  }
+}

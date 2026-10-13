@@ -177,7 +177,7 @@ Sources: `system/audit/`, README.
 
 | # | Step | What exactly | Done when |
 |---|---|---|---|
-| 1 | **Pre-register Q2 and Q3** | Before looking further: Q3 uses the same tests as Q1 for G07 → G08 (and G11 → G12, G02 → G03 as descriptive packages); Q2 defines "subject-dependent default" (e.g. a configuration has ≥ 3 subjects beyond +0.5 and ≥ 3 beyond −0.5 from the cross-configuration centre) and how differences between configurations are summarised | Script header and a frozen JSON committed |
+| 1 | **Pre-register Q2 and Q3** — *done 2026-10-13*: `experiments/model_study/analysis/frozen_q2q3.json` and `q2_q3.py`, committed before any run on the study data; tested on synthetic data with planted effects (all recovered) and in `--check-code` mode. Run on the server: `python experiments/model_study/analysis/q2_q3.py` (writes `results/q2/`, `results/q3/`). Disclosure in the JSON: some of these contrasts were already seen in the audit tool, so Q2/Q3 are pre-specified descriptive analyses, not blind tests | (as originally planned) | Script header and a frozen JSON committed |
 | 2 | **Human check, round 2** | About 90–120 pairs per annotator from the configurations not in round 1 (G04, G05, G09–G12), on the 5 frozen aspects only; same rule; the same 3 annotators | Each frozen aspect still passes on the new configurations, or is reported per configuration |
 | 3 | **Second encoder (SigLIP 2) sensitivity** | Promised in proposal §4.3: re-score with SigLIP 2 and compare Q1 conclusions; report disagreements | Q1 table with both encoders |
 | 4 | **Run Q3 and Q2** | With the pre-registered rules; the per-subject reversal counts become formal descriptive results | `results/q2/`, `results/q3/` |
