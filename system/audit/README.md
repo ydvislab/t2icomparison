@@ -1,5 +1,7 @@
 # Audit tool (rev5)
 
+Three linked levels from top to bottom: **all configurations → one contrast → images**.
+
 Visual audit of appearance defaults for the model study (`docs/RESEARCH_PROPOSAL.md` §6). It replaces the rev4.1 comparison system in `system/` (kept as design history) for the three audit tasks:
 - **T1, displacement vs concentration:** for a contrast A → B, does each subject's output distribution move, tighten or widen?
 - **T2, pooled vs per subject:** does the median over subjects hold for every subject?
@@ -23,6 +25,7 @@ Rebuild whenever more groups have been generated and CLIP-scored. The scale is m
 ## Views
 | View | Encoding | Interaction |
 |---|---|---|
+| **Level 1 · All configurations** (top) | **Configuration map** for the chosen aspect: each configuration is a point (colour = family) at its typical location (x, median over subjects of the distance from the subjects' cross-configuration median, in scale units) and spread (y, median IQR in scale units). Arrows are the designed contrasts: solid = guidance only, dashed = package (several settings change). **Subject × configuration matrix**: colour = location of that configuration for that subject (diverging between the two poles); a row whose colour flips is a subject-dependent default | aspect buttons; hover a configuration to see its subjects in the map and its matrix column; hover a matrix row (or cell) to see where every configuration puts that subject, linked to each configuration's typical position; click a point, cell or arrow to set the A → B pair for the levels below |
 | Header | A and B selectors with their colours (blue, orange); chips for every declared setting that differs; ⚠ n when more than one differs (not attributable to one setting) | swap A and B |
 | Five scatter plots (retained aspects) | one dot per subject: x = location shift Δ = (median_B − median_A) / s_aspect, y = log IQR ratio (spread); shaded bands = frozen practical margins (\|Δ\| < 0.5, ratio within 1/1.5–1.5); diamond = median over subjects with a hierarchical bootstrap 90% interval | hover a dot to highlight the same subject in all five plots and preview it below, click to pin; hover the diamond for the pooled estimate and how many subjects moved each way |
 | Distributions of one subject | smooth kernel density curves of A and B per aspect on a common axis (scale units, 0 = A's median); rug ticks are the individual images | click a row to choose the aspect; hover a tick to highlight the image |

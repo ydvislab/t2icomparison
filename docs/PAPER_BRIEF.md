@@ -68,12 +68,12 @@ The system is designed around three audit tasks:
 - **T2, pooled vs per subject:** does the overall conclusion hold for every subject, or reverse for some?
 - **T3, trace to evidence:** can every reading be checked in the images, and does the system warn when a comparison changes more than one setting?
 
-The design has **three linked levels**, from overview to evidence. Levels 2 and 3 are implemented; **level 1 is the next step** and answers the owner's requirement that all configurations be visible at once instead of only two at a time.
+The design has **three linked levels**, from overview to evidence. All three are implemented (level 1 added 2026-10-13, so that all configurations are visible at once instead of only two at a time).
 
 | Level | View | What it shows | Status |
 |---|---|---|---|
-| **1. Overview, all configurations** | **Configuration map**: one small panel per aspect. Each of the 12 configurations is a point placed by its typical location (x) and its spread (y); faint dots show its per-subject values. Designed contrasts (guidance, distillation) are drawn as arrows, labelled as a setting change or a package replacement | Where every model settles and how tightly, side by side: shared defaults vs model-specific ones (Q2) | **To build** |
-|  | **Subject × configuration matrix** per aspect: colour encodes the location, so a row whose colour flips across configurations is a subject-dependent default | Reversals across subjects (T2) | **To build** |
+| **1. Overview, all configurations** | **Configuration map**: one small panel per aspect. Each of the 12 configurations is a point placed by its typical location (x) and its spread (y); faint dots show its per-subject values. Designed contrasts (guidance, distillation) are drawn as arrows, labelled as a setting change or a package replacement | Where every model settles and how tightly, side by side: shared defaults vs model-specific ones (Q2) | Done |
+|  | **Subject × configuration matrix** per aspect: colour encodes the location, so a row whose colour flips across configurations is a subject-dependent default | Reversals across subjects (T2) | Done |
 | **2. Contrast, chosen pair or arrow** | Displacement–spread scatter per aspect: one dot per subject, the frozen margins as bands, the pooled estimate as a diamond; a warning when several settings differ | T1 and T2 for one change | Done |
 | **3. Evidence** | Smooth distributions of both configurations for one subject; all images sorted along the aspect, with the same-seed image highlighted across configurations | T3: check every reading in the images | Done |
 
@@ -98,12 +98,12 @@ flowchart LR
 | Step | Status (2026-10-13) |
 |---|---|
 | Prompt set, configuration design, provenance | Done |
-| Generation of 12 open configurations | 9 of 12 done; klein-base 9B, klein 9B and FLUX.2 dev running (about 1–2 days) |
+| Generation of 12 open configurations | 11 of 12 done; FLUX.2 dev running |
 | Calibration-anchor pilot | Done; calibration dropped (negative result, see §6) |
 | Human check, round 1 | Done; 5 aspects kept and frozen |
 | Margins and primary tests | Frozen 2026-10-12, before any comparison was examined |
 | Visual audit system, levels 2 and 3 | Done (D3) |
-| Visual audit system, level 1 (all configurations) | Next |
+| Visual audit system, level 1 (all configurations) | Done (2026-10-13) |
 | Q1–Q3 analysis | After generation completes |
 | Human check, round 2 (later configurations) | After generation completes |
 | Closed-model runs | Owner, locally |
@@ -140,7 +140,7 @@ No comparison between configurations has been analysed yet: the margins were fro
 - **Novelty is in the combination**: validated axes, displacement vs concentration, per-subject checks and image evidence, across many configurations. The closest work is DefaultShift, which covers distilled replacements, uses closed categories, and has no visual workflow.
 - **CLIP proxies**: only 5 aspects survived; lighting and viewpoint, which readers may expect, are reported as limitations.
 - **Sample size**: 32 seeds × 24 subjects per configuration describe these samples; rare appearances (< 5%) can be missed.
-- **Time**: about 4 weeks to submission; level 1 of the system and the expert sessions are the critical path.
+- **Time**: about 4 weeks to submission; the expert sessions are the critical path.
 - **For co-authors to decide:**
   1. Is the level-1 overview the right centrepiece figure?
   2. Who are the 3–5 experts?
