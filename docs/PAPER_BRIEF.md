@@ -81,7 +81,19 @@ All views are linked: selecting a configuration, an arrow, a subject or an image
 
 ## 5. Research process
 
-```mermaid<br>flowchart LR<br>  A[24 minimal prompts\n12 configurations\n32 seeds] --> B[Generate\n~10,400 images]<br>  B --> C[Score 15 CLIP aspects]<br>  C --> D[Human check\n240 pairs, 3 annotators]<br>  D --> E[Freeze 5 aspects\nand margins]<br>  E --> F[Fixed scale\nonce all 12 done]<br>  F --> G[Q1 primary tests\nQ2 overview, Q3 case]<br>  G --> H[Visual audit system\n3 levels, 3 tasks]<br>  H --> I[Expert evaluation\n3-5 experts]<br>  I --> J[Paper]<br>  P[Anchor pilot\n1,152 images] -. negative result .-> E<br>```
+```mermaid
+flowchart LR
+  A["24 minimal prompts<br>12 configurations<br>32 seeds"] --> B["Generate<br>~10,400 images"]
+  B --> C["Score 15 CLIP aspects"]
+  C --> D["Human check<br>240 pairs, 3 annotators"]
+  D --> E["Freeze 5 aspects<br>and margins"]
+  E --> F["Fixed scale<br>once all 12 done"]
+  F --> G["Q1 primary tests<br>Q2 overview, Q3 case"]
+  G --> H["Visual audit system<br>3 levels, 3 tasks"]
+  H --> I["Expert evaluation<br>3-5 experts"]
+  I --> J["Paper"]
+  P["Anchor pilot<br>1,152 images"] -. negative result .-> E
+```
 
 | Step | Status (2026-10-13) |
 |---|---|
