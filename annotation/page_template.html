@@ -32,7 +32,7 @@ button { cursor: pointer; }
 <body>
 <div class="wrap">
   <header><h1>画面方面核对（两张图比一比）</h1><label>标注人 <input id="who" size="8" placeholder="姓名缩写"></label><button id="exp">导出 CSV</button></header>
-  <div id="intro">每次给出同一个 prompt 下的两张图和一个方面（例如"光线：冷色蓝光 ↔ 暖色金光"）。请凭第一眼判断<b>哪一张更偏向右边那个描述</b>。两张差不多、或这个方面在图里看不出来，就选"看不出"。不用想太久，一题几秒即可。<br>快捷键：<b>←</b> 左边更偏 · <b>→</b> 右边更偏 · <b>↓</b> 看不出 · <b>Backspace</b> 回上一题。进度自动保存在本浏览器里；做完点"导出 CSV"把文件发回。共 240 题，约 15–20 分钟。</div>
+  <div id="intro">每次给出同一个 prompt 下的两张图和一个方面（例如"光线：冷色蓝光 ↔ 暖色金光"）。请凭第一眼判断<b>哪一张更偏向右边那个描述</b>。两张差不多、或这个方面在图里看不出来，就选"看不出"。不用想太久，一题几秒即可。<br>快捷键：<b>←</b> 左边更偏 · <b>→</b> 右边更偏 · <b>↓</b> 看不出 · <b>Backspace</b> 回上一题。进度自动保存在本浏览器里；做完点"导出 CSV"把文件发回。共 <span id="ntot"></span> 题，约 <span id="nmin"></span> 分钟。</div>
   <div class="bar"><div id="prog"></div></div>
   <div id="task">
     <div class="q" id="q"></div>
@@ -45,6 +45,8 @@ button { cursor: pointer; }
 <script>
 /*DATA*/
 const $ = id => document.getElementById(id);
+$("ntot").textContent = PAIRS.length;
+$("nmin").textContent = `${Math.round(PAIRS.length * 3.75 / 60)}–${Math.round(PAIRS.length * 5 / 60)}`;
 let who = "", ans = {}, i = 0, t0 = performance.now();
 const key = () => `aspects_${who || "anon"}`;
 const load = () => { try { ans = JSON.parse(localStorage.getItem(key()) || "{}"); } catch (e) { ans = {}; } i = PAIRS.findIndex(p => !ans[p.pid]); if (i < 0) i = PAIRS.length; };

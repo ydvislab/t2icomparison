@@ -41,6 +41,19 @@ Round 1 no longer uses the 240 pairs drawn from the pilot images (`make_pairs.py
 - **Steps:** build the package on the server with `python annotation/make_pairs_study.py --zip`, which writes `$T2IC_DATA/annotation_study_package.zip`. Annotators label exactly as in the steps below. Analyse with `python annotation/analyze.py --pairs $T2IC_DATA/annotation_study/pairs.json aspects_X.csv aspects_Y.csv`; results go to `results/annotation_study/`.
 - **Round 2** then covers the groups generated later (G04, G05, G09–G12) and any renamed aspects.
 
+## 5b. Round 2 on the later configurations (design fixed 2026-10-13, before the package is built)
+Purpose: check that the 5 frozen aspects (sat, medium, shot, tone, bg) also hold on the configurations that were not in round 1, and add graded (not only extreme) pairs, as the external review asked.
+- **Images:** only G04 SD3.5 Large, G05 FLUX.2 dev, G09/G10 Qwen-Image-2512 (true CFG 4 / 1), G11 klein-base 9B and G12 klein 9B; main prompts only. G09/G10 are the Qwen-Image side of the primary Q1 contrast.
+- **Pairs:** per aspect 24, one per subject (all 24 subjects); both images from the same subject. Gap tiers by rank within the subject's pool of round-2 images: 12 large (bottom 15% vs top 15%), 8 medium (15–35% vs 65–85%), 4 small (both in the middle 40%); every category gets 2 large pairs per aspect. 120 pairs in total; no image used twice; order randomised; CLIP's answer never shown; seed 20261016; pair ids carry "r2".
+- **Annotators:** the 3 annotators of the round-1 primary analysis, independently, following `ANNOTATOR_GUIDE.md` (about 8–10 minutes each).
+- **Decision rule:** unchanged (§4) and applied to the large-gap pairs: agreement with CLIP ≥ 0.75 and "can't tell" ≤ 0.40. An aspect that passes round 1 but fails round 2 is reported per configuration set and flagged in the paper; it is not silently dropped. The medium and small tiers are reported descriptively (agreement and "can't tell"), because the conclusions use medians and small shifts, not only extremes.
+- **Steps:**
+  1. On the server, after syncing the code: `python annotation/make_pairs_round2.py --zip` writes `$T2IC_DATA/annotation_round2_package.zip` (page, images, guide).
+  2. Copy the zip to the local computer and send it to the annotators; each unzips it and opens `label_aspects.html` (Chrome or Safari).
+  3. Exports go to `~/va4ext/annotation_round2/exports/` (never into the repository).
+  4. Analyse with `python annotation/analyze.py --pairs <path to pairs.json> aspects_X.csv aspects_Y.csv aspects_Z.csv`, giving the files in the same annotator order as round 1 (A, B, C); results go to `results/annotation_round2/`.
+- **Tested** on synthetic data (120 pairs, 24 subjects per aspect, 12/8/4 tiers, no image reused, only the 6 groups) and in the browser (the page shows "共 120 题，约 8–10 分钟"); not yet built from the study images.
+
 ## 5a. 步骤（原计划，第一轮已改用研究图像，见上一节）
 ### 第一轮：现有 13 组（现在开始，目标 10/20 前完成）
 1. **执行方**（已完成）：生成标注页面，`python3 make_pairs.py`。

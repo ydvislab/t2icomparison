@@ -6,7 +6,9 @@ with a 95% Wilson interval), how often they could not tell, and agreement betwee
 left/right/none; with 3+ annotators the mean pairwise kappa and Fleiss' kappa). An aspect is flagged unreliable if CLIP agreement < 0.75 or "can't tell" > 40% on large-gap pairs
 (rule fixed before labelling, see PROTOCOL.md).
 Annotators are renamed A, B, ... in file order so the tracked results carry no names.
-Writes results/annotation/{aspect_check.csv, pair_answers.csv}."""
+Writes results/<dir>/{aspect_check.csv, pair_answers.csv}; <dir> is pairs.json's results_dir if set (round 2:
+annotation_round2), else annotation_study for study-image pairs, else annotation. Round 2 adds descriptive columns for
+the medium-gap tier."""
 import json, math, os, sys
 import pandas as pd
 DATA_ROOT = os.environ.get("T2IC_DATA", os.path.expanduser("~/va4ext"))  # external data drive (images, models)
@@ -17,7 +19,7 @@ if ARGS[:1] == ["--pairs"]:
     PAIRS, ARGS = ARGS[1], ARGS[2:]
 P = json.load(open(PAIRS, encoding="utf-8"))
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../results",
-                   "annotation_study" if P.get("source") == "model_study/open" else "annotation")
+                   P.get("results_dir") or ("annotation_study" if P.get("source") == "model_study/open" else "annotation"))
 truth = pd.DataFrame(P["pairs"]).rename(columns={"clip": "clip_dir"}).set_index("pid")
 
 
@@ -69,6 +71,11 @@ def main(files):
                  large_n=len(L), agree_clip=round(k / len(decided), 3) if len(decided) else None, agree_lo=lo, agree_hi=hi,
                  cant_tell=round((L.answer == "none").mean(), 3),
                  small_cant_tell=round((g[g.kind == "small"].answer == "none").mean(), 3))
+        Mt = g[g.kind == "medium"]                    # round 2 only: graded tier, descriptive
+        if len(Mt):
+            md = Mt[Mt.answer != "none"]
+            r["medium_agree_clip"] = round((md.answer == md.clip_dir).mean(), 3) if len(md) else None
+            r["medium_cant_tell"] = round((Mt.answer == "none").mean(), 3)
         ann = sorted(g.annotator.unique())
         if len(ann) >= 2:
             w = g.pivot_table(index="pid", columns="annotator", values="answer", aggfunc="first").dropna()
