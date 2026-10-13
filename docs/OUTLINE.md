@@ -1,15 +1,15 @@
-# Paper outline (v2, 2026-10-11)
+# Paper outline (v2.1, 2026-10-13)
 
-> Rewritten for the framing decided on 2026-10-11: the visual audit method is the headline and the model study is its evidence (`RESEARCH_PROPOSAL.md` v2). The earlier system-centred outline (in Chinese) is in git history. Limits: CG&A template, ≤14 pages including bios, about 8,000 words, abstract ≤150 words, **≤20 references**, 1–3 sidebars of 200–500 words (sidebar citations do not count).
+> v2.1: calibration by request prompts was dropped after the pilot (2026-10-12), five aspects were frozen after human check round 1, and the Q1 result is in (`results/q1/RESULTS.md`). v2 was rewritten for the framing decided on 2026-10-11: the visual audit method is the headline and the model study is its evidence (`RESEARCH_PROPOSAL.md` v2). The earlier system-centred outline (in Chinese) is in git history. Limits: CG&A template, ≤14 pages including bios, about 8,000 words, abstract ≤150 words, **≤20 references**, 1–3 sidebars of 200–500 words (sidebar citations do not count).
 
 ## Title
 **Visual Auditing of Appearance Defaults in Text-to-Image Models** (working title)
 
-## Abstract (draft, ~140 words; numbers to be filled from the study)
-When a prompt leaves lighting, framing or palette unspecified, a text-to-image model decides them, and evaluators who switch models or settings need to know what changed. A diversity score cannot tell whether outputs now settle somewhere else (displacement) or settle more tightly in the same place (concentration), nor whether a pooled conclusion holds for every subject. We present a visual audit method that places the outputs of many declared model configurations on human-validated appearance axes, calibrates each axis with explicit requests, separates displacement from concentration with stated uncertainty, and traces every reading to the images. We apply it to 12 open configurations on 24 everyday subjects. Raising guidance [concentrates / displaces] appearance in both families studied, and [N] of [M] apparent configuration differences change direction across subjects. [N] experts used the method to [result]. We close with lessons for auditing generative models visually.
+## Abstract (draft, ~140 words; bracketed parts filled when Q2, Q3 and the expert evaluation are done)
+When a prompt leaves lighting, framing or palette unspecified, a text-to-image model decides them, and evaluators who switch models or settings need to know what changed. A diversity score cannot tell whether outputs now settle somewhere else (displacement) or settle more tightly in the same place (concentration), nor whether a pooled conclusion holds for every subject. We present a visual audit method that places the outputs of many declared model configurations on human-validated appearance axes with a fixed scale, separates displacement from concentration with pre-registered margins and stated uncertainty, and traces every reading to the images. We apply it to 12 open configurations on 24 everyday subjects. Raising guidance mainly concentrates appearance in both families studied; only saturation also moves, toward vivid colour. [N] of [M] apparent configuration differences change direction across subjects. [N] experts used the method to [result]. We close with lessons for auditing generative models visually.
 
 ## Contributions
-1. **An audit method** for appearance defaults: validated aspect axes, reference-prompt calibration, separation of displacement and concentration with practical margins, and validity conditions for comparing configurations (declared settings, package changes not attributed to one factor, fixed baselines, per-subject reporting).
+1. **An audit method** for appearance defaults: human-validated aspect axes on a fixed per-aspect scale, separation of displacement and concentration with pre-registered practical margins, and validity conditions for comparing configurations (declared settings, package changes not attributed to one factor, fixed baselines, per-subject reporting).
 2. **A visual design and tool** that supports three audit tasks: (T1) displacement vs concentration, (T2) pooled vs per-subject, (T3) tracing a difference to images and catching measurement or attribution errors.
 3. **An audit of 12 open configurations** with bounded findings: guidance in two families (primary), descriptive cross-configuration and per-subject structure, one distillation package case.
 4. **An expert evaluation** (3–5 experts) on the three tasks against a box-plot / score-table-plus-image-grid baseline, and lessons for visual auditing of generative models.
@@ -23,20 +23,20 @@ When a prompt leaves lighting, framing or palette unspecified, a text-to-image m
 | 4 Visual design | Views and how each serves T1–T3; design rationale; designs we abandoned and why (projection envelopes read as spread, pooled baselines, card summaries) | 1,300 | `system/`, `DESIGN_HISTORY.md` |
 | 5 Audit of 12 configurations | Setup (configurations, subjects, seeds, settings provenance); Q1 guidance; Q2 structure and per-subject reversals; Q3 distillation package vs DefaultShift; measurement failures the images exposed | 1,500 | study data |
 | 6 Expert evaluation | Participants, tasks, baseline condition, what changed in their judgements, difficulties | 700 | sessions in week 4 |
-| 7 Lessons and limitations | Lessons for visual auditing; limits: CLIP proxies, calibration from configurations inside the study, 32 seeds, 24 subjects, demographics out of scope | 600 | |
+| 7 Lessons and limitations | Lessons for visual auditing (including the negative calibration result: request prompts are not clean poles); limits: CLIP proxies, a scale computed from the 12 configurations themselves, no calibration to perceptual units, 32 seeds, 24 subjects, demographics out of scope | 600 | |
 
 **Sidebars:** (1) *Displacement or concentration?* A two-panel toy example: two configurations with the same diversity score but different locations, and one with a shift but no loss of variety (~250 words). (2) *Product defaults*: the three closed services, descriptive and dated (~300 words).
 
 ## Figures and table
 | # | Content | Task |
 |---|---|---|
-| 1 (teaser) | Same subject and seeds at CFG 1 and CFG 4: image strips on one calibrated axis, showing a concentration and a displacement side by side | T1 |
+| 1 (teaser) | Same subject and seeds at CFG 1 and CFG 4 on the paired-seed trajectory view: a concentration (e.g. medium) and the one displacement (saturation) side by side | T1 |
 | 2 | Method pipeline: aspects → validation → standardized location and width → audit views | — |
 | 3 | Interface overview with the three tasks marked | T1–T3 |
-| 4 | Guidance in two families: per-subject calibrated distributions, endpoints with intervals | T1 |
+| 4 | Guidance in two families: per-subject shifts and spread ratios on the frozen scale, pooled estimates with intervals and the margins (Q1) | T1 |
 | 5 | A pooled conclusion that reverses across subjects | T2 |
 | 6 | A traced measurement failure or invalid attribution | T3 |
-| Table 1 | Aspect validation: human agreement, abstentions, anchor separation, encoder agreement; kept or dropped | — |
+| Table 1 | Aspect validation: human agreement, abstentions, inter-annotator kappa, control-prompt response, second-encoder agreement; kept or dropped | — |
 
 ## References (budget 20; identifiers checked 2026-10-11 unless marked)
 1. DefaultShift — arXiv 2608.21784
