@@ -68,7 +68,7 @@ The system is designed around three audit tasks:
 - **T2, pooled vs per subject:** does the overall conclusion hold for every subject, or reverse for some?
 - **T3, trace to evidence:** can every reading be checked in the images, and does the system warn when a comparison changes more than one setting?
 
-The design has **three linked levels**, from overview to evidence. All three are implemented (level 1 added 2026-10-13, so that all configurations are visible at once instead of only two at a time).
+The design is **one main view with linked auxiliary views** on a single screen: the configuration map (all configurations at once) is the main view; the subject × configuration matrix, the contrast scatters, the per-subject distributions and the image strips support it. All are implemented (2026-10-13). The table lists them from overview to evidence.
 
 | Level | View | What it shows | Status |
 |---|---|---|---|
