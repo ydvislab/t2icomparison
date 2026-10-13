@@ -1,0 +1,61 @@
+family,left_out,aspect,delta,lr
+klein-base 4B,people,sat,0.7234,-0.6434
+klein-base 4B,people,medium,-0.0469,-0.6136
+klein-base 4B,people,shot,-0.0027,-0.3824
+klein-base 4B,people,tone,-0.3712,-0.6941
+klein-base 4B,people,bg,0.0294,-0.4673
+klein-base 4B,animals,sat,0.6047,-0.6776
+klein-base 4B,animals,medium,-0.0338,-0.6136
+klein-base 4B,animals,shot,-0.0027,-0.4176
+klein-base 4B,animals,tone,-0.3712,-0.8223
+klein-base 4B,animals,bg,0.1445,-0.4243
+klein-base 4B,objects,sat,0.6543,-0.6434
+klein-base 4B,objects,medium,-0.0121,-0.6584
+klein-base 4B,objects,shot,0.1914,-0.4619
+klein-base 4B,objects,tone,-0.3712,-0.7235
+klein-base 4B,objects,bg,0.1559,-0.3815
+klein-base 4B,indoor,sat,0.7730,-0.6845
+klein-base 4B,indoor,medium,-0.0350,-0.6584
+klein-base 4B,indoor,shot,-0.0027,-0.3855
+klein-base 4B,indoor,tone,-0.5042,-0.7679
+klein-base 4B,indoor,bg,0.1714,-0.4243
+klein-base 4B,outdoor,sat,0.6543,-0.6776
+klein-base 4B,outdoor,medium,-0.0121,-0.6427
+klein-base 4B,outdoor,shot,0.1914,-0.3035
+klein-base 4B,outdoor,tone,-0.2321,-0.6531
+klein-base 4B,outdoor,bg,0.1714,-0.4035
+klein-base 4B,activity,sat,0.6543,-0.6845
+klein-base 4B,activity,medium,-0.0338,-0.6427
+klein-base 4B,activity,shot,-0.0027,-0.3855
+klein-base 4B,activity,tone,-0.3666,-0.7235
+klein-base 4B,activity,bg,0.0294,-0.5123
+Qwen-Image-2512,people,sat,0.3462,-0.3982
+Qwen-Image-2512,people,medium,-0.2852,-0.1091
+Qwen-Image-2512,people,shot,-0.1037,-0.1697
+Qwen-Image-2512,people,tone,-0.3411,-0.2219
+Qwen-Image-2512,people,bg,-0.2476,-0.2786
+Qwen-Image-2512,animals,sat,0.4314,-0.5389
+Qwen-Image-2512,animals,medium,-0.2140,-0.2594
+Qwen-Image-2512,animals,shot,0.2396,-0.3014
+Qwen-Image-2512,animals,tone,-0.3862,-0.2929
+Qwen-Image-2512,animals,bg,-0.1992,-0.3678
+Qwen-Image-2512,objects,sat,0.3921,-0.5389
+Qwen-Image-2512,objects,medium,-0.0919,-0.2245
+Qwen-Image-2512,objects,shot,0.0115,-0.3635
+Qwen-Image-2512,objects,tone,-0.3030,-0.3045
+Qwen-Image-2512,objects,bg,-0.1992,-0.2786
+Qwen-Image-2512,indoor,sat,0.3921,-0.5864
+Qwen-Image-2512,indoor,medium,-0.2140,-0.2060
+Qwen-Image-2512,indoor,shot,-0.0506,-0.3014
+Qwen-Image-2512,indoor,tone,-0.3228,-0.2492
+Qwen-Image-2512,indoor,bg,-0.1994,-0.2145
+Qwen-Image-2512,outdoor,sat,0.4314,-0.4065
+Qwen-Image-2512,outdoor,medium,-0.2648,-0.1012
+Qwen-Image-2512,outdoor,shot,-0.0864,-0.2306
+Qwen-Image-2512,outdoor,tone,-0.3411,-0.2219
+Qwen-Image-2512,outdoor,bg,-0.0502,-0.3325
+Qwen-Image-2512,activity,sat,0.3462,-0.4065
+Qwen-Image-2512,activity,medium,-0.2140,-0.1091
+Qwen-Image-2512,activity,shot,0.0115,-0.3014
+Qwen-Image-2512,activity,tone,-0.2811,-0.2265
+Qwen-Image-2512,activity,bg,-0.2476,-0.2786

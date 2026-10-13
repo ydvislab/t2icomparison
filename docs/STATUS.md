@@ -1,4 +1,4 @@
-# Status (2026-10-12, evening)
+# Status (2026-10-13, evening)
 
 > One page: what evidence exists, where the work stands, and what is missing. Questions and methods: `RESEARCH_PROPOSAL.md` v2. Plan, generation design and decisions: `PLAN.md`. Outline: `OUTLINE.md` v2.
 
@@ -42,10 +42,10 @@ Measured with DINOv2 / VLM; not human-checked.
 Built for 13 groups × 6 prompts. It must scale to about 13 groups × 24 prompts and handle groups whose settings are undeclared (the closed models).
 
 ## 7. Missing for the paper
-1. **Generation at the new scale** (week 2): 6 of 12 open groups done (G01, G02, G03, G06, G07, G08); G09 running, then G10, G04, G11, G12, G05 (about 2 days on GPU 0); closed-model API runs by the owner.
+1. **Generation: done** (2026-10-13 18:08): all 12 open configurations, 9,216 study images, CLIP-scored; final scale frozen (`experiments/model_study/analysis/frozen_scale.json`). Closed-model API runs by the owner.
 2. **Calibration anchor pilot: done, calibration dropped** (2026-10-12): shot failed fidelity (Qwen-Image turned close-ups of scenes into faces), light failed the revised side-effect rule; reported as a negative result (`results/anchors_pilot/NOTES.md`, `RESEARCH_PROPOSAL.md` §4.2).
 3. **Human check of aspects: round 1 done** (2026-10-12, 240 pairs from the study images, 3 annotators in the primary analysis): 5 aspects kept and frozen (sat, medium, shot, tone, bg); round 2 covers the groups generated later (G04, G05, G09–G12).
-4. **Analysis** (week 3): Q1 guidance (primary), Q2 descriptive structure, Q3 one distillation case; practical margins frozen 2026-10-12 (`experiments/model_study/analysis/frozen_margins.json`); hierarchical bootstrap.
+4. **Q1 primary analysis: done** (2026-10-13; `results/q1/RESULTS.md`): guidance mainly concentrates appearance; only saturation is displaced (klein-base 4B); Qwen-Image shows the same directions with smaller effects. Remaining analysis (week 3): Q1 guidance (primary), Q2 descriptive structure, Q3 one distillation case; practical margins frozen 2026-10-12 (`experiments/model_study/analysis/frozen_margins.json`); hierarchical bootstrap.
 5. **Views and figures for the three audit tasks** (weeks 3–4); the system scales from 13 groups × 6 prompts to 15 groups × 24 subjects.
 6. **Expert evaluation** (week 4): 3–5 experts, the three tasks, against a box-plot or score-table-plus-image-grid baseline.
 7. **Writing** (weeks 4–5): English, ≤20 references, 2 sidebars; outline v2 in `OUTLINE.md`.

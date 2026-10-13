@@ -1,0 +1,241 @@
+family,subject,category,aspect,delta,delta_lo90,delta_hi90,lr,lr_lo90,lr_hi90
+klein-base 4B,a doctor,people,sat,0.2041,-0.1688,0.5066,-0.5185,-1.2086,-0.0466
+klein-base 4B,a doctor,people,medium,1.0004,0.4552,1.4353,-1.1617,-1.5642,-0.7397
+klein-base 4B,a doctor,people,shot,0.8811,0.6410,1.3488,-0.3255,-1.1300,0.1933
+klein-base 4B,a doctor,people,tone,0.5630,0.3562,0.7291,-0.1277,-0.9265,0.2531
+klein-base 4B,a doctor,people,bg,0.4980,0.1600,0.7641,-0.7063,-1.3550,-0.0722
+klein-base 4B,a person reading a book,people,sat,0.6940,0.0913,1.0220,-0.6943,-1.2343,-0.2047
+klein-base 4B,a person reading a book,people,medium,0.3764,0.1151,0.8481,-0.8467,-1.4467,-0.0749
+klein-base 4B,a person reading a book,people,shot,1.0212,0.5464,1.5004,-0.2444,-0.8880,0.2619
+klein-base 4B,a person reading a book,people,tone,-0.4964,-0.7593,0.2577,-1.0545,-1.6278,-0.5445
+klein-base 4B,a person reading a book,people,bg,1.4934,0.8700,1.9297,0.2047,-0.4367,0.4407
+klein-base 4B,a musician,people,sat,0.6146,0.0651,0.9561,-0.6805,-1.2048,0.0954
+klein-base 4B,a musician,people,medium,-0.0234,-0.4141,0.4903,-0.1093,-0.6109,0.2734
+klein-base 4B,a musician,people,shot,-0.5526,-1.0547,-0.0546,-0.6000,-1.2139,-0.0409
+klein-base 4B,a musician,people,tone,-1.5180,-1.9960,-0.7752,-0.8971,-1.3555,-0.4783
+klein-base 4B,a musician,people,bg,0.7107,0.1651,1.2107,-0.4207,-0.9228,0.1180
+klein-base 4B,a traveler,people,sat,1.2884,0.8143,1.8989,-1.0771,-1.4763,-0.4969
+klein-base 4B,a traveler,people,medium,0.5816,0.2119,0.9009,-0.8424,-1.6311,-0.1542
+klein-base 4B,a traveler,people,shot,0.7582,0.0593,1.8303,-0.5299,-0.9195,-0.1900
+klein-base 4B,a traveler,people,tone,-0.0742,-0.7870,0.2617,-0.8542,-1.3272,-0.2543
+klein-base 4B,a traveler,people,bg,0.5174,0.2419,0.8755,0.0025,-0.6492,0.5632
+klein-base 4B,a dog,animals,sat,0.3800,-0.0239,0.8417,-0.8699,-1.2052,-0.1635
+klein-base 4B,a dog,animals,medium,-0.3197,-0.6644,0.0096,-0.6614,-1.3148,-0.2017
+klein-base 4B,a dog,animals,shot,-0.4351,-1.1198,0.1209,0.0333,-0.5410,0.6213
+klein-base 4B,a dog,animals,tone,0.0534,-0.6304,0.6404,-0.6249,-1.0894,-0.1931
+klein-base 4B,a dog,animals,bg,-0.5775,-0.9942,-0.2514,-0.1863,-0.8463,0.2206
+klein-base 4B,a bird on a branch,animals,sat,1.1173,0.4872,2.0027,-0.2191,-0.7737,0.2253
+klein-base 4B,a bird on a branch,animals,medium,-0.3859,-0.7756,-0.0125,-0.7514,-1.4036,-0.2673
+klein-base 4B,a bird on a branch,animals,shot,0.3554,-0.0473,0.7156,-0.4454,-0.9879,0.0841
+klein-base 4B,a bird on a branch,animals,tone,0.3315,-0.2643,0.6685,-0.0143,-1.1165,0.7420
+klein-base 4B,a bird on a branch,animals,bg,0.2301,-0.1727,0.9032,-0.5821,-0.9801,-0.0404
+klein-base 4B,a cat,animals,sat,0.9219,0.4208,1.3523,-0.8633,-1.6307,-0.4313
+klein-base 4B,a cat,animals,medium,0.2983,-0.2644,0.5422,-0.6553,-1.2389,0.1152
+klein-base 4B,a cat,animals,shot,0.1055,-0.3918,0.9226,0.0964,-0.4778,0.5119
+klein-base 4B,a cat,animals,tone,-0.5120,-1.0057,0.0807,-0.6316,-1.1914,-0.0847
+klein-base 4B,a cat,animals,bg,0.1597,-0.4332,0.6807,-0.3767,-0.9623,-0.0215
+klein-base 4B,a horse,animals,sat,0.9104,0.6642,1.1125,-0.6076,-1.3560,0.2997
+klein-base 4B,a horse,animals,medium,0.2840,-0.0231,0.7005,-0.5793,-1.3042,-0.2389
+klein-base 4B,a horse,animals,shot,0.1379,-1.0616,0.6065,-0.4785,-0.7718,-0.0096
+klein-base 4B,a horse,animals,tone,-0.7187,-1.0196,-0.4562,-0.2977,-0.8667,0.5290
+klein-base 4B,a horse,animals,bg,-0.2293,-0.5913,0.2617,-0.6902,-1.0349,-0.1401
+klein-base 4B,a car,objects,sat,1.0037,0.1481,1.7073,-0.8526,-1.1401,-0.2037
+klein-base 4B,a car,objects,medium,-0.9264,-1.4077,-0.5259,-0.2925,-1.0419,0.3732
+klein-base 4B,a car,objects,shot,-0.4966,-0.8317,0.1204,-0.2814,-0.9509,0.2429
+klein-base 4B,a car,objects,tone,0.2713,-0.7917,0.9448,-0.5691,-1.3346,-0.0157
+klein-base 4B,a car,objects,bg,1.1815,0.7558,2.1148,-0.5180,-1.0923,-0.0913
+klein-base 4B,a cup of coffee,objects,sat,1.0398,0.5515,1.6844,-0.6886,-1.2580,-0.0128
+klein-base 4B,a cup of coffee,objects,medium,-0.2772,-0.9662,0.1080,-0.9695,-1.4205,-0.2468
+klein-base 4B,a cup of coffee,objects,shot,-0.0891,-0.4163,0.1688,-0.8217,-1.3455,0.1369
+klein-base 4B,a cup of coffee,objects,tone,-0.1766,-0.4953,0.5742,-0.9788,-1.4444,-0.4447
+klein-base 4B,a cup of coffee,objects,bg,0.1368,-0.7127,0.5127,-0.7587,-1.3075,-0.1725
+klein-base 4B,a bicycle,objects,sat,0.4054,-0.1271,0.9823,-0.4808,-1.0787,0.0520
+klein-base 4B,a bicycle,objects,medium,-0.1644,-0.6158,0.3105,-0.4552,-0.9912,0.0094
+klein-base 4B,a bicycle,objects,shot,-0.1590,-0.8364,0.3070,-0.1756,-0.9653,0.3718
+klein-base 4B,a bicycle,objects,tone,-1.9626,-2.5386,-1.4398,-0.6745,-1.3924,0.0850
+klein-base 4B,a bicycle,objects,bg,-0.0379,-0.7020,0.3917,-0.4280,-0.9001,0.1048
+klein-base 4B,a bowl of fruit,objects,sat,0.0862,-0.5647,0.7210,-0.8083,-1.5055,-0.2222
+klein-base 4B,a bowl of fruit,objects,medium,0.0234,-0.2324,0.2477,-0.2489,-0.8385,0.5107
+klein-base 4B,a bowl of fruit,objects,shot,-0.0426,-0.5541,0.2122,-0.1957,-0.8960,0.3435
+klein-base 4B,a bowl of fruit,objects,tone,-1.6858,-2.0113,-1.0574,-0.8025,-1.3970,-0.2140
+klein-base 4B,a bowl of fruit,objects,bg,-0.1083,-0.6243,0.2937,-0.5786,-1.0958,0.0197
+klein-base 4B,a kitchen,indoor,sat,0.3955,-0.4252,0.6361,-0.6082,-1.0874,0.0501
+klein-base 4B,a kitchen,indoor,medium,-1.4148,-2.1262,-0.8533,-0.3764,-0.7639,0.2207
+klein-base 4B,a kitchen,indoor,shot,0.4122,0.1219,0.8250,-0.5771,-1.1122,0.1843
+klein-base 4B,a kitchen,indoor,tone,-0.1481,-0.8773,0.0646,-1.2346,-1.8651,-0.6089
+klein-base 4B,a kitchen,indoor,bg,-0.9388,-1.3495,-0.6317,-0.2878,-0.8720,0.2889
+klein-base 4B,a living room,indoor,sat,-0.3200,-0.8374,0.1755,-0.6121,-1.1708,0.0370
+klein-base 4B,a living room,indoor,medium,-0.0007,-0.1305,0.3305,-0.5666,-1.0473,0.0462
+klein-base 4B,a living room,indoor,shot,0.3682,0.1215,0.7004,-0.5248,-0.9552,0.1610
+klein-base 4B,a living room,indoor,tone,0.1617,-0.1528,0.4133,-0.3695,-1.1258,0.2210
+klein-base 4B,a living room,indoor,bg,-0.5530,-1.2974,-0.1600,-0.7932,-1.1346,-0.2383
+klein-base 4B,a library,indoor,sat,0.5948,0.1576,0.9267,-0.7752,-1.2972,-0.2042
+klein-base 4B,a library,indoor,medium,-0.0442,-0.3000,0.1237,-0.6301,-1.2014,-0.0384
+klein-base 4B,a library,indoor,shot,-1.4610,-1.9445,-0.9084,-0.0257,-0.7403,0.4595
+klein-base 4B,a library,indoor,tone,-0.2171,-0.7877,0.4275,-0.7136,-1.2424,0.0046
+klein-base 4B,a library,indoor,bg,-0.2625,-0.7993,0.0751,-0.8083,-1.2622,-0.2650
+klein-base 4B,a restaurant,indoor,sat,1.1050,0.3715,1.7160,-0.2266,-0.7669,0.1806
+klein-base 4B,a restaurant,indoor,medium,0.0819,-0.3947,0.3608,-0.8662,-1.2852,-0.2154
+klein-base 4B,a restaurant,indoor,shot,0.4588,0.1214,1.0106,-0.1848,-0.7666,0.2144
+klein-base 4B,a restaurant,indoor,tone,-0.2472,-0.6753,0.1040,-0.5919,-1.1681,-0.1687
+klein-base 4B,a restaurant,indoor,bg,0.1522,-0.7151,0.7372,-0.3032,-0.7906,0.2986
+klein-base 4B,a house,outdoor,sat,0.1409,-0.5516,0.5825,-0.2468,-0.8939,0.0826
+klein-base 4B,a house,outdoor,medium,0.1617,-0.5078,0.4484,-0.9853,-1.4653,-0.5048
+klein-base 4B,a house,outdoor,shot,-0.1714,-0.4418,0.2944,-0.6750,-1.2475,-0.0340
+klein-base 4B,a house,outdoor,tone,-0.5622,-0.9900,0.1604,-0.8640,-1.5442,-0.1420
+klein-base 4B,a house,outdoor,bg,-0.8036,-1.2696,-0.4308,0.1936,-0.7155,0.4605
+klein-base 4B,a city street,outdoor,sat,0.4844,-0.1130,1.1280,-1.3624,-1.7760,-0.6057
+klein-base 4B,a city street,outdoor,medium,-0.3200,-0.7324,-0.0926,-1.2916,-1.8991,-0.5430
+klein-base 4B,a city street,outdoor,shot,-0.8866,-1.1632,-0.6203,-0.9328,-1.3888,-0.0698
+klein-base 4B,a city street,outdoor,tone,-0.4859,-0.9038,0.1533,-0.9553,-1.5653,-0.4065
+klein-base 4B,a city street,outdoor,bg,0.0075,-0.6075,0.4112,-0.9635,-1.3778,-0.2532
+klein-base 4B,a mountain,outdoor,sat,1.3285,1.1113,2.4713,-0.5459,-1.3905,-0.0878
+klein-base 4B,a mountain,outdoor,medium,-0.0465,-0.2806,0.2140,0.0428,-0.8288,0.5190
+klein-base 4B,a mountain,outdoor,shot,-0.2961,-1.0507,0.0854,-0.3195,-0.7016,0.0884
+klein-base 4B,a mountain,outdoor,tone,-0.6798,-1.0634,-0.4374,-0.7333,-1.3706,-0.0719
+klein-base 4B,a mountain,outdoor,bg,-0.1498,-0.7340,0.2526,-0.7952,-1.1003,-0.2547
+klein-base 4B,a beach,outdoor,sat,1.3333,1.0433,1.9782,-0.9360,-1.5591,-0.4712
+klein-base 4B,a beach,outdoor,medium,-0.0472,-0.4015,0.2957,-0.5970,-0.9561,-0.2624
+klein-base 4B,a beach,outdoor,shot,0.0371,-0.6055,0.3472,-0.6196,-0.9886,-0.1308
+klein-base 4B,a beach,outdoor,tone,-0.9887,-2.1516,-0.7749,-0.9994,-1.3782,-0.5468
+klein-base 4B,a beach,outdoor,bg,0.0514,-0.1957,0.4016,-0.5066,-1.4578,0.0778
+klein-base 4B,a market,activity,sat,1.1026,0.7353,1.5117,-0.3150,-0.7207,0.2630
+klein-base 4B,a market,activity,medium,-0.3057,-0.6943,0.1862,-0.4409,-0.8669,0.1171
+klein-base 4B,a market,activity,shot,0.4515,-0.0390,0.8793,-0.5097,-0.8141,0.1889
+klein-base 4B,a market,activity,tone,-1.6332,-1.8900,-1.3410,-0.0956,-0.4405,0.5771
+klein-base 4B,a market,activity,bg,0.2190,-0.1083,0.5645,0.2428,-0.3835,0.7032
+klein-base 4B,a train station,activity,sat,0.1366,-0.2553,0.7538,-0.6013,-1.0864,0.1086
+klein-base 4B,a train station,activity,medium,-0.5578,-1.0592,-0.0944,-0.4348,-0.9077,0.0506
+klein-base 4B,a train station,activity,shot,-0.3281,-0.5999,0.1764,-0.5681,-1.2873,0.3157
+klein-base 4B,a train station,activity,tone,-1.4783,-2.1316,-0.7006,0.0520,-0.4259,0.4558
+klein-base 4B,a train station,activity,bg,0.5984,0.0443,1.0544,-0.3336,-1.1568,0.0334
+klein-base 4B,a birthday party,activity,sat,0.8520,0.2096,1.4190,-0.6748,-1.2723,-0.2378
+klein-base 4B,a birthday party,activity,medium,0.1101,-0.3764,0.3187,-1.1910,-1.8404,-0.6119
+klein-base 4B,a birthday party,activity,shot,0.6341,-0.1492,1.2569,-0.2447,-1.0018,0.0866
+klein-base 4B,a birthday party,activity,tone,-0.2564,-0.9419,0.3247,-0.8420,-1.3806,-0.2084
+klein-base 4B,a birthday party,activity,bg,0.1830,-0.4843,0.7708,-0.3863,-1.0399,0.4922
+klein-base 4B,a picnic,activity,sat,0.5412,-0.0915,0.9669,-1.0557,-1.5764,-0.5283
+klein-base 4B,a picnic,activity,medium,0.2870,-0.0717,0.6836,-0.8352,-1.3796,-0.3055
+klein-base 4B,a picnic,activity,shot,0.2448,-0.1488,0.7989,-0.2454,-0.5781,0.4170
+klein-base 4B,a picnic,activity,tone,-0.1481,-0.4089,0.5032,-0.9183,-1.4737,-0.2034
+klein-base 4B,a picnic,activity,bg,0.2016,-0.1636,0.7322,-0.2999,-0.8965,0.1415
+Qwen-Image-2512,a doctor,people,sat,0.9195,0.4812,1.2745,-0.5861,-1.2968,-0.1468
+Qwen-Image-2512,a doctor,people,medium,0.8234,0.5358,1.1563,-0.6813,-1.2657,-0.0993
+Qwen-Image-2512,a doctor,people,shot,0.3922,0.0338,0.8129,-0.5196,-0.9739,-0.1402
+Qwen-Image-2512,a doctor,people,tone,-0.5758,-0.7881,-0.1729,-0.6846,-1.0565,-0.1907
+Qwen-Image-2512,a doctor,people,bg,-0.1510,-0.2854,0.1555,-0.6169,-1.1645,0.1040
+Qwen-Image-2512,a person reading a book,people,sat,0.0278,-0.1834,0.2311,-0.6485,-1.3235,0.0570
+Qwen-Image-2512,a person reading a book,people,medium,-0.0211,-0.2639,0.0907,-0.4025,-0.7830,0.2529
+Qwen-Image-2512,a person reading a book,people,shot,0.0473,-0.2252,0.2408,-0.0855,-0.8175,0.5613
+Qwen-Image-2512,a person reading a book,people,tone,-0.2773,-0.4165,-0.0729,-0.3788,-0.9642,0.2817
+Qwen-Image-2512,a person reading a book,people,bg,0.0577,-0.2206,0.3328,-0.5768,-1.3218,-0.0415
+Qwen-Image-2512,a musician,people,sat,0.7865,0.1372,1.3333,-0.7364,-1.1533,-0.1815
+Qwen-Image-2512,a musician,people,medium,-0.4640,-0.7881,0.0585,0.0723,-0.4689,0.6005
+Qwen-Image-2512,a musician,people,shot,-0.1484,-0.4435,0.2740,-0.4342,-0.7550,0.2621
+Qwen-Image-2512,a musician,people,tone,-0.0510,-0.6858,0.3230,-0.4473,-0.9468,0.0447
+Qwen-Image-2512,a musician,people,bg,-0.4917,-0.8763,-0.0680,0.2233,-0.2403,0.9473
+Qwen-Image-2512,a traveler,people,sat,0.7925,0.3541,1.8457,-0.7140,-1.0547,-0.1483
+Qwen-Image-2512,a traveler,people,medium,0.5092,0.2860,0.7630,-0.9285,-1.5854,-0.2678
+Qwen-Image-2512,a traveler,people,shot,0.7905,0.4740,1.3316,-0.4155,-1.0558,0.1285
+Qwen-Image-2512,a traveler,people,tone,0.2203,0.0313,0.4620,0.1589,-0.5615,0.6227
+Qwen-Image-2512,a traveler,people,bg,0.5293,-0.2865,0.8542,0.2897,-0.1415,0.7566
+Qwen-Image-2512,a dog,animals,sat,0.2227,-0.0147,0.5098,-0.3449,-0.8925,0.1692
+Qwen-Image-2512,a dog,animals,medium,-0.3818,-0.5354,-0.2232,0.1036,-0.7046,0.4891
+Qwen-Image-2512,a dog,animals,shot,-0.6505,-0.8594,-0.4889,-0.8024,-1.1964,-0.0781
+Qwen-Image-2512,a dog,animals,tone,-0.2849,-0.4182,-0.0851,0.0823,-0.5234,0.5085
+Qwen-Image-2512,a dog,animals,bg,-0.2478,-0.5597,-0.0318,-0.3226,-0.7255,0.0884
+Qwen-Image-2512,a bird on a branch,animals,sat,-0.0036,-0.4268,0.6228,0.1328,-0.5540,0.5259
+Qwen-Image-2512,a bird on a branch,animals,medium,0.3139,0.1681,0.5806,-0.0105,-0.5531,0.5614
+Qwen-Image-2512,a bird on a branch,animals,shot,-0.1830,-0.3562,0.1182,0.4590,-0.4289,0.7969
+Qwen-Image-2512,a bird on a branch,animals,tone,0.1212,-0.3864,0.4936,0.1345,-0.5420,1.0857
+Qwen-Image-2512,a bird on a branch,animals,bg,-0.0455,-0.4465,0.4261,-0.2347,-0.7259,0.3239
+Qwen-Image-2512,a cat,animals,sat,0.1961,-0.0600,0.3661,-0.1788,-0.6925,0.4189
+Qwen-Image-2512,a cat,animals,medium,0.1199,-0.0425,0.2775,0.1469,-0.3895,0.5954
+Qwen-Image-2512,a cat,animals,shot,-0.5835,-0.7786,-0.3098,-0.0652,-0.6785,0.5115
+Qwen-Image-2512,a cat,animals,tone,-0.0490,-0.2159,0.2155,-0.1992,-0.8447,0.1530
+Qwen-Image-2512,a cat,animals,bg,-0.5403,-0.7368,-0.3364,-0.1713,-1.0310,0.2326
+Qwen-Image-2512,a horse,animals,sat,0.7004,0.4991,0.8957,-0.8072,-1.2978,-0.1763
+Qwen-Image-2512,a horse,animals,medium,-0.3360,-0.5031,0.0046,-0.1919,-0.7143,0.2141
+Qwen-Image-2512,a horse,animals,shot,-0.5719,-0.8026,-0.3227,-0.4307,-0.8364,0.0890
+Qwen-Image-2512,a horse,animals,tone,-0.3246,-0.4338,-0.1709,-0.5428,-1.1485,0.4289
+Qwen-Image-2512,a horse,animals,bg,0.0905,-0.0767,0.4316,-0.2079,-0.9003,0.4649
+Qwen-Image-2512,a car,objects,sat,0.1735,-0.1604,0.6739,0.2660,-0.5327,0.6169
+Qwen-Image-2512,a car,objects,medium,-0.1936,-0.7630,0.2575,-0.3418,-0.7702,0.1461
+Qwen-Image-2512,a car,objects,shot,1.2395,-0.0819,2.2396,0.1374,-0.2533,0.4841
+Qwen-Image-2512,a car,objects,tone,-0.9908,-1.4455,-0.1878,0.3097,-0.1228,0.7687
+Qwen-Image-2512,a car,objects,bg,1.1080,0.0524,1.7290,0.2425,-0.2396,0.6683
+Qwen-Image-2512,a cup of coffee,objects,sat,0.8008,0.5110,1.0629,-0.4057,-1.1410,0.1696
+Qwen-Image-2512,a cup of coffee,objects,medium,-0.4864,-0.5785,-0.2283,0.2279,-0.3653,0.8509
+Qwen-Image-2512,a cup of coffee,objects,shot,0.2718,0.1201,0.5439,-0.5977,-1.2095,-0.0741
+Qwen-Image-2512,a cup of coffee,objects,tone,-0.2115,-0.3531,-0.0966,-0.3322,-0.8041,0.3149
+Qwen-Image-2512,a cup of coffee,objects,bg,-0.7305,-0.8680,-0.2502,-0.5071,-0.8618,0.0908
+Qwen-Image-2512,a bicycle,objects,sat,0.4328,0.0340,0.8028,0.1520,-0.7335,0.5977
+Qwen-Image-2512,a bicycle,objects,medium,-0.4402,-0.6937,0.0469,0.3832,-0.1949,0.9282
+Qwen-Image-2512,a bicycle,objects,shot,-0.2583,-0.7618,0.2987,0.0433,-0.5012,0.5028
+Qwen-Image-2512,a bicycle,objects,tone,-0.7171,-1.2244,-0.4928,0.0020,-0.7351,0.5891
+Qwen-Image-2512,a bicycle,objects,bg,0.1391,-0.3882,0.4506,-0.0521,-0.6694,0.5795
+Qwen-Image-2512,a bowl of fruit,objects,sat,-0.2315,-0.4316,-0.0302,-0.5866,-1.2327,0.1579
+Qwen-Image-2512,a bowl of fruit,objects,medium,-0.5992,-0.9398,-0.3594,0.4033,-0.1100,1.0838
+Qwen-Image-2512,a bowl of fruit,objects,shot,-0.2088,-0.4112,-0.0502,0.1111,-0.6958,0.6533
+Qwen-Image-2512,a bowl of fruit,objects,tone,-0.5502,-0.8110,-0.3784,-0.0624,-0.7103,0.3257
+Qwen-Image-2512,a bowl of fruit,objects,bg,-0.5115,-0.6423,-0.3463,-0.4652,-1.0245,0.2967
+Qwen-Image-2512,a kitchen,indoor,sat,0.3383,-0.0585,0.7974,-0.3208,-0.8713,0.3255
+Qwen-Image-2512,a kitchen,indoor,medium,0.2534,-0.3350,0.5656,-0.2288,-0.9059,0.1872
+Qwen-Image-2512,a kitchen,indoor,shot,1.5978,1.1125,2.2672,-0.0223,-0.6826,0.3725
+Qwen-Image-2512,a kitchen,indoor,tone,-0.5217,-0.8030,-0.0718,0.0733,-0.5054,0.5784
+Qwen-Image-2512,a kitchen,indoor,bg,-0.0549,-0.8072,0.8443,-0.3989,-0.7606,0.0002
+Qwen-Image-2512,a living room,indoor,sat,-0.2867,-0.6345,0.0339,-0.4074,-0.9503,0.3363
+Qwen-Image-2512,a living room,indoor,medium,1.1655,0.6740,1.9026,0.0865,-0.2454,0.6582
+Qwen-Image-2512,a living room,indoor,shot,1.0416,0.6652,1.8079,-0.8029,-1.1474,-0.1925
+Qwen-Image-2512,a living room,indoor,tone,-2.1657,-2.6457,-1.4627,-0.4684,-0.8114,-0.0005
+Qwen-Image-2512,a living room,indoor,bg,-0.2633,-0.9958,0.1119,-0.5354,-1.1052,-0.1125
+Qwen-Image-2512,a library,indoor,sat,0.7171,0.3498,1.1828,-0.3907,-0.7338,0.3819
+Qwen-Image-2512,a library,indoor,medium,-1.0031,-1.5402,-0.3248,0.1569,-0.2781,0.6010
+Qwen-Image-2512,a library,indoor,shot,-0.0244,-0.5685,0.5014,0.0807,-0.5818,0.5786
+Qwen-Image-2512,a library,indoor,tone,-0.2468,-0.5213,0.0502,-0.3553,-0.7717,0.2436
+Qwen-Image-2512,a library,indoor,bg,0.5862,-0.3154,1.3222,-0.4777,-0.8282,0.1004
+Qwen-Image-2512,a restaurant,indoor,sat,0.7814,0.2322,1.0756,-0.1488,-0.6242,0.3002
+Qwen-Image-2512,a restaurant,indoor,medium,-0.5812,-0.8750,-0.1042,-0.2901,-0.7969,0.1909
+Qwen-Image-2512,a restaurant,indoor,shot,-0.5839,-0.8284,-0.3084,-0.3757,-0.7271,0.4563
+Qwen-Image-2512,a restaurant,indoor,tone,-0.1156,-0.6320,0.3949,0.0729,-0.2872,0.6460
+Qwen-Image-2512,a restaurant,indoor,bg,-0.2474,-0.9014,0.4795,-0.3932,-0.9609,0.0253
+Qwen-Image-2512,a house,outdoor,sat,-0.1215,-0.4422,0.5533,-0.6840,-1.2214,-0.1991
+Qwen-Image-2512,a house,outdoor,medium,-0.2344,-0.8089,0.3166,-1.2073,-1.8803,-0.7984
+Qwen-Image-2512,a house,outdoor,shot,0.2852,-0.1205,0.8106,-1.5408,-2.2083,-0.5738
+Qwen-Image-2512,a house,outdoor,tone,-2.3174,-2.7570,-1.8391,-0.0704,-0.5704,0.5844
+Qwen-Image-2512,a house,outdoor,bg,-0.4190,-0.9506,-0.0336,0.0678,-0.4546,0.5576
+Qwen-Image-2512,a city street,outdoor,sat,0.6809,0.2112,0.9479,-0.4917,-1.1563,0.0996
+Qwen-Image-2512,a city street,outdoor,medium,-1.0126,-1.2674,-0.7504,-0.2202,-0.8528,0.4541
+Qwen-Image-2512,a city street,outdoor,shot,-0.8196,-1.1445,-0.3470,-0.0880,-0.6795,0.5435
+Qwen-Image-2512,a city street,outdoor,tone,-0.3210,-0.7713,0.1798,-0.3951,-0.9224,0.0755
+Qwen-Image-2512,a city street,outdoor,bg,-0.3767,-0.9317,0.1191,-0.2211,-0.6551,0.4009
+Qwen-Image-2512,a mountain,outdoor,sat,0.3542,0.1095,0.7044,-0.6090,-1.0616,-0.0566
+Qwen-Image-2512,a mountain,outdoor,medium,-0.1627,-0.4936,0.0459,-0.4721,-1.3349,0.3157
+Qwen-Image-2512,a mountain,outdoor,shot,0.2558,0.0196,0.7003,-0.3513,-0.8371,0.4084
+Qwen-Image-2512,a mountain,outdoor,tone,-0.1051,-0.3660,0.1148,-0.2537,-0.7767,0.0769
+Qwen-Image-2512,a mountain,outdoor,bg,-0.5407,-0.7953,-0.3192,-0.5664,-1.2550,0.1342
+Qwen-Image-2512,a beach,outdoor,sat,-0.2418,-0.7174,0.2752,-0.1309,-0.6585,0.2881
+Qwen-Image-2512,a beach,outdoor,medium,0.0577,-0.3271,0.3492,-0.0263,-0.3173,0.4860
+Qwen-Image-2512,a beach,outdoor,shot,0.2234,-0.3214,1.3280,-0.2515,-0.7281,0.1707
+Qwen-Image-2512,a beach,outdoor,tone,-0.0923,-0.3644,0.3585,-0.4397,-0.6948,0.5287
+Qwen-Image-2512,a beach,outdoor,bg,-0.8095,-1.8031,-0.3995,-0.1224,-0.7115,0.2840
+Qwen-Image-2512,a market,activity,sat,0.5269,0.0580,0.9442,-0.7893,-1.7678,-0.2679
+Qwen-Image-2512,a market,activity,medium,-1.0884,-1.3652,-0.5094,-0.7601,-1.2359,-0.0673
+Qwen-Image-2512,a market,activity,shot,0.4755,-0.2373,0.8568,0.4555,-0.1492,0.8362
+Qwen-Image-2512,a market,activity,tone,-0.5610,-0.9412,0.0321,-0.2447,-0.8786,0.1963
+Qwen-Image-2512,a market,activity,bg,-0.6344,-1.1906,-0.1431,-0.1469,-0.7042,0.6122
+Qwen-Image-2512,a train station,activity,sat,-0.1477,-0.5118,0.2898,0.3789,-0.5162,0.9749
+Qwen-Image-2512,a train station,activity,medium,-1.5565,-2.0430,-1.2299,0.4723,-0.0943,0.9759
+Qwen-Image-2512,a train station,activity,shot,-0.2008,-0.6619,0.2649,0.1538,-0.5485,0.6943
+Qwen-Image-2512,a train station,activity,tone,-0.6360,-1.2905,-0.2858,0.2894,-0.3412,0.6442
+Qwen-Image-2512,a train station,activity,bg,0.6475,0.0126,1.0635,-0.1770,-0.5955,0.4384
+Qwen-Image-2512,a birthday party,activity,sat,0.4300,0.2299,0.7561,-1.0032,-1.4331,-0.3916
+Qwen-Image-2512,a birthday party,activity,medium,0.0228,-0.2175,0.2622,-0.6008,-1.1630,-0.1403
+Qwen-Image-2512,a birthday party,activity,shot,-0.9313,-1.5847,-0.5612,-1.1038,-1.5612,-0.6567
+Qwen-Image-2512,a birthday party,activity,tone,-0.4149,-0.9294,-0.2516,-1.3883,-1.7819,-0.7976
+Qwen-Image-2512,a birthday party,activity,bg,0.1186,-0.2214,0.3834,-0.3425,-0.8641,0.1503
+Qwen-Image-2512,a picnic,activity,sat,0.7786,0.4756,1.2352,-0.7677,-1.2359,-0.2134
+Qwen-Image-2512,a picnic,activity,medium,0.1291,-0.2069,0.4254,-0.6180,-1.2577,-0.0796
+Qwen-Image-2512,a picnic,activity,shot,0.5643,0.1198,0.9652,-0.6772,-1.2147,-0.1166
+Qwen-Image-2512,a picnic,activity,tone,-0.3575,-0.7312,0.0582,-0.9062,-1.3882,-0.1930
+Qwen-Image-2512,a picnic,activity,bg,0.1075,-0.5278,0.7072,-1.2392,-1.7158,-0.5877

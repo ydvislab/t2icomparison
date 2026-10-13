@@ -5,7 +5,7 @@
 ---
 
 ## Abstract (draft, ≤150 words)
-When a prompt leaves lighting, framing or palette unspecified, a text-to-image model decides them. These **appearance defaults** change whenever developers swap a model or a setting, yet evaluation reports only how diverse the outputs are. A lower diversity score cannot tell whether outputs now settle somewhere else (**displacement**) or settle more tightly in the same place (**concentration**), nor whether the change holds for every subject. We present a visual audit method that places the outputs of many declared model configurations on human-validated appearance axes, separates displacement from concentration under pre-registered margins, and traces every reading back to the images. Auditing 12 open configurations on 24 everyday subjects, we find that raising guidance [mainly concentrates appearance and displaces only saturation and tone, in both model families studied], and that pooled conclusions can hide opposite shifts across subjects. [N] experts used the method to [result].
+When a prompt leaves lighting, framing or palette unspecified, a text-to-image model decides them. These **appearance defaults** change whenever developers swap a model or a setting, yet evaluation reports only how diverse the outputs are. A lower diversity score cannot tell whether outputs now settle somewhere else (**displacement**) or settle more tightly in the same place (**concentration**), nor whether the change holds for every subject. We present a visual audit method that places the outputs of many declared model configurations on human-validated appearance axes, separates displacement from concentration under pre-registered margins, and traces every reading back to the images. Auditing 12 open configurations on 24 everyday subjects, we find that raising guidance mainly concentrates appearance (four of five aspects narrow to about half their spread in one family) and displaces only saturation, toward vivid colour; a second family shows the same directions with smaller effects. Pooled conclusions can also hide opposite shifts across subjects. [N] experts used the method to [result].
 
 ---
 
@@ -159,14 +159,11 @@ All views share the selected aspect, configuration pair, subject and image. Text
 
 ## 5. Case studies (planned; preliminary observations from 11 of 12 configurations, provisional scale)
 
-**Case 1: Guidance concentrates first, and displaces only some aspects (Q1, Q3; T1).**
-- *Preliminary:* raising guidance from 1 to 4 narrows the spread on all five aspects:
-  - klein-base 4B: IQR ratio ×0.49–0.68;
-  - Qwen-Image: IQR ratio ×0.64–0.81.
-- It displaces outputs consistently on only two aspects:
-  - toward more saturated colour (15 of 24 subjects for klein, 10 for Qwen, none in the opposite direction);
-  - toward a more modern, less vintage tone (9 subjects in each family).
-- The effect is weaker for Qwen-Image, whose pipeline rescales the guided prediction, so CFG 4 is not the same dose in both families.
+**Case 1: Guidance concentrates first, and displaces only saturation (Q1, Q3; T1).**
+- *Primary result (Q1, 2026-10-13, `results/q1/RESULTS.md`):* raising guidance from 1 to 4 in klein-base 4B concentrates saturation (×0.51), medium (×0.53), tone (×0.49) and background (×0.65) beyond the margin; shot narrows below the margin (×0.68).
+- Only saturation is also displaced, toward vivid colour (+0.65 [+0.43, +0.93]). Medium, shot and background stay in the same place, and tone's shift toward modern (−0.37) is not significant after Holm correction.
+- Qwen-Image-2512 shows the same directions with smaller effects: saturation concentrated (×0.64) and shifted toward vivid below the margin (+0.39); tone shifted slightly toward modern but within the "same place" margin; no other significant change.
+- Per subject, saturation moves toward vivid in 15 (klein) and 10 (Qwen) of 24 subjects, and toward muted in none. The smaller Qwen-Image effects fit its rescaled guidance, so CFG 4 is not the same dose in both families.
 - klein's distilled model resembles strong guidance (saturation displaced in 18 subjects; spread ×0.41), in line with DefaultShift's observation that distilled models behave like increased teacher guidance.
 - *Workflow:* the guidance arrows on the map → contrast scatters → paired seeds → image strips.
 

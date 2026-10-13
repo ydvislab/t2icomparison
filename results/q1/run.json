@@ -1,0 +1,32 @@
+{
+ "run": "2026-10-13T18:12:04",
+ "scale": {
+  "frozen": "2026-10-13T18:11:50",
+  "groups": [
+   "G01_sd15",
+   "G02_sdxl",
+   "G03_sdxl_turbo",
+   "G04_sd35_large",
+   "G05_flux2_dev",
+   "G06_klein_base4b_cfg4",
+   "G07_klein_base4b_cfg1",
+   "G08_klein4b",
+   "G09_qwen_image_cfg4",
+   "G10_qwen_image_cfg1",
+   "G11_klein_base9b",
+   "G12_klein9b"
+  ],
+  "n_images": 9216,
+  "definition": "sqrt of the mean, over all cells (group x subject) of the 12 open configurations G01-G12 with the aspect not implied by the subject (prompts.EXCLUDED), of the within-cell sample variance (ddof=1) of that aspect's CLIP score; computed once after all 12 groups are generated and scored, then frozen; not recomputed when groups are hidden or added",
+  "scale": {
+   "sat": 0.012593245445014311,
+   "medium": 0.014718947006734658,
+   "shot": 0.013743749010959858,
+   "tone": 0.012460213488674331,
+   "bg": 0.012649354035454969,
+   "inout": 0.01446264021480317
+  }
+ },
+ "n_boot": 10000,
+ "seed": 20261013
+}
