@@ -106,6 +106,22 @@ svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
 .lanehead i { width: 10px; height: 10px; border-radius: 50%; }
 .grad { height: 4px; border-radius: 2px; margin: 4px 0 2px; }
 .ends { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+/* reversal detection and row ordering */
+button.mini { border: 0; background: var(--page); color: var(--ink-2); border-radius: 999px; width: 26px; height: 24px; cursor: pointer; font-size: 14px; }
+button.mini.on { background: var(--ink); color: var(--panel); }
+#matrixCard h2 button.mini { margin-left: 6px; }
+.revb { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent); border-radius: 999px; padding: 2px 9px; cursor: pointer; display: none; }
+.mx .rl.rev { fill: var(--warn); font-weight: 600; }
+.mx .dbar.rev { stroke: var(--warn); stroke-width: 1.6; }
+.mx .dmark { stroke: var(--faint); stroke-dasharray: 2 2; }
+.subj.rev { stroke: var(--warn); stroke-width: 2; }
+/* paired-seed trajectories */
+.seg.mini { box-shadow: none; background: var(--page); margin-left: 6px; padding: 2px; }
+.seg.mini button { padding: 1px 9px; font-size: 13px; }
+.traj { fill: none; stroke: var(--dot); stroke-width: 1.3; opacity: .55; }
+.traj.hl { stroke: var(--hl); stroke-width: 2.6; opacity: 1; }
+.trajhit { fill: none; stroke: transparent; stroke-width: 8; cursor: pointer; }
+.trajmed { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; opacity: .85; }
 /* tooltip */
 .tip { position: fixed; pointer-events: none; background: var(--panel); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(16,24,40,.18);
   display: none; z-index: 9; font-size: 13px; color: var(--ink-2); max-width: 300px; }
@@ -126,9 +142,9 @@ svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
 </header>
 <main id="app">
   <section class="card" id="mapCard"><h2>Configurations</h2><div class="body" id="map"></div></section>
-  <section class="card" id="matrixCard"><h2>Subjects <small>× configurations</small></h2><div class="body" id="matrix"></div></section>
+  <section class="card" id="matrixCard"><h2>Subjects <small>× configurations</small><span class="revb" id="revBadge"></span><button class="mini" id="sortBtn" title="Order rows by category or by the shift of the selected pair">⇅</button></h2><div class="body" id="matrix"></div></section>
   <section class="card" id="stripCard"><h2 id="stripName"></h2><div class="body" id="strip"></div></section>
-  <section class="card" id="ridgeCard"><h2><span id="subjName"></span><select id="selS"></select></h2><div class="body" id="ridge"></div></section>
+  <section class="card" id="ridgeCard"><h2><span id="subjName"></span><div class="seg mini" id="evSeg"></div><select id="selS"></select></h2><div class="body" id="ridge"></div></section>
   <aside id="side"></aside>
 </main>
 <div class="tip" id="tip"></div>
@@ -139,7 +155,7 @@ svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
 const ASP = META.aspects, RET = ASP.filter(a => a.retained), AIDX = Object.fromEntries(ASP.map((a, i) => [a.key, i]));
 const SUBJ = META.subjects, G = Object.fromEntries(META.groups.map(g => [g.id, g]));
 const M_LOC = META.margins.location, M_LR = META.margins.log_iqr, NBOOT = 400, DUR = 450;
-const st = { A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null };
+const st = { A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat" };
 const cur = () => st.hover ?? st.subj;
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
 const aspName = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
@@ -199,6 +215,12 @@ function header() {
     const s = d3.select("#status").attr("title", `Scale is provisional: computed from ${META.groups.length} of ${META.all_groups} configurations.`);
     s.append("i"); s.append("span").text(`${META.groups.length} / ${META.all_groups}`);
   }
+}
+function panelControls() {
+  d3.select("#evSeg").selectAll("button").data([["seeds", "⫽", "Paired seeds: each curve joins the image of A and the image of B made from the same seed"], ["dist", "∿", "Distributions of A and B on every aspect"]])
+    .join("button").text(d => d[1]).attr("title", d => d[2]).classed("on", d => d[0] === st.ev)
+    .on("click", (e, d) => { st.ev = d[0]; panelControls(); drawRidge(); });
+  d3.select("#sortBtn").classed("on", st.sortRows === "delta").on("click", () => { st.sortRows = st.sortRows === "delta" ? "cat" : "delta"; panelControls(); drawMatrix(); overviewHL(); });
 }
 function aspectSeg() {
   d3.select("#aspSeg").selectAll("button").data(RET).join("button").text(a => aspName(a.key))
@@ -322,8 +344,15 @@ function placeLabels(t) {
     ? `M${n.px},${n.py} Q${(n.px + n.x) / 2},${n.py} ${n.x - Math.sign(n.x - n.px) * n.w / 2},${n.y}` : "");
 }
 // subject x configuration matrix (auxiliary): colour = location of each configuration's median for that subject
+// subjects displaced against the pooled direction of the selected pair (beyond the frozen location margin)
+function reversals(aspect) {
+  const r = R?.[aspect]; if (!r) return [];
+  const sg = Math.sign(r.pool.d); if (!sg) return [];
+  return r.cells.filter(c => Math.abs(c.d) >= M_LOC && Math.sign(c.d) !== sg).sort((p, q2) => q2.d * sg - p.d * sg).map(c => c.si);
+}
 function drawMatrix() {
   const host = d3.select("#matrix"); host.selectAll("*").remove();
+  const rcells = new Map((R?.[st.aspect]?.cells || []).map(c => [c.si, c])), rev = new Set(reversals(st.aspect));
   const a = ASP[AIDX[st.aspect]], subs = SUBJ.map((s, si) => ({ ...s, si })).filter(s => !s.excluded.includes(a.key));
   const { w: W, h: H } = box("#matrix"), legend = 34, gap = 5, cats = d3.groups(subs, s => s.category);
   const probe = host.append("svg").attr("width", 1).attr("height", 1), measure = (txt, size, weight) => {
@@ -333,9 +362,11 @@ function drawMatrix() {
   const rh = Math.max(9, Math.min(20, (H - top - legend - gap * (cats.length - 1)) / subs.length)), fs = Math.max(10, Math.min(13, rh - 2));
   const lw = 12 + d3.max(subs, s => measure(s.name.replace(/^an? /, ""), fs, 600));
   probe.remove();
-  const cw = Math.min(54, (W - lw - 14) / CFGS.length);
+  const dw = 78, cw = Math.min(54, (W - lw - 14 - dw - 12) / CFGS.length);
   let yy = top; const rowY = new Map();
-  cats.forEach(([, ss]) => { ss.forEach(s => { rowY.set(s.si, yy); yy += rh; }); yy += gap; });
+  if (st.sortRows === "delta") {
+    [...subs].sort((p, q2) => (rcells.get(q2.si)?.d ?? 0) - (rcells.get(p.si)?.d ?? 0)).forEach(s => { rowY.set(s.si, yy); yy += rh; });
+  } else cats.forEach(([, ss]) => { ss.forEach(s => { rowY.set(s.si, yy); yy += rh; }); yy += gap; });
   const mx = host.append("svg").attr("class", "mx").attr("width", W).attr("height", H);
   OVS.mx = mx;
   const val = new Map(); OV.forEach(d => d.per.forEach(p => val.set(d.g.id + "|" + p.si, p)));
@@ -348,7 +379,7 @@ function drawMatrix() {
     .call(g => g.append("circle").attr("r", 3.5).attr("cy", 2).attr("fill", famColor))
     .call(g => g.append("text").attr("class", "cl").attr("text-anchor", rotate ? "start" : "middle")
       .attr("transform", rotate ? "translate(-2,-6) rotate(-45)" : "translate(0,-8)").text(d => SHORT[d.id.slice(0, 3)]));
-  mx.append("g").selectAll("text").data(subs).join("text").attr("class", "rl").style("font-size", fs + "px")
+  mx.append("g").selectAll("text").data(subs).join("text").attr("class", s => "rl" + (rev.has(s.si) ? " rev" : "")).style("font-size", fs + "px")
     .attr("x", lw - 8).attr("y", s => rowY.get(s.si) + rh / 2).attr("dy", "0.35em").attr("text-anchor", "end").text(s => s.name.replace(/^an? /, ""))
     .on("mouseenter", (e, s) => { st.hover = s.si; linked(); }).on("mouseleave", () => { st.hover = null; linked(); })
     .on("click", (e, s) => pick(s.si, st.aspect));
@@ -359,12 +390,34 @@ function drawMatrix() {
     .on("mousemove", (e, d) => showTip(e, `<b>${d.s.name}</b> · ${d.g.label}<div class="bar"><span>location</span><span><b>${fd(d.p.x)}</b></span><span>spread</span><span><b>${f2(d.p.y)}</b></span></div>`))
     .on("mouseleave", () => { st.hover = null; st.hoverCfg = null; hideTip(); linked(); })
     .on("click", (e, d) => { pick(d.s.si, st.aspect); if (d.g.id !== st.B) setPair(d.g.id === st.A ? st.B : st.A, d.g.id); });
+  // shift of the selected pair A -> B per subject: a bar from the centre, coloured like the matrix; flagged rows move
+  // against the pooled direction
+  const x0 = lw + CFGS.length * cw + 12, dx = d3.scaleLinear([-3, 3], [x0, x0 + dw - 4]).clamp(true), dg = mx.append("g");
+  dg.append("circle").attr("cx", dx(-1.2)).attr("cy", top - 10).attr("r", 4).attr("fill", "var(--a)");
+  dg.append("circle").attr("cx", dx(1.2)).attr("cy", top - 10).attr("r", 4).attr("fill", "var(--b)");
+  dg.append("path").attr("d", `M${dx(-0.6)},${top - 10} L${dx(0.6)},${top - 10}`).attr("stroke", "var(--muted)").attr("marker-end", "url(#ah)");
+  [-M_LOC, M_LOC].forEach(v => dg.append("line").attr("class", "dmark").attr("x1", dx(v)).attr("x2", dx(v)).attr("y1", top - 4).attr("y2", yy - (st.sortRows === "delta" ? 0 : gap)));
+  dg.append("line").attr("class", "zero").attr("x1", dx(0)).attr("x2", dx(0)).attr("y1", top - 4).attr("y2", yy - (st.sortRows === "delta" ? 0 : gap));
+  dg.selectAll("rect").data(subs.filter(s => rcells.has(s.si))).join("rect").attr("class", s => "dbar" + (rev.has(s.si) ? " rev" : ""))
+    .attr("x", s => Math.min(dx(0), dx(rcells.get(s.si).d))).attr("width", s => Math.max(1.5, Math.abs(dx(rcells.get(s.si).d) - dx(0))))
+    .attr("y", s => rowY.get(s.si) + 1).attr("height", rh - 4).attr("rx", 2).attr("fill", s => col(rcells.get(s.si).d))
+    .on("mouseenter", (e, s) => { st.hover = s.si; linked(); })
+    .on("mousemove", (e, s) => showTip(e, cellTip(ASP[AIDX[st.aspect]], rcells.get(s.si)) + (rev.has(s.si) ? `<br><b style="color:var(--warn)">against the pooled direction</b>` : "")))
+    .on("mouseleave", () => { st.hover = null; hideTip(); linked(); })
+    .on("click", (e, s) => pick(s.si, st.aspect));
+  revBadge(rev);
   const lwid = Math.min(240, cw * CFGS.length), lg = mx.append("g").attr("transform", `translate(${lw},${Math.min(yy + 4, H - 28)})`);
   const grad = mx.append("defs").append("linearGradient").attr("id", "mxgrad");
   d3.range(11).forEach(k => grad.append("stop").attr("offset", k / 10).attr("stop-color", col(-ext + 2 * ext * k / 10)));
   lg.append("rect").attr("width", lwid).attr("height", 6).attr("rx", 3).attr("fill", "url(#mxgrad)");
   lg.append("text").attr("class", "pole").attr("y", 20).text(poleWord(a.left));
   lg.append("text").attr("class", "pole").attr("x", lwid).attr("y", 20).attr("text-anchor", "end").text(poleWord(a.right));
+}
+// the badge counts the flagged subjects; clicking it steps through them
+function revBadge(rev) {
+  const list = [...rev], b = d3.select("#revBadge").style("display", list.length ? "inline-block" : "none").text(`⇄ ${list.length}`)
+    .attr("title", "Subjects displaced against the pooled direction of the selected pair; click to step through them");
+  b.on("click", () => { const i = list.indexOf(st.subj); pick(list[(i + 1) % list.length], st.aspect); });
 }
 // shared highlights: selected pair (rings, matrix columns), hovered configuration (its subjects in the map), hovered
 // subject (where every configuration puts it, linked to each configuration's typical position); off-scale points are
@@ -437,13 +490,14 @@ function drawScatters(animate) {
         d3.select(this).select(".h").attr("data-s", c.si).transition(t).attr("x1", x(c.dlo)).attr("x2", x(c.dhi)).attr("y1", y(c.lr)).attr("y2", y(c.lr));
         d3.select(this).select(".v").attr("data-s", c.si).transition(t).attr("x1", x(c.d)).attr("x2", x(c.d)).attr("y1", y(c.llo)).attr("y2", y(c.lhi));
       });
+    const revSet = new Set(reversals(a.key));
     s.dots.selectAll("circle").data(r.cells, c => c.si)
       .join(en => en.append("circle").attr("class", "subj").attr("r", 4).attr("cx", x(0)).attr("cy", y(0))
         .on("mouseenter", (e, c) => { st.hover = c.si; linked(); })
         .on("mousemove", (e, c) => showTip(e, cellTip(a, c)))
         .on("mouseleave", () => { st.hover = null; hideTip(); linked(); })
         .on("click", (e, c) => pick(c.si, a.key)))
-      .attr("data-s", c => c.si).transition(t).attr("cx", c => x(c.d)).attr("cy", c => y(c.lr));
+      .attr("data-s", c => c.si).classed("rev", c => revSet.has(c.si)).transition(t).attr("cx", c => x(c.d)).attr("cy", c => y(c.lr));
     const p = r.pool;
     s.pool.select(".px").transition(t).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
     s.pool.select(".py").transition(t).attr("x1", x(p.d)).attr("x2", x(p.d)).attr("y1", y(p.llo)).attr("y2", y(p.lhi));
@@ -485,6 +539,7 @@ function drawRidge() {
   const si = cur(), s = SUBJ[si];
   d3.select("#subjName").text(s.name);
   const host = d3.select("#ridge"); host.selectAll("*").remove();
+  if (st.ev === "seeds") return drawSeeds(host, si);
   const { w: W, h: H } = box("#ridge"), aspects = ASP.filter(a => !s.excluded.includes(a.key)), m = { l: 102, r: 14 };
   const rowH = Math.max(30, Math.min(64, (H - 8) / aspects.length)), base = rowH * .62;
   const svg = host.append("svg").attr("width", W).attr("height", H).attr("class", "ridge");
@@ -510,6 +565,48 @@ function drawRidge() {
   });
 }
 
+// ---------------- auxiliary: paired-seed trajectories ----------------
+// Every image of A is joined to the image of B made from the same seed. With the same pipeline and resolution the seed
+// gives the same starting noise, so a curve follows one image across the change; otherwise images are matched by rank
+// (dashed curves, a quantile-quantile reading). Displacement shows as curves leaning one way, concentration as curves
+// converging; the thick curve joins the two medians.
+function drawSeeds(host, si) {
+  const a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key], ga = G[st.A], gb = G[st.B];
+  const { w: W, h: H } = box("#ridge"), m = { l: 34, r: 18, t: 30, b: 34 };
+  const sameNoise = ga.settings.pipeline === gb.settings.pipeline && ga.settings.resolution === gb.settings.resolution;
+  const ra = SCORES[st.A][si], rb = SCORES[st.B][si], ma = mi(ra.map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;
+  let pairs;
+  if (sameNoise) { const byK = new Map(rb.map(r => [r[0], r])); pairs = ra.filter(r => byK.has(r[0])).map(r => [r, byK.get(r[0])]); }
+  else { const sa = [...ra].sort((p, q2) => p[ai] - q2[ai]), sb = [...rb].sort((p, q2) => p[ai] - q2[ai]); pairs = sa.map((r, i) => [r, sb[Math.round(i * (sb.length - 1) / Math.max(1, sa.length - 1))]]); }
+  const ext = Math.max(2, d3.max(pairs.flatMap(([p, q2]) => [Math.abs(v(p)), Math.abs(v(q2))])) * 1.1);
+  const x = d3.scaleLinear([-ext, ext], [m.l, W - m.r]), yA = m.t, yB = H - m.b, mid = (yA + yB) / 2;
+  const svg = host.append("svg").attr("width", W).attr("height", H);
+  if (a.retained === false) return;
+  // IQR bands and medians on both rows
+  [[ra, yA, "var(--a)"], [rb, yB, "var(--b)"]].forEach(([rows, yy, c]) => {
+    const vs = rows.map(v).sort(d3.ascending), q1 = d3.quantileSorted(vs, .25), q3 = d3.quantileSorted(vs, .75);
+    svg.append("rect").attr("x", x(q1)).attr("width", Math.max(2, x(q3) - x(q1))).attr("y", yy - 6).attr("height", 12).attr("rx", 6).attr("fill", c).attr("opacity", .2);
+    svg.append("line").attr("class", "zero").attr("x1", m.l).attr("x2", W - m.r).attr("y1", yy).attr("y2", yy);
+    svg.append("circle").attr("cx", 14).attr("cy", yy).attr("r", 6).attr("fill", c);
+  });
+  const curve = (x1, x2) => `M${x1},${yA} C${x1},${mid} ${x2},${mid} ${x2},${yB}`;
+  const g = svg.append("g");
+  g.selectAll("path.traj").data(pairs).join("path").attr("class", "traj").attr("data-j", d => d[0][2])
+    .attr("stroke-dasharray", sameNoise ? null : "4 3").attr("d", d => curve(x(v(d[0])), x(v(d[1]))));
+  g.selectAll("path.trajhit").data(pairs).join("path").attr("class", "trajhit").attr("d", d => curve(x(v(d[0])), x(v(d[1]))))
+    .on("mouseenter", (e, d) => { st.job = d[0][2]; st.jobB = d[1][2]; markJob(); })
+    .on("mousemove", (e, d) => showTip(e, `<b>seed ${d[0][1]}</b>${sameNoise ? "" : " (rank-matched)"}<div class="bar"><span>${G[st.A].label.split(" ")[0]}</span><span><b>${fd(v(d[0]))}</b></span><span>${G[st.B].label.split(" ")[0]}</span><span><b>${fd(v(d[1]))}</b></span></div>`))
+    .on("mouseleave", hideTip);
+  const mb = d3.median(rb, v);
+  svg.append("path").attr("class", "trajmed").attr("d", curve(x(0), x(mb)));
+  [[ra, yA - 12, "var(--a)"], [rb, yB + 12, "var(--b)"]].forEach(([rows, yy, c]) =>
+    svg.append("g").selectAll("circle").data(rows).join("circle").attr("cx", r => x(v(r))).attr("cy", yy).attr("r", 2.6).attr("fill", c).attr("opacity", .8));
+  svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 6).text(poleWord(a.left));
+  svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 6).attr("text-anchor", "end").text(poleWord(a.right));
+  svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", 14).attr("text-anchor", "end").text(aspName(a.key));
+  markJob();
+}
+
 // ---------------- auxiliary: image strips ----------------
 function drawStrip() {
   const si = cur(), a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key];
@@ -529,7 +626,7 @@ function drawStrip() {
   lane.select(".lane").style("grid-template-columns", `repeat(${cols}, minmax(0, 1fr))`)
     .selectAll("img").data(l => l.rows.map(r => ({ g: l.g, r })), d => d.g + d.r[2]).join("img")
     .attr("src", d => `thumbs/${d.g}/${d.r[2]}.jpg`).attr("alt", "").attr("data-j", d => d.r[2])
-    .on("mouseenter", (e, d) => { st.job = d.r[2]; markJob(); })
+    .on("mouseenter", (e, d) => { st.job = d.r[2]; st.jobB = null; markJob(); })
     .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r)))
     .on("mouseleave", hideTip)
     .order();
@@ -543,7 +640,8 @@ function drawStrip() {
   markJob();
 }
 function markJob() {
-  d3.selectAll(".lane img").classed("hl", d => d.r[2] === st.job);
+  d3.selectAll(".lane img").classed("hl", d => d.r[2] === st.job || (d.g === st.B && d.r[2] === st.jobB));
+  d3.selectAll(".traj").classed("hl", function () { return this.dataset.j === st.job; }).filter(function () { return this.dataset.j === st.job; }).raise();
   d3.selectAll(".rug").classed("hl", function () { return this.dataset.j === st.job && this.parentNode.style.opacity === "1"; })
     .filter(function () { return this.dataset.j === st.job; }).raise();
 }
@@ -561,7 +659,7 @@ function hideTip() { d3.select("#tip").style("display", "none"); }
 let R = null;
 function update() { diffChips(); R = contrast(); drawScatters(true); drawMap(true); }
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
-header(); aspectSeg(); buildMap(); buildScatters(); update();
+header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
 let rt = null;
 new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(layout, 120); }).observe(document.getElementById("app"));
 </script>

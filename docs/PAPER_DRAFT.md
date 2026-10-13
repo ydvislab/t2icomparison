@@ -149,11 +149,11 @@ One screen with a **main view** and linked **auxiliary views**:
 
 All views share the selected aspect, configuration pair, subject and image. Text is minimal and numbers appear on hover.
 
-**Planned so that analysts discover patterns instead of only inspecting them:**
-1. A **paired-seed trajectory view** that shows displacement as a common shift and concentration as converging trajectories.
-2. A **contrast overview** of all designed contrasts × aspects.
-3. **Reversal detection** in the matrix.
-4. An **appearance-cluster view** of image embeddings, for defaults outside the five aspects.
+**Analysis views so that analysts discover patterns instead of only inspecting them:**
+1. **Paired-seed trajectories** (done): each image of A is joined to the image of B made from the same seed, so displacement appears as curves leaning one way and concentration as curves converging. When A and B do not share the starting noise, images are matched by rank instead.
+2. **Reversal detection** (done): a per-subject shift column in the matrix flags subjects displaced against the pooled direction, with a counter that steps through them and an ordering by shift.
+3. **Contrast overview** of all designed contrasts × aspects (planned).
+4. **Appearance-cluster view** of image embeddings, for defaults outside the five aspects (planned).
 
 ---
 
