@@ -14,6 +14,8 @@ computed in the browser for the contrast the user picks; this script only prepar
 The scale s_aspect follows frozen_margins.json; it is marked provisional until all 12 open groups are scored.
 """
 import glob, json, math, os, shutil, sys
+for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):  # t-SNE thrashes with all 64 cores on a busy server
+    os.environ.setdefault(_v, "8")
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -106,10 +108,31 @@ def main():
         x = D[D.group == g]
         scores[g] = [[[int(r.k), int(r.seed), r.job] + [round(float(getattr(r, a)), 5) for a in SHOWN]
                       for r in x[x.subject == s].sort_values("k").itertuples()] for s in subjects]
+    # appearance map per subject: t-SNE of the CLIP image embeddings of every image of every scored configuration
+    # (cosine distance, perplexity 30, PCA initialisation, fixed seed), so all configurations share one map per subject.
+    # Coordinates are stored in the same order as SCORES and rescaled to [0, 1].
+    from sklearn.manifold import TSNE
+    emb = {}
+    for g in groups:
+        z = np.load(f"{SRC}/{g}/clip_emb.npz", allow_pickle=True)
+        emb[g] = dict(zip(z["job"], z["emb"]))
+    tsne = {g: [None] * len(subjects) for g in groups}
+    for si, s in enumerate(subjects):
+        keys = [(g, r.job) for g in groups for r in D[(D.group == g) & (D.subject == s)].sort_values("k").itertuples()]
+        X = np.stack([emb[g][j] for g, j in keys])
+        Y = TSNE(n_components=2, perplexity=30, metric="cosine", init="pca", random_state=0).fit_transform(X)
+        Y = (Y - Y.min(0)) / np.ptp(Y, 0).clip(1e-9)
+        i = 0
+        for g in groups:
+            n = int(((D.group == g) & (D.subject == s)).sum())
+            tsne[g][si] = [[round(float(a), 4), round(float(b), 4)] for a, b in Y[i:i + n]]
+            i += n
+    meta["tsne"] = "t-SNE of CLIP ViT-L/14 image embeddings per subject over all scored configurations (cosine, perplexity 30, seed 0)"
     os.makedirs(OUT, exist_ok=True)
     with open(f"{OUT}/data.js", "w", encoding="utf-8") as f:
         f.write("const META = " + json.dumps(meta, ensure_ascii=False) + ";\n")
         f.write("const SCORES = " + json.dumps(scores, separators=(",", ":")) + ";\n")
+        f.write("const TSNE = " + json.dumps(tsne, separators=(",", ":")) + ";\n")
     shutil.copy(os.path.join(HERE, "index.html"), f"{OUT}/index.html")
     shutil.copy(os.path.join(REPO, "system", "d3.min.js"), f"{OUT}/d3.min.js")
     print(f"{OUT}: {len(groups)} groups ({'complete' if complete else 'scale provisional'}), {len(D)} images;",

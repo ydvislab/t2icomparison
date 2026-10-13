@@ -152,8 +152,8 @@ All views share the selected aspect, configuration pair, subject and image. Text
 **Analysis views so that analysts discover patterns instead of only inspecting them:**
 1. **Paired-seed trajectories** (done): each image of A is joined to the image of B made from the same seed, so displacement appears as curves leaning one way and concentration as curves converging. When A and B do not share the starting noise, images are matched by rank instead.
 2. **Reversal detection** (done): a per-subject shift column in the matrix flags subjects displaced against the pooled direction, with a counter that steps through them and an ordering by shift.
-3. **Contrast overview** of all designed contrasts × aspects (planned).
-4. **Appearance-cluster view** of image embeddings, for defaults outside the five aspects (planned).
+3. **Contrast overview** (done): every designed contrast × aspect as one glyph (an arrow for displacement, a circle against a reference circle for spread, a count of reversed subjects). It shows at once that guidance and the klein distillation package move saturation and tone the same way, while SDXL → Turbo has no pooled shift but many reversed subjects.
+4. **Appearance map** (done): all images of one subject from every configuration on a shared t-SNE of CLIP image embeddings, with A and B as density contours, for defaults outside the five aspects (e.g. the same face or composition every time).
 
 ---
 
