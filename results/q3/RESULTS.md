@@ -18,7 +18,7 @@ Run 2026-10-14 with `experiments/model_study/analysis/q2_q3.py`. The server copy
 
 **Reading:**
 - The klein distillation package concentrates all five aspects beyond the margin, and displaces only saturation, toward vivid colour.
-- This is the pattern of raising guidance in the base model (Q1, klein-base 4B: saturation displaced +0.65; four aspects concentrated), but stronger on every aspect.
+- This is the pattern of raising guidance in the base model (Q1, klein-base 4B: saturation displaced +0.65; four aspects concentrated), as strong or stronger on every aspect (tone narrows ×0.49 in both; saturation, medium and shot narrow more).
 - This agrees with DefaultShift's observation that distilled models behave like increased teacher guidance.
 - Because the package changes the checkpoint and the step count together, the effect is not attributed to either one.
 
