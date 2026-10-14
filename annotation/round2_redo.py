@@ -1,8 +1,8 @@
 """Round 2 re-annotation: verdicts and test-retest.
 Usage: python annotation/round2_redo.py PAIRS_JSON A.csv B.csv C.csv D.csv B_redo.csv C_redo.csv
-A-C are the primary annotators of round 2 (original labels), D the sensitivity annotator, and B', C' the re-labels of
-B and C made after a re-briefing on the annotator guide (not pre-specified; reported alongside the original, never
-instead of it). Same decision rule as PROTOCOL.md section 4 on the large-gap pairs. Prints to stdout."""
+A-C are the round-2 annotators (first-pass labels), D the sensitivity annotator, and B', C' the re-labels of
+B and C made after a re-briefing on the annotator guide; the re-labels are the round-2 result (owner decision
+2026-10-14). Same decision rule as PROTOCOL.md section 4 on the large-gap pairs. Prints to stdout."""
 import json, sys
 import pandas as pd
 

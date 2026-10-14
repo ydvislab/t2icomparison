@@ -1,5 +1,7 @@
 # Visual Auditing of Appearance Defaults in Text-to-Image Models
 
+> **Superseded by the manuscript draft `docs/manuscript/paper_en.md` (2026-10-14).** Round 2 now uses the re-annotation (`results/annotation_round2/RESULTS.md`); the round-2 statements below predate that decision.
+
 *Paper draft, revised 2026-10-14 to follow the argument of the paper, with all frozen analyses (Q1, Q2, Q3) and both human-check rounds. [Brackets] mark parts that are not final: the expert evaluation and the closed models. Section budgets follow `OUTLINE.md`.*
 
 ---

@@ -1,10 +1,10 @@
 == round 2, large-gap pairs: agreement / can't tell
          primary A,B,C         + D (4)          D only       without A       without B       without C
-sat     fail 0.71/0.03  fail 0.73/0.06  PASS 0.80/0.17  fail 0.61/0.04  PASS 0.75/0.00  PASS 0.78/0.04
-medium  fail 0.71/0.33  fail 0.73/0.31  PASS 0.78/0.25  fail 0.67/0.38  fail 0.65/0.17  fail 0.85/0.46
-shot    PASS 0.94/0.14  PASS 0.93/0.12  PASS 0.91/0.08  PASS 0.95/0.12  PASS 0.91/0.08  PASS 0.95/0.21
-tone    fail 0.60/0.31  fail 0.71/0.27  PASS 1.00/0.17  fail 0.53/0.38  fail 0.55/0.17  fail 0.73/0.38
-bg      fail 0.74/0.14  fail 0.73/0.15  fail 0.70/0.17  PASS 0.79/0.21  fail 0.71/0.00  fail 0.74/0.21
+sat     PASS 0.77/0.17  PASS 0.78/0.17  PASS 0.80/0.17  fail 0.67/0.25  PASS 0.81/0.12  PASS 0.81/0.12
+medium  PASS 0.77/0.39  PASS 0.77/0.35  PASS 0.78/0.25  fail 0.77/0.46  PASS 0.75/0.33  PASS 0.80/0.38
+shot    PASS 0.96/0.25  PASS 0.95/0.21  PASS 0.91/0.08  PASS 1.00/0.29  PASS 0.94/0.25  PASS 0.95/0.21
+tone    fail 0.64/0.31  fail 0.74/0.27  PASS 1.00/0.17  fail 0.60/0.38  fail 0.61/0.25  fail 0.71/0.29
+bg      fail 0.70/0.25  fail 0.70/0.23  fail 0.70/0.17  fail 0.73/0.38  fail 0.70/0.17  fail 0.68/0.21
 
 == CLIP gap of 'large' pairs in scale units (median): round 1 vs round 2
   sat     round1 4.40  round2 3.48
@@ -16,12 +16,12 @@ bg      fail 0.74/0.14  fail 0.73/0.15  fail 0.70/0.17  PASS 0.79/0.21  fail 0.7
 == agreement by CLIP gap (scale units), both rounds pooled, annotators A,B,C, all tiers
 bin                <1            1-2            2-3            3-4            >=4
 aspect                                                                           
-bg      0.67/0.22 n27  0.47/0.29 n24  0.85/0.13 n15  0.69/0.11 n18  0.78/0.11 n36
+bg      0.67/0.22 n27  0.53/0.38 n24  0.82/0.27 n15  0.67/0.17 n18  0.77/0.14 n36
 inout   1.00/0.58 n12    nan/1.00 n3   1.00/0.56 n9   1.00/0.50 n6  1.00/0.17 n18
-medium  0.62/0.56 n36  0.43/0.36 n33  0.71/0.42 n12   0.71/0.22 n9  1.00/0.00 n30
-sat     0.42/0.13 n30  0.75/0.05 n21  0.67/0.00 n12  0.83/0.00 n24  0.84/0.03 n33
-shot    0.43/0.42 n24   1.00/0.33 n9  0.79/0.20 n30  1.00/0.13 n15  1.00/0.10 n42
-tone    0.57/0.23 n30  0.53/0.29 n24  0.94/0.24 n21  0.87/0.29 n21  0.71/0.12 n24
+medium  0.75/0.78 n36  0.55/0.39 n33  0.83/0.50 n12   0.67/0.33 n9  1.00/0.00 n30
+sat     0.42/0.13 n30  0.78/0.14 n21  0.78/0.25 n12  0.86/0.08 n24  0.84/0.03 n33
+shot    0.42/0.50 n24   1.00/0.56 n9  0.81/0.30 n30  1.00/0.20 n15  1.00/0.12 n42
+tone    0.60/0.33 n30  0.54/0.46 n24  1.00/0.29 n21  0.87/0.29 n21  0.73/0.08 n24
 
 == round 2, saturation pairs involving Qwen-Image (G09/G10), large+medium tiers, A,B,C
-  pairs 9, agreement 0.62, can't tell 0.04
+  pairs 9, agreement 0.65, can't tell 0.15

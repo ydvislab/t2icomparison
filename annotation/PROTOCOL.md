@@ -96,15 +96,14 @@ Purpose: check that the 5 frozen aspects (sat, medium, shot, tone, bg) also hold
 - **Decision (owner, 2026-10-12, frozen):** keep **sat, medium, shot, tone, bg** for the analysis (`experiments/model_study/analysis/frozen_aspects.json`). Of the coupled warm/dark aspects only tone is kept (mood also passed; light failed), so one appearance change is not counted twice; tone is read as a warm, yellowed, vintage-photo look. inout is shown in the tool only. light, angle and dof are reported as limitations: the human check found them unreliable on these images.
 
 ### Round 2 results (2026-10-14)
-- **Primary analysis** (annotators A–C as in round 1): **shot passes** (0.94, stable when any annotator is left out). Saturation (0.71), background (0.74), medium (0.71) and tone (0.60) fail on the later configurations.
-- **Sensitivity:** a fourth annotator, D (a co-author, not in the protocol), does not change the primary verdicts. Details in `results/annotation_round2/RESULTS.md` and `sensitivity.txt`.
-- **Per-configuration-set reporting, as §5b requires:** the four aspects that fail are validated on the round-1 configurations, but not on the later ones. This affects the Qwen-Image side of Q1 and the non-shot signatures of the later configurations. The decision on how to report this is the owner's.
-- **Re-annotation (not pre-specified, 2026-10-14):**
-  - After a separate re-briefing on the guide, annotators B and C re-labelled the 120 pairs. They saw neither CLIP's answers nor each other's labels.
-  - Results with A, B′ and C′:
-    - shot passes (0.96);
-    - saturation (0.77/0.17) and medium (0.77/0.39) pass narrowly, and fail when A is left out;
-    - background and tone fail.
-  - The re-labels did not move toward CLIP: of the changed answers, 9 now match CLIP and 28 matched it before.
-  - Reported alongside the original labels, which remain primary (`results/annotation_round2/REDO.md`).
-
+- **Labels used (owner decision, 2026-10-14):**
+  - Annotators B and C had forgotten the criteria during their first pass. After a separate re-briefing on the guide, with no answers shown, they re-labelled the 120 pairs.
+  - The round-2 result uses A's labels and these re-labels. The first pass is superseded and kept in `results/annotation_round2/first_pass/`.
+- **Verdicts:**
+  - shot passes (0.96, stable);
+  - saturation (0.77) and medium (0.77) pass, not stable (each fails without A);
+  - background (0.70) and tone (0.64) fail.
+- **Per-configuration-set reporting (§5b):**
+  - on the later configurations, shot, saturation and medium are validated;
+  - background and tone are validated on the round-1 configurations only.
+- Details: `results/annotation_round2/RESULTS.md`.
