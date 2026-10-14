@@ -1,0 +1,11 @@
+contrast,A,B,aspect,effect,estimate,lo90,hi90,p,p_holm,significant,verdict
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,sat,location,0.9465,0.6732,1.1911,0.0001,0.0010,True,displaced
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,sat,spread,-0.8828,-0.9851,-0.5926,0.0001,0.0010,True,concentrated
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,medium,location,-0.4674,-0.6388,-0.2481,0.0004,0.0016,True,shift below margin
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,medium,spread,-0.7321,-0.9736,-0.5641,0.0001,0.0010,True,concentrated
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,shot,location,0.1552,-0.2268,0.3524,0.7554,0.7554,False,same place
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,shot,spread,-0.6885,-0.8805,-0.5131,0.0001,0.0010,True,concentrated
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,tone,location,-0.3100,-0.6170,-0.0514,0.0590,0.1770,False,inconclusive
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,tone,spread,-0.7060,-0.9157,-0.5110,0.0001,0.0010,True,concentrated
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,bg,location,0.1972,-0.1366,0.4494,0.3706,0.7412,False,same place
+klein 4B package,G07_klein_base4b_cfg1,G08_klein4b,bg,spread,-0.4679,-0.7238,-0.3514,0.0001,0.0010,True,concentrated

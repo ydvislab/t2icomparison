@@ -1,0 +1,141 @@
+A,B,aspect,delta,lo90,hi90,label
+G01_sd15,G02_sdxl,sat,-2.4090,-2.8538,-1.9821,beyond margin
+G01_sd15,G02_sdxl,medium,2.0467,1.0476,3.6739,beyond margin
+G01_sd15,G02_sdxl,shot,0.1377,-0.1301,0.4050,same place
+G01_sd15,G02_sdxl,tone,0.6727,0.2485,1.0931,unresolved
+G01_sd15,G02_sdxl,bg,1.2267,0.8251,1.9167,beyond margin
+G01_sd15,G04_sd35_large,sat,-0.6748,-1.0514,-0.2684,unresolved
+G01_sd15,G04_sd35_large,medium,-0.0075,-0.2045,0.2908,same place
+G01_sd15,G04_sd35_large,shot,-0.2239,-0.4561,0.1219,same place
+G01_sd15,G04_sd35_large,tone,-0.0321,-0.3371,0.1188,same place
+G01_sd15,G04_sd35_large,bg,-0.1690,-0.5438,0.0434,unresolved
+G01_sd15,G05_flux2_dev,sat,-0.6503,-1.0179,-0.2360,unresolved
+G01_sd15,G05_flux2_dev,medium,-0.2998,-0.5572,-0.1151,unresolved
+G01_sd15,G05_flux2_dev,shot,0.4338,0.1121,0.7602,unresolved
+G01_sd15,G05_flux2_dev,tone,-0.0191,-0.3275,0.3053,same place
+G01_sd15,G05_flux2_dev,bg,0.3951,0.0022,0.6989,unresolved
+G01_sd15,G06_klein_base4b_cfg4,sat,-0.1578,-0.5739,0.0318,unresolved
+G01_sd15,G06_klein_base4b_cfg4,medium,-0.1265,-0.4254,0.0658,same place
+G01_sd15,G06_klein_base4b_cfg4,shot,0.3540,0.1855,0.6636,unresolved
+G01_sd15,G06_klein_base4b_cfg4,tone,-0.1764,-0.5163,0.0486,unresolved
+G01_sd15,G06_klein_base4b_cfg4,bg,0.2069,-0.0233,0.6321,unresolved
+G01_sd15,G08_klein4b,sat,-0.1507,-0.3744,0.2347,same place
+G01_sd15,G08_klein4b,medium,-0.4797,-0.8046,-0.2223,unresolved
+G01_sd15,G08_klein4b,shot,0.2992,0.0970,0.6401,unresolved
+G01_sd15,G08_klein4b,tone,0.1049,-0.3943,0.3132,same place
+G01_sd15,G08_klein4b,bg,0.6172,0.2018,0.7544,unresolved
+G01_sd15,G09_qwen_image_cfg4,sat,-0.2859,-0.6802,0.0076,unresolved
+G01_sd15,G09_qwen_image_cfg4,medium,-0.1357,-0.6622,0.0039,unresolved
+G01_sd15,G09_qwen_image_cfg4,shot,-1.1945,-1.9829,-0.5189,beyond margin
+G01_sd15,G09_qwen_image_cfg4,tone,0.7014,0.3282,1.0616,unresolved
+G01_sd15,G09_qwen_image_cfg4,bg,0.5854,0.0759,0.9262,unresolved
+G01_sd15,G11_klein_base9b,sat,-0.2974,-0.6754,0.0576,unresolved
+G01_sd15,G11_klein_base9b,medium,-0.4618,-0.6660,-0.3254,unresolved
+G01_sd15,G11_klein_base9b,shot,0.2488,-0.0151,0.5816,unresolved
+G01_sd15,G11_klein_base9b,tone,-0.0183,-0.2304,0.2651,same place
+G01_sd15,G11_klein_base9b,bg,0.2803,-0.1878,0.4295,same place
+G02_sdxl,G04_sd35_large,sat,1.2858,0.6939,2.2568,beyond margin
+G02_sdxl,G04_sd35_large,medium,-2.2991,-3.9623,-0.7379,beyond margin
+G02_sdxl,G04_sd35_large,shot,-0.2485,-0.5305,0.2616,unresolved
+G02_sdxl,G04_sd35_large,tone,-0.7211,-1.2349,-0.3186,unresolved
+G02_sdxl,G04_sd35_large,bg,-1.5119,-1.9948,-1.1331,beyond margin
+G02_sdxl,G05_flux2_dev,sat,1.2161,0.9017,2.0031,beyond margin
+G02_sdxl,G05_flux2_dev,medium,-3.5714,-4.2794,-1.8506,beyond margin
+G02_sdxl,G05_flux2_dev,shot,0.2136,-0.0521,0.6180,unresolved
+G02_sdxl,G05_flux2_dev,tone,-0.6318,-1.2079,-0.3820,unresolved
+G02_sdxl,G05_flux2_dev,bg,-1.1795,-1.7109,-0.5867,beyond margin
+G02_sdxl,G06_klein_base4b_cfg4,sat,1.7652,1.2097,2.4166,beyond margin
+G02_sdxl,G06_klein_base4b_cfg4,medium,-3.3732,-3.9852,-1.5535,beyond margin
+G02_sdxl,G06_klein_base4b_cfg4,shot,0.2039,-0.0455,0.6636,unresolved
+G02_sdxl,G06_klein_base4b_cfg4,tone,-1.0329,-1.5899,-0.5290,beyond margin
+G02_sdxl,G06_klein_base4b_cfg4,bg,-1.4175,-1.7280,-0.6571,beyond margin
+G02_sdxl,G08_klein4b,sat,1.9139,1.4223,2.6724,beyond margin
+G02_sdxl,G08_klein4b,medium,-3.9415,-4.3480,-2.2233,beyond margin
+G02_sdxl,G08_klein4b,shot,0.4249,-0.1315,0.7507,unresolved
+G02_sdxl,G08_klein4b,tone,-0.9601,-1.3720,-0.5232,beyond margin
+G02_sdxl,G08_klein4b,bg,-1.0771,-1.5687,-0.5712,beyond margin
+G02_sdxl,G09_qwen_image_cfg4,sat,2.0007,1.3566,2.4795,beyond margin
+G02_sdxl,G09_qwen_image_cfg4,medium,-3.2458,-3.8832,-2.1158,beyond margin
+G02_sdxl,G09_qwen_image_cfg4,shot,-1.8145,-2.6134,-0.7636,beyond margin
+G02_sdxl,G09_qwen_image_cfg4,tone,0.0279,-0.6450,0.6421,unresolved
+G02_sdxl,G09_qwen_image_cfg4,bg,-0.9688,-1.4501,-0.5418,beyond margin
+G02_sdxl,G11_klein_base9b,sat,2.0479,1.3680,2.3799,beyond margin
+G02_sdxl,G11_klein_base9b,medium,-3.7228,-4.4594,-1.9470,beyond margin
+G02_sdxl,G11_klein_base9b,shot,-0.1468,-0.2273,0.4477,same place
+G02_sdxl,G11_klein_base9b,tone,-0.7548,-1.2352,-0.2983,unresolved
+G02_sdxl,G11_klein_base9b,bg,-1.3313,-1.7363,-0.8142,beyond margin
+G04_sd35_large,G05_flux2_dev,sat,0.1936,-0.0544,0.4890,same place
+G04_sd35_large,G05_flux2_dev,medium,-0.4319,-0.6908,-0.1005,unresolved
+G04_sd35_large,G05_flux2_dev,shot,0.6110,0.3962,0.8933,unresolved
+G04_sd35_large,G05_flux2_dev,tone,0.2339,-0.3892,0.4948,same place
+G04_sd35_large,G05_flux2_dev,bg,0.5571,0.2379,0.9554,unresolved
+G04_sd35_large,G06_klein_base4b_cfg4,sat,0.4564,0.2793,0.7337,unresolved
+G04_sd35_large,G06_klein_base4b_cfg4,medium,-0.2009,-0.3963,0.0258,same place
+G04_sd35_large,G06_klein_base4b_cfg4,shot,0.5583,0.3039,0.8513,unresolved
+G04_sd35_large,G06_klein_base4b_cfg4,tone,-0.1118,-0.4888,0.1561,same place
+G04_sd35_large,G06_klein_base4b_cfg4,bg,0.3759,0.1217,0.9093,unresolved
+G04_sd35_large,G08_klein4b,sat,0.7772,0.5363,1.1088,beyond margin
+G04_sd35_large,G08_klein4b,medium,-0.5807,-0.7688,-0.2738,unresolved
+G04_sd35_large,G08_klein4b,shot,0.6619,0.2765,0.9239,unresolved
+G04_sd35_large,G08_klein4b,tone,0.0207,-0.3323,0.3417,same place
+G04_sd35_large,G08_klein4b,bg,0.7196,0.3380,1.0979,unresolved
+G04_sd35_large,G09_qwen_image_cfg4,sat,0.3528,0.0498,0.8154,unresolved
+G04_sd35_large,G09_qwen_image_cfg4,medium,-0.2361,-0.5920,-0.0504,unresolved
+G04_sd35_large,G09_qwen_image_cfg4,shot,-1.6220,-2.3855,-0.5195,beyond margin
+G04_sd35_large,G09_qwen_image_cfg4,tone,0.8756,0.4522,1.3031,unresolved
+G04_sd35_large,G09_qwen_image_cfg4,bg,0.4186,0.1978,0.9800,unresolved
+G04_sd35_large,G11_klein_base9b,sat,0.4149,0.1733,0.7050,unresolved
+G04_sd35_large,G11_klein_base9b,medium,-0.6018,-0.7757,-0.3422,unresolved
+G04_sd35_large,G11_klein_base9b,shot,0.4919,0.2348,0.7960,unresolved
+G04_sd35_large,G11_klein_base9b,tone,0.0150,-0.1674,0.4246,same place
+G04_sd35_large,G11_klein_base9b,bg,0.4520,0.0193,0.7412,unresolved
+G05_flux2_dev,G06_klein_base4b_cfg4,sat,0.3464,0.0923,0.4997,same place
+G05_flux2_dev,G06_klein_base4b_cfg4,medium,0.2137,-0.0022,0.3507,same place
+G05_flux2_dev,G06_klein_base4b_cfg4,shot,-0.0593,-0.3246,0.2943,same place
+G05_flux2_dev,G06_klein_base4b_cfg4,tone,-0.2731,-0.4125,-0.0646,same place
+G05_flux2_dev,G06_klein_base4b_cfg4,bg,-0.0304,-0.1642,0.2048,same place
+G05_flux2_dev,G08_klein4b,sat,0.4588,0.3013,0.7503,unresolved
+G05_flux2_dev,G08_klein4b,medium,-0.3236,-0.5070,0.0907,unresolved
+G05_flux2_dev,G08_klein4b,shot,0.0382,-0.2685,0.3602,same place
+G05_flux2_dev,G08_klein4b,tone,-0.0692,-0.3871,0.1415,same place
+G05_flux2_dev,G08_klein4b,bg,-0.0389,-0.2186,0.3040,same place
+G05_flux2_dev,G09_qwen_image_cfg4,sat,0.3188,0.0907,0.5121,unresolved
+G05_flux2_dev,G09_qwen_image_cfg4,medium,0.1666,-0.0742,0.3394,same place
+G05_flux2_dev,G09_qwen_image_cfg4,shot,-2.2114,-2.8574,-1.0539,beyond margin
+G05_flux2_dev,G09_qwen_image_cfg4,tone,0.6647,0.3710,0.8838,unresolved
+G05_flux2_dev,G09_qwen_image_cfg4,bg,0.2134,0.0058,0.4779,same place
+G05_flux2_dev,G11_klein_base9b,sat,0.2833,0.0003,0.4483,same place
+G05_flux2_dev,G11_klein_base9b,medium,-0.0955,-0.2779,0.0714,same place
+G05_flux2_dev,G11_klein_base9b,shot,-0.0924,-0.3793,0.1075,same place
+G05_flux2_dev,G11_klein_base9b,tone,0.1234,-0.2541,0.2769,same place
+G05_flux2_dev,G11_klein_base9b,bg,-0.2842,-0.4636,0.0437,same place
+G06_klein_base4b_cfg4,G08_klein4b,sat,0.1759,-0.0185,0.5074,unresolved
+G06_klein_base4b_cfg4,G08_klein4b,medium,-0.4662,-0.6433,-0.2223,unresolved
+G06_klein_base4b_cfg4,G08_klein4b,shot,-0.0304,-0.1994,0.1646,same place
+G06_klein_base4b_cfg4,G08_klein4b,tone,0.1982,-0.0470,0.4566,same place
+G06_klein_base4b_cfg4,G08_klein4b,bg,0.1198,-0.1372,0.3085,same place
+G06_klein_base4b_cfg4,G09_qwen_image_cfg4,sat,-0.0967,-0.2634,0.1567,same place
+G06_klein_base4b_cfg4,G09_qwen_image_cfg4,medium,-0.0841,-0.1891,0.1262,same place
+G06_klein_base4b_cfg4,G09_qwen_image_cfg4,shot,-1.9625,-2.7951,-1.2954,beyond margin
+G06_klein_base4b_cfg4,G09_qwen_image_cfg4,tone,1.1673,0.7000,1.2741,beyond margin
+G06_klein_base4b_cfg4,G09_qwen_image_cfg4,bg,0.2127,-0.1141,0.5066,unresolved
+G06_klein_base4b_cfg4,G11_klein_base9b,sat,-0.0469,-0.2309,0.0911,same place
+G06_klein_base4b_cfg4,G11_klein_base9b,medium,-0.3964,-0.4718,-0.2401,same place
+G06_klein_base4b_cfg4,G11_klein_base9b,shot,0.1646,-0.2856,0.2538,same place
+G06_klein_base4b_cfg4,G11_klein_base9b,tone,0.1571,-0.0297,0.4610,same place
+G06_klein_base4b_cfg4,G11_klein_base9b,bg,-0.0919,-0.3500,0.1510,same place
+G08_klein4b,G09_qwen_image_cfg4,sat,-0.2898,-0.4910,-0.0323,same place
+G08_klein4b,G09_qwen_image_cfg4,medium,0.3366,0.0732,0.5746,unresolved
+G08_klein4b,G09_qwen_image_cfg4,shot,-2.0162,-2.7890,-1.1938,beyond margin
+G08_klein4b,G09_qwen_image_cfg4,tone,1.0419,0.5267,1.2137,beyond margin
+G08_klein4b,G09_qwen_image_cfg4,bg,0.0538,-0.2538,0.5451,unresolved
+G08_klein4b,G11_klein_base9b,sat,-0.2829,-0.4919,-0.0623,same place
+G08_klein4b,G11_klein_base9b,medium,0.1075,-0.1330,0.3316,same place
+G08_klein4b,G11_klein_base9b,shot,-0.1037,-0.4082,0.2054,same place
+G08_klein4b,G11_klein_base9b,tone,-0.0309,-0.2219,0.3016,same place
+G08_klein4b,G11_klein_base9b,bg,-0.0034,-0.4506,0.1473,same place
+G09_qwen_image_cfg4,G11_klein_base9b,sat,0.0320,-0.2222,0.2067,same place
+G09_qwen_image_cfg4,G11_klein_base9b,medium,-0.4185,-0.5210,-0.1834,unresolved
+G09_qwen_image_cfg4,G11_klein_base9b,shot,1.6024,1.0255,2.6389,beyond margin
+G09_qwen_image_cfg4,G11_klein_base9b,tone,-0.6874,-0.9188,-0.5102,beyond margin
+G09_qwen_image_cfg4,G11_klein_base9b,bg,-0.4917,-0.7851,-0.0367,unresolved

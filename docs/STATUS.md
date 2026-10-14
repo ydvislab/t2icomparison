@@ -1,4 +1,4 @@
-# Status (2026-10-13, evening)
+# Status (2026-10-14)
 
 > One page: what evidence exists, where the work stands, and what is missing. Questions and methods: `RESEARCH_PROPOSAL.md` v2. Plan, generation design and decisions: `PLAN.md`. Outline: `OUTLINE.md` v2.
 
@@ -6,6 +6,11 @@
 When a prompt leaves appearance unspecified, a text-to-image model decides it (a **generation default**). The paper presents a **visual audit method** that tells evaluators whether a change of model or setting *displaces* appearance (outputs settle elsewhere) or *concentrates* it (outputs settle more tightly in the same place), whether a pooled conclusion holds for every subject, and that traces every reading to the images. A study of 12 open configurations is its evidence; guidance in two families is the primary intervention.
 
 **Direction changes:** 2026-10-10 the focus moved from the system to the models; 2026-10-11, after an external review (`REVIEW_PROPOSAL.md`: significance 7, novelty 4, soundness 3, venue fit 5 for the v1 proposal), the owner made the audit method the headline and narrowed the claims.
+
+
+**Q2 and Q3 run 2026-10-14** (pre-registered in `frozen_q2q3.json`; `results/q2/RESULTS.md`, `results/q3/RESULTS.md`):
+- **Q3:** the klein 4B distillation package concentrates all five aspects (×0.41–0.63) and displaces only saturation (+0.95). This is the Q1 guidance pattern, stronger. The klein 9B package changes little. SDXL → Turbo shows no pooled shift but hides opposite shifts on 4 of 5 aspects.
+- **Q2:** most configurations share their defaults; SDXL (painting-like, muted, busy, vintage) and Qwen-Image (closer framing, vintage) have strong signatures. 9 configuration × aspect defaults depend on the subject, and 61 of 140 pairwise comparisons hide opposite shifts.
 
 ## 2. Novelty (`RESEARCH_PROPOSAL.md` §7)
 - **Taken, background only:** default diversity falls as models improve (DIMCIM, GRADE); guidance reduces diversity (CFG literature, stage-wise CFG analysis); distilled replacements shift attribute distributions, with direction of moved mass separated from entropy change and with guidance probes (DefaultShift, which also audits background, lighting and viewpoint); prompt-conditioned appearance differences between models can be discovered (CompCon, VisDiff).
