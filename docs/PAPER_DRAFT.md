@@ -1,6 +1,6 @@
 # Visual Auditing of Appearance Defaults in Text-to-Image Models
 
-*Paper draft, revised 2026-10-14 to follow the argument of the paper, with all frozen analyses (Q1, Q2, Q3) and both human-check rounds. [Brackets] mark parts that are not final: the expert evaluation, the closed models, and the outcome of the round-2 re-annotation. Section budgets follow `OUTLINE.md`.*
+*Paper draft, revised 2026-10-14 to follow the argument of the paper, with all frozen analyses (Q1, Q2, Q3) and both human-check rounds. [Brackets] mark parts that are not final: the expert evaluation and the closed models. Section budgets follow `OUTLINE.md`.*
 
 ---
 
@@ -126,7 +126,12 @@ T1–T3 come from three sources:
   - **Shot passes** (0.94, stable when any annotator is left out).
   - Saturation (0.71) and background (0.74) fall just short; medium (0.71) and tone (0.60) fail.
   - A fourth annotator in a sensitivity analysis changes nothing.
-  - [A re-annotation by the same annotators is under way; it will be reported alongside the original round 2, not instead of it (see §5.5).]
+  - **Re-annotation (not pre-specified).** Two annotators had forgotten the criteria. After a separate re-briefing on the guide, without access to CLIP's answers, they re-labelled the 120 pairs.
+    - Shot still passes (0.96).
+    - Saturation (0.77) and medium (0.77) pass narrowly, but not when the third annotator is left out.
+    - Background and tone still fail.
+    - The re-labels did not move toward CLIP: of the changed answers, 9 now match CLIP and 28 matched it before. The main change is that one annotator began to use "can't tell" (6% → 40%).
+    - Both versions are reported (Table 1).
 - **Why round 2 is harder.** The later configurations are more alike, so the pairs labelled "large-gap" differ much less in absolute terms. Median gap of the large-gap pairs, in scale units:
 
   | Aspect | Round 1 | Round 2 |
@@ -140,7 +145,7 @@ T1–T3 come from three sources:
   - Agreement rises with the gap. For saturation it is 0.42 below 1 unit and 0.83–0.84 at 3 units or more.
 - **Consequence.** Validity is reported **per configuration set**:
   - all five aspects are validated on SD 1.5, SDXL, SDXL-Turbo and the klein-base 4B / klein 4B family;
-  - only shot is validated on the later six configurations.
+  - on the later six configurations, shot is validated, saturation and medium are borderline, and background and tone are not validated.
 - **Negative result: calibration by request prompts.** We tried to anchor each axis with prompts that request each pole, and it failed:
   - "warm light" also produced golden-hour scenes;
   - "wide shot" produced aerial views;
@@ -225,7 +230,7 @@ The system has one screen: a **main view** and linked **auxiliary views**. All v
   - all other aspects inconclusive.
 - Two qualifications:
   - Qwen-Image rescales guidance, so CFG 4 is not the same dose in both families;
-  - in round 2, only shot was validated on these configurations, so the Qwen-Image result is reported as **consistent in direction but measured with lower validated reliability**.
+  - on these configurations, saturation is only borderline in round 2 (and its 9 Qwen-Image pairs agree 0.62–0.65), so the Qwen-Image result is reported as **consistent in direction but measured with lower validated reliability**.
 
 **Answer to Q1:** in the family where the measurement is fully validated, raising guidance mainly concentrates appearance. It displaces only saturation.
 
@@ -283,13 +288,13 @@ The system has one screen: a **main view** and linked **auxiliary views**. All v
 | Claim | Configurations | Validated aspects | Status |
 |---|---|---|---|
 | Q1, klein-base 4B | round 1 | all five | stands |
-| Q1, Qwen-Image | round 2 | shot only | qualified: same direction, lower validated reliability |
+| Q1, Qwen-Image | round 2 | shot; saturation and medium borderline | qualified: same direction, lower validated reliability |
 | Q3, klein 4B package | round 1 | all five | stands |
 | Q2, SDXL signature | round 1 | all five | stands |
 | Q2, Qwen-Image signature | round 2 | shot | shot stands; tone qualified |
 | Q2, hidden opposite shifts (61/140) | mixed | — | stands as a statement about the scores; per-aspect counts on round-2 configurations qualified |
 
-[If the re-annotation is reported, both results appear here, with the reason for repeating it stated.]
+These statuses hold under both the original and the re-annotated round 2.
 
 ---
 
@@ -342,7 +347,7 @@ The system has one screen: a **main view** and linked **auxiliary views**. All v
 | Prompts, configurations, provenance | Done |
 | Generation and CLIP scoring, 12 configurations (9,216 images) | Done |
 | Human check, round 1 | Done; 5 aspects frozen |
-| Human check, round 2 | Done (shot passes); re-annotation by the same annotators under way |
+| Human check, round 2 | Done: shot passes. Re-annotation: saturation and medium borderline; background and tone fail |
 | Calibration pilot | Done; negative result |
 | Q1 (confirmatory), Q2 and Q3 (pre-specified) | Done (`results/q1–q3/`) |
 | Visual audit system | Done: main view, contrast overview and 6 linked views |

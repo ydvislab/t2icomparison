@@ -99,4 +99,12 @@ Purpose: check that the 5 frozen aspects (sat, medium, shot, tone, bg) also hold
 - **Primary analysis** (annotators A–C as in round 1): **shot passes** (0.94, stable when any annotator is left out). Saturation (0.71), background (0.74), medium (0.71) and tone (0.60) fail on the later configurations.
 - **Sensitivity:** a fourth annotator, D (a co-author, not in the protocol), does not change the primary verdicts. Details in `results/annotation_round2/RESULTS.md` and `sensitivity.txt`.
 - **Per-configuration-set reporting, as §5b requires:** the four aspects that fail are validated on the round-1 configurations, but not on the later ones. This affects the Qwen-Image side of Q1 and the non-shot signatures of the later configurations. The decision on how to report this is the owner's.
+- **Re-annotation (not pre-specified, 2026-10-14):**
+  - After a separate re-briefing on the guide, annotators B and C re-labelled the 120 pairs. They saw neither CLIP's answers nor each other's labels.
+  - Results with A, B′ and C′:
+    - shot passes (0.96);
+    - saturation (0.77/0.17) and medium (0.77/0.39) pass narrowly, and fail when A is left out;
+    - background and tone fail.
+  - The re-labels did not move toward CLIP: of the changed answers, 9 now match CLIP and 28 matched it before.
+  - Reported alongside the original labels, which remain primary (`results/annotation_round2/REDO.md`).
 

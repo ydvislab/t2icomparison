@@ -50,3 +50,12 @@ Design: `annotation/PROTOCOL.md` §5b, fixed before the package was built. 120 p
    - validate per configuration set;
    - read differences together with their magnitude;
    - keep every reading traceable to the images (task T3).
+
+## Addendum: re-annotation
+Annotators B and C re-labelled the pairs after a re-briefing (`REDO.md`). This was not pre-specified, so the original labels above remain primary. With the re-labels:
+- shot still passes;
+- saturation and medium pass narrowly, but not when A is left out;
+- background and tone still fail.
+
+In the paper, saturation and medium on the later configurations are reported as borderline.
+

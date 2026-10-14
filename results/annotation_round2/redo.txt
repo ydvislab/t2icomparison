@@ -1,0 +1,19 @@
+== large-gap pairs: agreement with CLIP / can't tell (12 pairs per aspect per annotator)
+                                 bg          medium             sat            shot            tone
+original A,B,C       fail 0.74/0.14  fail 0.71/0.33  fail 0.71/0.03  PASS 0.94/0.14  fail 0.60/0.31
+re-labelled A,B',C'  fail 0.70/0.25  PASS 0.77/0.39  PASS 0.77/0.17  PASS 0.96/0.25  fail 0.64/0.31
+re-labelled + D      fail 0.70/0.23  PASS 0.77/0.35  PASS 0.78/0.17  PASS 0.95/0.21  fail 0.74/0.27
+without A            fail 0.73/0.38  fail 0.77/0.46  fail 0.67/0.25  PASS 1.00/0.29  fail 0.60/0.38
+without B'           fail 0.70/0.17  PASS 0.75/0.33  PASS 0.81/0.12  PASS 0.94/0.25  fail 0.61/0.25
+without C'           fail 0.68/0.21  PASS 0.80/0.38  PASS 0.81/0.12  PASS 0.95/0.21  fail 0.71/0.29
+B                    fail 0.86/0.42  fail 1.00/0.67  fail 0.64/0.08  PASS 1.00/0.25  fail 0.80/0.58
+B'                   fail 0.71/0.42  fail 0.83/0.50  fail 0.67/0.25  PASS 1.00/0.25  fail 0.71/0.42
+C                    PASS 0.75/0.00  fail 0.55/0.08  fail 0.58/0.00  PASS 0.92/0.00  fail 0.40/0.17
+C'                   PASS 0.75/0.33  fail 0.71/0.42  fail 0.67/0.25  PASS 1.00/0.33  fail 0.50/0.33
+A                    fail 0.67/0.00  PASS 0.78/0.25  PASS 0.92/0.00  PASS 0.90/0.17  fail 0.70/0.17
+
+== test-retest over all 120 pairs
+B -> B': identical 0.84; left/right reversed 0.00; can't tell 0.43 -> 0.42; agreement with CLIP (all tiers) 0.79 -> 0.75
+   of 19 changed answers, 4 now match CLIP and 6 matched CLIP before
+C -> C': identical 0.59; left/right reversed 0.07; can't tell 0.06 -> 0.40; agreement with CLIP (all tiers) 0.59 -> 0.69
+   of 49 changed answers, 5 now match CLIP and 22 matched CLIP before
