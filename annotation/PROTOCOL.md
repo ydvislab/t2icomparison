@@ -95,3 +95,8 @@ Purpose: check that the 5 frozen aspects (sat, medium, shot, tone, bg) also hold
 - Low kappa despite passing (tone 0.29, bg 0.33) comes mostly from annotators differing on *whether* they can tell, not on direction; §4 says such aspects are considered for renaming.
 - **Decision (owner, 2026-10-12, frozen):** keep **sat, medium, shot, tone, bg** for the analysis (`experiments/model_study/analysis/frozen_aspects.json`). Of the coupled warm/dark aspects only tone is kept (mood also passed; light failed), so one appearance change is not counted twice; tone is read as a warm, yellowed, vintage-photo look. inout is shown in the tool only. light, angle and dof are reported as limitations: the human check found them unreliable on these images.
 
+### Round 2 results (2026-10-14)
+- **Primary analysis** (annotators A–C as in round 1): **shot passes** (0.94, stable when any annotator is left out). Saturation (0.71), background (0.74), medium (0.71) and tone (0.60) fail on the later configurations.
+- **Sensitivity:** a fourth annotator, D (a co-author, not in the protocol), does not change the primary verdicts. Details in `results/annotation_round2/RESULTS.md` and `sensitivity.txt`.
+- **Per-configuration-set reporting, as §5b requires:** the four aspects that fail are validated on the round-1 configurations, but not on the later ones. This affects the Qwen-Image side of Q1 and the non-shot signatures of the later configurations. The decision on how to report this is the owner's.
+
