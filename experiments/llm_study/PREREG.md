@@ -104,3 +104,9 @@ Only aspects validated on the configuration set involved are scored.
   - A smoke test (2 queries, Qwen3.5-4B, guidance contrast, first subject) only checked that the script runs. Its output was deleted unread.
 - **Q4 analysis:** `q4_analysis.py`, which reuses `q1_primary.py` unchanged.
 - **Text side:** `text_side.py`. Its text-side unit is the across-subject SD of the original prompts' text scores, because the image scale does not apply to text.
+
+## Deviation 1 (2026-10-15, before any image was generated from a rewrite)
+- **Problem:** diffusers' `Flux2Pipeline.upsample_prompt` pads every input on the right to 2,048 tokens. With the installed transformers 5.19, this produced degenerate rewrites: the system message was echoed back and words were broken.
+- **Fix:** `rewrite.py` now calls the same model with the same system message, message format, temperature and token limit, without padding. The 32 rewrites of a subject are 32 samples of one unpadded input.
+- **Check:** two subjects were inspected and gave fluent rewrites.
+- **Record:** the degenerate file is kept as `rewrites_mistral_diffusers_padded.csv`. No image was generated from it.
