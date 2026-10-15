@@ -19,6 +19,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("group", choices=sorted(GROUPS))
 ap.add_argument("condition", choices=["mistral", "qwen", "mistral_fixed"])
 ap.add_argument("--gpu", type=int, default=0)
+ap.add_argument("--offload", action="store_true", help="model CPU offload (same weights and dtype; for a shared GPU)")
 a = ap.parse_args()
 G, dev = GROUPS[a.group], f"cuda:{a.gpu}"
 R = pd.read_csv(f"{DATA}/llm_study/rewrites_{a.condition.replace('_fixed', '')}.csv")
@@ -39,7 +40,11 @@ if todo.empty:
 kw = dict(torch_dtype=getattr(torch, G["dtype"]))
 if G.get("variant"):
     kw.update(variant=G["variant"], use_safetensors=True)
-pipe = getattr(diffusers, G["pipe"]).from_pretrained(f"{MODELS}/{G['path']}", **kw).to(dev)
+pipe = getattr(diffusers, G["pipe"]).from_pretrained(f"{MODELS}/{G['path']}", **kw)
+if a.offload:
+    pipe.enable_model_cpu_offload(gpu_id=a.gpu)
+else:
+    pipe = pipe.to(dev)
 pipe.set_progress_bar_config(disable=True)
 cfg_arg, extra = G.get("cfg_arg", "guidance_scale"), G.get("extra", {})
 t0 = time.time()
@@ -56,7 +61,7 @@ for n, (_, P) in enumerate(todo.groupby([todo.i, todo.k // BATCH], sort=True)):
         rows.append(dict(job=r.job, kind="main", category=r.category, subject=r.subject, prompt=r.rewrite,
                          original_prompt=r.subject, seed=r.seed, k=r.k, condition=a.condition, group=a.group,
                          pipe=G["pipe"], path=G["path"], size=G["size"], steps=G["steps"], cfg=G["cfg"],
-                         batch=BATCH, seconds=sec, diffusers=diffusers.__version__, torch=torch.__version__))
+                         batch=BATCH, offload=a.offload, seconds=sec, diffusers=diffusers.__version__, torch=torch.__version__))
     if n % 5 == 0:
         pd.DataFrame(rows).to_csv(meta_path, index=False)
         print(f"{a.group} {a.condition} {len(rows)}/{len(R)} {time.time() - t0:.0f}s", flush=True)
