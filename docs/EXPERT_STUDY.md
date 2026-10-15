@@ -59,3 +59,12 @@ The three tasks come from the evaluator decisions identified in the external rev
 - **T3** follows from the measurement failures found in this project (CLIP's reversed style axis; Qwen-Image's "close-up" faces that CLIP scores as perfectly separated) and from the rule that a contrast changing several settings cannot be attributed to one.
 
 If the owner prefers stronger grounding, 2–3 short interviews (about 20 minutes) with model developers in the group can confirm the tasks before the expert sessions; the experts of §2 can be asked the same questions at the end of their session instead.
+
+## 10. Addendum for the C&G special issue (2026-10-15): task T4, verify a language claim
+- **Task.** "A VLM looked at these two sets and said: [statement]. Is it correct? Show the evidence."
+- **Cases:** two statements taken from the Q5 outputs (`experiments/llm_study/PREREG.md`), chosen by the executor from the scored results before any session:
+  - **case a:** a VLM statement that the audit marks as wrong in a characteristic way, for example a narrowing reported as a shift, or a pooled claim that is false for many subjects;
+  - **case b:** a statement that the audit confirms.
+- **Conditions:** as for T1–T3. With the baseline, the expert receives the score table and the image grid; with the tool, the statement view links the statement to the contrast scatter, trajectories and images.
+- **Session length** grows to about 55 minutes, with T4 at about 6 minutes per condition. The interview gains one question: "Would you trust a VLM's description of how two models differ? What would you need to check?"
+- **Timing:** sessions start after the Q5 results and round 3 are in (target from 2026-10-22).
