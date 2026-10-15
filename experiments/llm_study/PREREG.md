@@ -98,3 +98,9 @@ Only aspects validated on the configuration set involved are scored.
 - **Q6 candidates:**
   - 16 pairs per candidate, drawn from all study images: 12 with a large gap and 4 with a small gap.
 - **Procedure:** same page, guide, annotators and decision rule as before (≥ 0.75 agreement and ≤ 0.40 "can't tell" on large-gap pairs). Pairs are drawn by a sampler committed before the package is built.
+
+## Operational details (added 2026-10-15, before any Q5 output and before any rewritten image was scored)
+- **Q5:** questions are separate single-turn prompts; option order is randomized per query; grids and seeds are as written in the header of `vlm_describe.py`.
+  - A smoke test (2 queries, Qwen3.5-4B, guidance contrast, first subject) only checked that the script runs. Its output was deleted unread.
+- **Q4 analysis:** `q4_analysis.py`, which reuses `q1_primary.py` unchanged.
+- **Text side:** `text_side.py`. Its text-side unit is the across-subject SD of the original prompts' text scores, because the image scale does not apply to text.
