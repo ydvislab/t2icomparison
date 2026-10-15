@@ -1,0 +1,11 @@
+contrast,A,B,aspect,effect,estimate,lo90,hi90,p,subjects_up,subjects_down,p_holm,significant,verdict,ratio,hides_opposite
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,sat,location,-0.2408,-0.4554,0.2186,0.4654,5,8,1.0000,False,same place,,True
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,sat,spread,0.2150,-0.0791,0.3437,0.2954,5,8,1.0000,False,same spread,1.2398,False
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,medium,location,0.5291,0.2045,0.9244,0.0028,12,2,0.0280,True,displaced,,False
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,medium,spread,0.2686,0.0346,0.5732,0.0600,12,2,0.3600,False,inconclusive,1.3081,False
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,shot,location,-0.0118,-0.2772,0.2241,0.8114,5,6,1.0000,False,same place,,True
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,shot,spread,0.2490,0.0364,0.3836,0.0470,5,6,0.3290,False,same spread,1.2828,False
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,tone,location,-0.1509,-0.3624,0.1370,0.5544,4,6,1.0000,False,same place,,True
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,tone,spread,0.1246,-0.0880,0.3287,0.3216,4,6,1.0000,False,same spread,1.1326,False
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,bg,location,0.4949,0.0743,1.0226,0.0336,12,2,0.2688,False,inconclusive,,False
+P1 klein 4B: original -> FLUX.2 rewrite,G08_klein4b,G08_klein4b__mistral,bg,spread,0.2648,0.0862,0.5776,0.0274,12,2,0.2466,False,inconclusive,1.3031,False

@@ -1,0 +1,41 @@
+contrast,A,B,aspect,effect,estimate,lo90,hi90,p,subjects_up,subjects_down,ratio,hides_opposite
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,sat,location,-0.6198,-0.8185,-0.2690,,4,15,,False
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,sat,spread,0.1934,-0.0448,0.3449,,4,15,1.2134,False
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,medium,location,0.5600,0.3574,0.8628,,14,2,,False
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,medium,spread,0.2012,0.0525,0.4470,,14,2,1.2229,False
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,shot,location,-0.1273,-0.4726,0.3229,,5,9,,True
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,shot,spread,0.1297,-0.0140,0.4192,,5,9,1.1384,False
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,tone,location,-0.2189,-0.6426,0.4019,,8,10,,True
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,tone,spread,0.1904,-0.0812,0.4420,,8,10,1.2097,False
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,bg,location,0.1229,-0.0723,0.5032,,8,4,,True
+D1 klein 4B: original -> Qwen rewrite,G08_klein4b,G08_klein4b__qwen,bg,spread,0.0391,-0.1884,0.3156,,8,4,1.0398,False
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,sat,location,-0.3613,-0.5745,-0.1447,,2,9,,False
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,sat,spread,0.1594,-0.0959,0.2821,,2,9,1.1728,False
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,medium,location,-0.0109,-0.2898,0.3261,,4,6,,True
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,medium,spread,0.0298,-0.2644,0.2154,,4,6,1.0302,False
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,shot,location,-0.2583,-0.3913,0.0757,,3,6,,True
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,shot,spread,-0.0624,-0.2021,0.2456,,3,6,0.9395,False
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,tone,location,0.2456,-0.2249,0.5339,,9,7,,True
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,tone,spread,0.1707,-0.0772,0.3770,,9,7,1.1861,False
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,bg,location,-0.2026,-0.9724,0.1214,,4,10,,True
+D2 klein 4B: FLUX.2 rewrite -> Qwen rewrite,G08_klein4b__mistral,G08_klein4b__qwen,bg,spread,-0.1525,-0.4504,-0.0065,,4,10,0.8585,False
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,sat,location,0.0131,-0.2506,0.5044,,8,6,,True
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,sat,spread,-0.3490,-0.4982,-0.0909,,8,6,0.7054,False
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,medium,location,0.4581,0.2227,0.7158,,11,3,,True
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,medium,spread,-0.2571,-0.3595,0.0879,,11,3,0.7733,False
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,shot,location,0.0005,-0.2941,0.4286,,8,8,,True
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,shot,spread,-0.2792,-0.4242,-0.0747,,8,8,0.7564,False
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,tone,location,-0.0793,-0.2323,0.3732,,8,5,,True
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,tone,spread,-0.2392,-0.4402,-0.0856,,8,5,0.7872,False
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,bg,location,0.2731,-0.0654,1.0044,,10,4,,True
+D3a klein 4B: original -> fixed rewrite,G08_klein4b,G08_klein4b__mistral_fixed,bg,spread,-0.3315,-0.4744,-0.0502,,10,4,0.7179,False
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,sat,location,-0.2553,-0.3599,-0.0433,,3,5,,True
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,sat,spread,0.2264,0.1459,0.5725,,3,5,1.2540,False
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,medium,location,-0.0226,-0.1198,0.1140,,3,1,,False
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,medium,spread,0.5236,0.2885,0.7329,,3,1,1.6881,False
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,shot,location,-0.0198,-0.2210,0.2608,,5,7,,True
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,shot,spread,0.4431,0.2137,0.5765,,5,7,1.5575,False
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,tone,location,-0.1808,-0.3337,0.0052,,1,6,,False
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,tone,spread,0.3907,0.1517,0.5796,,1,6,1.4780,False
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,bg,location,0.0121,-0.1393,0.2496,,4,3,,True
+D3b klein 4B: fixed rewrite -> per-seed rewrite,G08_klein4b__mistral_fixed,G08_klein4b__mistral,bg,spread,0.5861,0.3392,0.8094,,4,3,1.7969,False

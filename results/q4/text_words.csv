@@ -1,0 +1,15 @@
+llm,family,share
+mistral,lighting,1.000
+mistral,time of day,0.148
+mistral,cinematic / photographic,0.178
+mistral,colour,0.789
+mistral,background,0.883
+mistral,style,0.310
+mistral,median words per rewrite,156.000
+qwen,lighting,1.000
+qwen,time of day,0.376
+qwen,cinematic / photographic,0.382
+qwen,colour,0.891
+qwen,background,0.844
+qwen,style,0.098
+qwen,median words per rewrite,126.000
