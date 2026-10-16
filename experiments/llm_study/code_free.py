@@ -27,7 +27,7 @@ PROPS = [("sat", "colour saturation (muted vs vivid colours)"), ("medium", "medi
 LET = "ABCDEFG"
 
 ap = argparse.ArgumentParser(); ap.add_argument("--gpu", type=int, default=0); a = ap.parse_args()
-dev = f"cuda:{a.gpu}"
+dev = f"cuda:{a.gpu}" if torch.cuda.is_available() else "cpu"
 from transformers import AutoModelForImageTextToText, AutoProcessor  # noqa: E402
 proc = AutoProcessor.from_pretrained(f"{DATA}/models/Qwen3.5-4B")
 model = AutoModelForImageTextToText.from_pretrained(f"{DATA}/models/Qwen3.5-4B", dtype=torch.bfloat16).to(dev).eval()
