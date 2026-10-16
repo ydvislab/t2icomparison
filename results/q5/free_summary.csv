@@ -1,0 +1,27 @@
+vlm,measure,value,n
+qwen,statements on bg,42.000,830
+qwen,statements on medium,67.000,830
+qwen,statements on other,161.000,830
+qwen,statements on sat,57.000,830
+qwen,statements on shot,15.000,830
+qwen,statements on tone,26.000,830
+qwen,statements on variety,462.000,830
+qwen,pooled: aspect statements with correct direction,0.625,16
+qwen,pooled: aspect statements where audit says no shift,0.375,16
+qwen,subject: aspect statements with correct direction,0.671,73
+qwen,subject: aspect statements where audit says no shift,0.164,73
+qwen,units where audit finds narrowing that the free text mentions,0.916,83
+qwen,units with variety statements 'less' / all units,0.705,166
+mistral,statements on bg,78.000,730
+mistral,statements on medium,48.000,730
+mistral,statements on other,136.000,730
+mistral,statements on sat,52.000,730
+mistral,statements on shot,37.000,730
+mistral,statements on tone,17.000,730
+mistral,statements on variety,362.000,730
+mistral,pooled: aspect statements with correct direction,0.325,40
+mistral,pooled: aspect statements where audit says no shift,0.600,40
+mistral,subject: aspect statements with correct direction,0.733,60
+mistral,subject: aspect statements where audit says no shift,0.133,60
+mistral,units where audit finds narrowing that the free text mentions,0.892,83
+mistral,units with variety statements 'less' / all units,0.678,146
