@@ -139,6 +139,42 @@ button.mini.on { background: var(--ink); color: var(--panel); }
 .stmt .m { color: var(--muted); font-size: 12px; }
 .chipbtn { border: 0; background: var(--page); border-radius: 999px; padding: 3px 10px; margin: 3px; font: inherit; font-size: 13px; color: var(--ink-2); cursor: pointer; }
 .tip mark { background: color-mix(in srgb, var(--hl) 22%, transparent); color: inherit; border-radius: 3px; padding: 0 2px; }
+/* image axis (replaces the sorted grid) */
+#strip { padding: 0; overflow: hidden; }
+g.axi { cursor: pointer; }
+g.axi .axb { fill: none; stroke-width: 0; }
+g.axi.sel .axb { stroke-width: 2.5; }
+g.axi.hl .axb { stroke: var(--hl) !important; stroke-width: 3; }
+g.axi.dim { opacity: .16; }
+.axbrush .selection, .sbrush .selection, .rwbrush .selection { fill: var(--hl); fill-opacity: .12; stroke: var(--hl); stroke-opacity: .6; }
+.axtrack { fill: var(--band); }
+.traj.sel { stroke: var(--hl); stroke-width: 2.2; opacity: .95; }
+.traj.dim { opacity: .07; }
+.cpt.ab.dim { opacity: .15; }
+.cpt.ab.sel { stroke: var(--hl); stroke-width: 2.5; }
+.rug.sel { stroke: var(--hl) !important; stroke-width: 3; }
+#stripName button.mini { margin-left: 4px; }
+#selCount { font-size: 12px; font-weight: 600; color: var(--hl); background: color-mix(in srgb, var(--hl) 12%, transparent); border-radius: 999px; padding: 1px 8px; }
+/* subject brushing and draggable margins */
+.subj.dim { opacity: .18; }
+.seld path { fill: none; stroke: var(--hl); stroke-width: 2.4; }
+.mh { fill: var(--ink-2); opacity: .35; }
+.mh:hover, .mh.drag { opacity: 1; fill: var(--hl); }
+.mx .rl.pick { fill: var(--hl); font-weight: 600; text-decoration: underline; }
+#mstat { cursor: pointer; color: var(--hl); font-weight: 600; display: none; }
+/* drag to compare */
+.dragline { fill: none; stroke: var(--hl); stroke-width: 2.2; stroke-dasharray: 5 4; pointer-events: none; }
+.cfg { cursor: grab; }
+/* statement verdicts by the user */
+.stmt { grid-template-columns: 12px 1fr auto; }
+.uv button { border: 0; background: var(--page); color: var(--muted); border-radius: 999px; width: 24px; height: 22px; margin-left: 3px; cursor: pointer; font-size: 12px; }
+.uv button.on.ok { background: #2f9e6e; color: #fff; }
+.uv button.on.no { background: #d1495b; color: #fff; }
+.stbar div { cursor: pointer; }
+.stbar div.off { opacity: .25; }
+.famchips { position: absolute; left: 10px; top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.famchips button { border: 0; background: var(--page); border-radius: 999px; padding: 1px 9px; font: inherit; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+.famchips button.on { background: var(--hl); color: #fff; }
 /* tooltip */
 .tip { position: fixed; pointer-events: none; background: var(--panel); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(16,24,40,.18);
   display: none; z-index: 9; font-size: 13px; color: var(--ink-2); max-width: 300px; }
@@ -155,7 +191,7 @@ button.mini.on { background: var(--ink); color: var(--panel); }
   <div class="pill"><i style="background:var(--b)"></i><select id="selB"></select></div>
   <div class="diff" id="diff"></div>
   <div class="seg" id="aspSeg"></div>
-  <div class="status" id="status"></div>
+  <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
 </header>
 <main id="app">
   <section class="card" id="mapCard"><h2><span id="mainTitle">Configurations</span><div class="seg mini" id="mainSeg"></div></h2><div class="body" id="map"></div></section>
@@ -171,8 +207,10 @@ button.mini.on { background: var(--ink); color: var(--panel); }
 "use strict";
 const ASP = META.aspects, RET = ASP.filter(a => a.retained), AIDX = Object.fromEntries(ASP.map((a, i) => [a.key, i]));
 const SUBJ = META.subjects, G = Object.fromEntries(META.groups.map(g => [g.id, g]));
-const M_LOC = META.margins.location, M_LR = META.margins.log_iqr, NBOOT = 400, DUR = 450;
-const st = { A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat", main: "map" };
+const PRE_LOC = META.margins.location, PRE_LR = META.margins.log_iqr, NBOOT = 400, DUR = 450;
+let M_LOC = PRE_LOC, M_LR = PRE_LR;   // the frozen margins; dragging a band edge changes them for exploration only
+const st = { A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat", main: "map",
+  seedSel: null, seedSubj: null, subjSel: null, vFilter: null, fam: null };
 const cur = () => st.hover ?? st.subj;
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
 const aspName = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
@@ -271,6 +309,14 @@ const KIND = { guidance: "guidance only", package: "package: several settings ch
 const famColor = g => FAMC[g.family] || "var(--dot)";
 let OV = null;
 const OVS = {};
+const cfgDrag = d3.drag().clickDistance(5).subject(e => ({ x: e.x, y: e.y }))
+  .on("start", () => { OVS.tmp = OVS.svg.append("path").attr("class", "dragline"); })
+  .on("drag", (e, d) => OVS.tmp.attr("d", `M${OVS.x(d.x)},${OVS.y(d.y)} L${e.x},${e.y}`))
+  .on("end", (e, d) => {
+    OVS.tmp?.remove();
+    const t = OV.filter(o => o !== d).map(o => ({ o, dist: Math.hypot(OVS.x(o.x) - e.x, OVS.y(o.y) - e.y) })).sort((p, q2) => p.dist - q2.dist)[0];
+    if (t && t.dist < 18) setPair(d.g.id, t.o.g.id);
+  });
 // typical location and spread of each configuration on one aspect: per subject, location is the distance of the
 // configuration's median from the median of all configurations' medians (scale units), spread is its IQR (scale units);
 // the map places each configuration at the median over subjects
@@ -341,9 +387,10 @@ function drawMap(animate) {
     g.append("circle").attr("class", "ring").attr("r", 12);
     g.append("circle").attr("class", "pt").attr("r", 8).attr("fill", d => famColor(d.g));
     g.on("mouseenter", (e, d) => { st.hoverCfg = d.g.id; overviewHL(); })
-     .on("mousemove", (e, d) => showTip(e, `<b>${d.g.label}</b><div class="bar"><span>location</span><span><b>${fd(d.x)}</b></span><span>spread</span><span><b>${f2(d.y)}</b></span></div>`))
+     .on("mousemove", (e, d) => showTip(e, `<b>${d.g.label}</b><div class="bar"><span>location</span><span><b>${fd(d.x)}</b></span><span>spread</span><span><b>${f2(d.y)}</b></span></div><span style="color:var(--muted)">drag onto another configuration to compare</span>`))
      .on("mouseleave", () => { st.hoverCfg = null; hideTip(); overviewHL(); })
-     .on("click", (e, d) => setPair(d.g.id === st.B ? st.A : st.B, d.g.id));
+     .on("click", (e, d) => setPair(d.g.id === st.B ? st.A : st.B, d.g.id))
+     .call(cfgDrag);
     return g;
   }).transition(t).attr("transform", d => `translate(${x(d.x)},${y(d.y)})`);
   placeLabels(t);
@@ -475,7 +522,7 @@ function overviewHL() {
 function matrixHL(hs, hc) {
   if (OVS.mx) {
     OVS.mx.selectAll(".colhl").attr("fill", g => g.id === hc ? "var(--band)" : g.id === st.A ? "color-mix(in srgb, var(--a) 15%, transparent)" : g.id === st.B ? "color-mix(in srgb, var(--b) 15%, transparent)" : "none");
-    OVS.mx.selectAll(".rl").classed("on", s => s.si === (hs ?? st.subj));
+    OVS.mx.selectAll(".rl").classed("on", s => s.si === (hs ?? st.subj)).classed("pick", s => !!st.subjSel?.has(s.si));
     OVS.mx.selectAll("rect.cell").classed("on", d => d.s.si === (hs ?? st.subj) && (d.g.id === st.A || d.g.id === st.B));
   }
 }
@@ -503,12 +550,27 @@ function buildScatters() {
     s.bandX = svg.append("rect").attr("class", "band").attr("rx", 5);
     s.bandY = svg.append("rect").attr("class", "band").attr("rx", 5);
     s.zx = svg.append("line").attr("class", "zero"); s.zy = svg.append("line").attr("class", "zero");
+    // brushing empty space selects subjects in every scatter and in the matrix (T2: does a group of subjects disagree?)
+    s.brush = d3.brush().extent([[m.l, m.t], [W - m.r, H - m.b]]).on("end", e => scatterBrush(e, a.key));
+    s.brushG = svg.append("g").attr("class", "sbrush").call(s.brush);
+    // margin handles: drag to see how verdicts and reversal counts depend on the margins (exploration only)
+    s.hLoc = svg.append("g").selectAll("rect").data([-1, 1]).join("rect").attr("class", "mh").attr("width", 6).attr("height", 10).attr("rx", 2).style("cursor", "ew-resize")
+      .call(d3.drag().on("start", function () { d3.select(this).classed("drag", true); }).on("end", function () { d3.select(this).classed("drag", false); })
+        .on("drag", e => { M_LOC = Math.max(.1, Math.min(3, Math.abs(s.x.invert(e.x)))); marginsChanged(); }))
+      .on("mousemove", e => showTip(e, `location margin <b>±${f2(M_LOC)}</b> (pre-registered ±${f2(PRE_LOC)})`)).on("mouseleave", hideTip);
+    s.hLr = svg.append("g").selectAll("rect").data([-1, 1]).join("rect").attr("class", "mh").attr("width", 10).attr("height", 6).attr("rx", 2).style("cursor", "ns-resize")
+      .call(d3.drag().on("start", function () { d3.select(this).classed("drag", true); }).on("end", function () { d3.select(this).classed("drag", false); })
+        .on("drag", e => { M_LR = Math.max(.05, Math.min(1.5, Math.abs(s.y.invert(e.y)))); marginsChanged(); }))
+      .on("mousemove", e => showTip(e, `spread margin <b>×${f2(Math.exp(M_LR))}</b> (pre-registered ×${f2(Math.exp(PRE_LR))})`)).on("mouseleave", hideTip);
     svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", m.l).attr("y", H - 4).text(poleWord(a.left));
     svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text(poleWord(a.right));
     s.ci = svg.append("g"); s.dots = svg.append("g"); s.pool = svg.append("g").attr("class", "pool");
     s.pool.append("line").attr("class", "px"); s.pool.append("line").attr("class", "py");
     s.pool.append("path").attr("d", d3.symbol(d3.symbolDiamond, 110)());
     s.pool.on("mousemove", e => showTip(e, poolTip(a))).on("mouseleave", hideTip);
+    s.seld = svg.append("g").attr("class", "seld").style("display", "none");
+    s.seld.append("path").attr("d", d3.symbol(d3.symbolDiamond, 150)());
+    s.seld.on("mousemove", e => showTip(e, selTip(a))).on("mouseleave", hideTip);
     SC[a.key] = s;
   });
 }
@@ -538,8 +600,47 @@ function drawScatters(animate) {
     s.pool.select(".px").transition(t).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
     s.pool.select(".py").transition(t).attr("x1", x(p.d)).attr("x2", x(p.d)).attr("y1", y(p.llo)).attr("y2", y(p.lhi));
     s.pool.select("path").transition(t).attr("transform", `translate(${x(p.d)},${y(p.lr)})`);
+    s.hLoc.attr("x", d => x(d * M_LOC) - 3).attr("y", m.t);
+    s.hLr.attr("x", W - m.r - 10).attr("y", d => y(d * M_LR) - 3);
+    s.brushG.call(s.brush.move, null);
   }
+  subjHL();
   linked();
+}
+function scatterBrush(e, key) {
+  if (!e.sourceEvent) return;
+  const s = SC[key];
+  if (!e.selection) st.subjSel = null;
+  else {
+    const [[x0, y0], [x1, y1]] = e.selection;
+    st.subjSel = new Set(R[key].cells.filter(c => { const px = s.x(c.d), py = s.y(c.lr); return px >= x0 && px <= x1 && py >= y0 && py <= y1; }).map(c => c.si));
+    if (!st.subjSel.size) st.subjSel = null;
+  }
+  for (const k in SC) if (k !== key) SC[k].brushG.call(SC[k].brush.move, null);
+  subjHL(); matrixHL(st.hover, st.hoverCfg);
+}
+// brushed subjects: the others fade in every scatter, and a hollow diamond marks the median of the brushed subjects
+function subjHL() {
+  const S = st.subjSel;
+  for (const a of RET) {
+    const s = SC[a.key]; if (!s || !R) continue;
+    s.dots.selectAll("circle").classed("dim", c => S && !S.has(c.si));
+    const sel = S ? R[a.key].cells.filter(c => S.has(c.si)) : [];
+    s.seld.style("display", sel.length ? null : "none");
+    if (sel.length) s.seld.select("path").attr("transform", `translate(${s.x(d3.median(sel, c => c.d))},${s.y(d3.median(sel, c => c.lr))})`);
+  }
+}
+function selTip(a) {
+  const sel = R[a.key].cells.filter(c => st.subjSel?.has(c.si)), rest = R[a.key].cells.filter(c => !st.subjSel?.has(c.si));
+  return `<b>${sel.length} brushed subjects</b> · ${aspName(a.key)}<div class="bar"><span>shift</span><span><b>${fd(d3.median(sel, c => c.d))}</b> (others ${fd(d3.median(rest, c => c.d))})</span><span>spread</span><span><b>${fr(d3.median(sel, c => c.lr))}</b> (others ${fr(d3.median(rest, c => c.lr))})</span></div>`;
+}
+function marginsChanged() {
+  const changed = Math.abs(M_LOC - PRE_LOC) > 1e-6 || Math.abs(M_LR - PRE_LR) > 1e-6;
+  d3.select("#mstat").style("display", changed ? "inline" : "none").text(`margins ±${f2(M_LOC)} · ×${f2(Math.exp(M_LR))} ↺`)
+    .on("click", () => { M_LOC = PRE_LOC; M_LR = PRE_LR; marginsChanged(); });
+  CO.clear();
+  drawScatters(false); drawMatrix(); overviewHL();
+  if (st.main === "contrasts") drawContrastOverview();
 }
 function cellTip(a, c) {
   const vl = verdict(c.dlo, c.dhi, M_LOC), vs = verdict(c.llo, c.lhi, M_LR);
@@ -643,7 +744,7 @@ function drawSeeds(host, si) {
   svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 6).text(poleWord(a.left));
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 6).attr("text-anchor", "end").text(poleWord(a.right));
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", 14).attr("text-anchor", "end").text(aspName(a.key));
-  markJob();
+  markJob(); seedHL();
 }
 
 // ---------------- main view, second mode: contrast overview ----------------
@@ -729,7 +830,7 @@ function drawClusters(host, si) {
     .attr("stroke", "var(--panel)").attr("stroke-width", 1).style("cursor", "pointer")
     .on("mouseenter", (e, d) => { st.job = d.r[2]; st.jobB = null; markJob(); })
     .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r))).on("mouseleave", hideTip);
-  markJob();
+  markJob(); seedHL();
 }
 
 // ---------------- auxiliary, fourth mode: rewrite view (LLM prompt rewriting) ----------------
@@ -755,7 +856,13 @@ function drawRewrites(host, si) {
   const pts = REWRITE[gid][si].map(([k, txt, ts]) => ({ k, txt, tx: ts[AIDX[a.key]], r: img.get(k) })).filter(d => d.r)
     .map(d => ({ ...d, iy: (d.r[ai] - ma) / sc }));
   const base = SCORES[other][si].map(r => ({ r, iy: (r[ai] - ma) / sc }));
-  const m = { l: 40, r: 16, t: 14, b: 34 };
+  const m = { l: 40, r: 16, t: 34, b: 34 };
+  const famHas = (t, f) => new RegExp("\\b(" + FAMILIES[f].map(w => w.replace(/ /g, "\\s+")).join("|") + ")", "i").test(t);
+  const chips = host.append("div").attr("class", "famchips");
+  chips.selectAll("button").data(Object.keys(FAMILIES)).join("button")
+    .text(f => `${f} ${pts.filter(d => famHas(d.txt, f)).length}`).classed("on", f => f === st.fam)
+    .attr("title", "Highlight rewrites that mention this word family").on("click", (e, f) => { st.fam = st.fam === f ? null : f; drawRidge(); });
+  m.t = chips.node().offsetHeight + 14;
   const xe = Math.max(1, d3.max(pts, d => Math.abs(d.tx)) * 1.1), ye = Math.max(1.5, d3.max([...pts, ...base], d => Math.abs(d.iy)) * 1.1);
   const x = d3.scaleLinear([-xe, xe], [m.l, W - m.r]), y = d3.scaleLinear([-ye, ye], [H - m.b, m.t]);
   svg.append("rect").attr("class", "band").attr("x", m.l).attr("width", W - m.l - m.r).attr("y", y(M_LOC)).attr("height", y(-M_LOC) - y(M_LOC)).attr("rx", 4);
@@ -765,8 +872,16 @@ function drawRewrites(host, si) {
   svg.append("g").selectAll("line").data(base).join("line").attr("class", "rug").attr("stroke", oc).attr("data-j", d => d.r[2])
     .attr("x1", x(0) - 5).attr("x2", x(0) + 5).attr("y1", d => y(d.iy)).attr("y2", d => y(d.iy))
     .on("mouseenter", (e, d) => { st.job = d.r[2]; markJob(); }).on("mousemove", (e, d) => showTip(e, imgTip(other, d.r))).on("mouseleave", hideTip);
+  // brushing rewrites selects their seeds everywhere (image axis, trajectories, appearance map)
+  svg.append("g").attr("class", "rwbrush").call(d3.brush().extent([[m.l, m.t], [W - m.r, H - m.b]]).on("end", e => {
+    if (!e.sourceEvent) return;
+    if (!e.selection) st.seedSel = null;
+    else { const [[x0, y0], [x1, y1]] = e.selection; st.seedSel = new Set(pts.filter(d => x(d.tx) >= x0 && x(d.tx) <= x1 && y(d.iy) >= y0 && y(d.iy) <= y1).map(d => d.r[2])); }
+    st.seedSubj = si; seedHL();
+  }));
   svg.append("g").selectAll("circle").data(pts).join("circle").attr("class", "cpt ab").attr("data-j", d => d.r[2])
-    .attr("cx", d => x(d.tx)).attr("cy", d => y(d.iy)).attr("r", 4).attr("fill", rc).attr("stroke", "var(--panel)").style("cursor", "pointer")
+    .attr("cx", d => x(d.tx)).attr("cy", d => y(d.iy)).attr("r", d => st.fam && famHas(d.txt, st.fam) ? 5.5 : 4).attr("fill", rc)
+    .attr("opacity", d => st.fam && !famHas(d.txt, st.fam) ? .2 : 1).attr("stroke", d => st.fam && famHas(d.txt, st.fam) ? "var(--ink)" : "var(--panel)").style("cursor", "pointer")
     .on("mouseenter", (e, d) => { st.job = d.r[2]; st.jobB = null; markJob(); })
     .on("mousemove", (e, d) => showTip(e, `<b>${G[gid].label}</b> · seed ${d.r[1]}<div style="margin-top:6px;max-height:150px;overflow:hidden">${esc(d.txt).replace(FAMRE, "<mark>$&</mark>")}</div><img src="thumbs/${gid}/${d.r[2]}.jpg" alt="">`))
     .on("mouseleave", hideTip);
@@ -774,7 +889,7 @@ function drawRewrites(host, si) {
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 8).attr("text-anchor", "end").text(poleWord(a.right));
   svg.append("text").attr("class", "pole").attr("x", 6).attr("y", m.t + 8).text("image");
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", m.t + 8).attr("text-anchor", "end").text(aspName(a.key));
-  markJob();
+  markJob(); seedHL();
 }
 
 // ---------------- main view, third mode: VLM statements checked against the audit ----------------
@@ -801,11 +916,14 @@ function drawStatements() {
     .text(d => d[1]).classed("on", d => d[0] === st.vlm).on("click", (e, d) => { st.vlm = d[0]; drawStatements(); });
   ctl.append("div").attr("class", "seg mini").selectAll("button").data([["subject", "this subject"], ["all", "all subjects"]]).join("button")
     .text(d => d[1]).classed("on", d => d[0] === st.stLevel).on("click", (e, d) => { st.stLevel = d[0]; drawStatements(); });
-  const list = all.filter(s => st.vlm === "all" || s.vlm === st.vlm);
-  const counts = d3.rollup(list, v => v.length, s => vkey(s.verdict));
+  ctl.append("button").attr("class", "mini").style("margin-left", "auto").attr("title", "Download your own verdicts (✓ / ✗) as CSV").text("⤓").on("click", exportVerdicts);
+  const list0 = all.filter(s => st.vlm === "all" || s.vlm === st.vlm);
+  const counts = d3.rollup(list0, v => v.length, s => vkey(s.verdict));
   wrap.append("div").attr("class", "stbar").selectAll("div").data(VORDER.filter(k => counts.get(k))).join("div")
-    .style("flex", k => counts.get(k)).style("background", k => VCOL(k === "other" ? "" : k))
-    .on("mousemove", (e, k) => showTip(e, `<b>${k}</b>: ${counts.get(k)} of ${list.length} statements`)).on("mouseleave", hideTip);
+    .style("flex", k => counts.get(k)).style("background", k => VCOL(k === "other" ? "" : k)).classed("off", k => st.vFilter && st.vFilter !== k)
+    .on("mousemove", (e, k) => showTip(e, `<b>${k}</b>: ${counts.get(k)} of ${list0.length} statements<br><span style="color:var(--muted)">click to show only these</span>`)).on("mouseleave", hideTip)
+    .on("click", (e, k) => { st.vFilter = st.vFilter === k ? null : k; drawStatements(); });
+  const list = list0.filter(s => !st.vFilter || vkey(s.verdict) === st.vFilter);
   const groups = [["pooled", list.filter(s => s.level === "pooled")],
     [st.stLevel === "subject" ? SUBJ[st.subj].name : "per subject", list.filter(s => s.level === "subject" && (st.stLevel === "all" || s.si === st.subj))]];
   groups.forEach(([name, ss]) => {
@@ -818,45 +936,102 @@ function drawStatements() {
     row.append("i").style("background", s => VCOL(s.verdict));
     row.append("div").call(d => d.append("div").attr("class", "t").text(s => s.text))
       .call(d => d.append("div").attr("class", "m").text(s => `${s.vlm === "qwen" ? "Qwen-4B" : "Mistral-24B"}${st.stLevel === "all" && s.si >= 0 ? " · " + SUBJ[s.si].name : ""}`));
+    // the analyst's own verdict after looking at the evidence (kept in this browser; ⤓ exports them)
+    row.append("div").attr("class", "uv").selectAll("button").data(s => [["ok", "✓", s], ["no", "✗", s]]).join("button")
+      .attr("class", d => d[0]).classed("on", d => userV()[vid(d[2])] === d[0]).text(d => d[1])
+      .attr("title", d => d[0] === "ok" ? "I agree after checking the evidence" : "I disagree after checking the evidence")
+      .on("click", (e, d) => { e.stopPropagation(); const U = userV(), k = vid(d[2]); U[k] = U[k] === d[0] ? undefined : d[0]; saveV(U); drawStatements(); });
   });
   stmtHL();
+}
+const vid = s => [s.vlm, s.A, s.B, s.level, s.si, s.text].join("|");
+function userV() { try { return JSON.parse(localStorage.getItem("auditUserVerdicts") || "{}"); } catch (e) { return {}; } }
+function saveV(U) { try { localStorage.setItem("auditUserVerdicts", JSON.stringify(U)); } catch (e) { /* storage unavailable */ } }
+function exportVerdicts() {
+  const U = userV(), rows = (STATEMENTS || []).filter(s => U[vid(s)]).map(s => [s.vlm, s.A, s.B, s.level, s.si >= 0 ? SUBJ[s.si].name : "", s.text, s.verdict, U[vid(s)]]);
+  const csv = [["vlm", "A", "B", "level", "subject", "statement", "audit_verdict", "user_verdict"], ...rows]
+    .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "statement_verdicts.csv"; a.click();
 }
 function stmtHL() { d3.selectAll(".stmt").classed("on", s => s === st.stSel); }
 
 // ---------------- auxiliary: image strips ----------------
+// Every image of A (above the axis) and of B (below) placed by its score on the chosen aspect, in scale units from A's
+// median, stacked as a beeswarm toward the axis; the band is the location margin and the triangles are the medians.
+// Brushing the thin track above (A) or below (B) the axis selects those images; the images made from the same seeds are
+// selected on the other side, in the trajectories, the appearance map, the rugs and the rewrite view ("where did they
+// go?"). ▶ moves every image of A to where its same-seed image lands in B, and back.
+const AX = {};
 function drawStrip() {
-  const si = cur(), a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key];
-  d3.select("#stripName").text(`${aspName(a.key)} · ${SUBJ[si].name}`);
-  const lanes = [{ g: st.A, c: "var(--a)" }, { g: st.B, c: "var(--b)" }].map(l => ({ ...l, rows: [...SCORES[l.g][si]].sort((p, r) => p[ai] - r[ai]) }));
-  // choose the number of columns that makes the thumbnails as large as the panel allows
-  const { w: W, h: H } = box("#strip"), n = d3.max(lanes, l => l.rows.length), avail = H - 2 * 26 - 34;
-  const cols = [8, 11, 16, 22, 32].map(c => ({ c, s: Math.min((W - 28) / c - 4, avail / (2 * Math.ceil(n / c)) - 4) })).sort((p, r) => r.s - p.s)[0].c;
-  const lane = d3.select("#strip").selectAll("div.lanewrap").data(lanes).join(en => {
-    const w = en.append("div").attr("class", "lanewrap");
-    const h = w.append("div").attr("class", "lanehead"); h.append("i"); h.append("span");
-    w.append("div").attr("class", "lane");
-    return w;
+  const si = cur(), a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key];
+  if (st.seedSubj !== si) { st.seedSel = null; st.seedSubj = si; }
+  const head = d3.select("#stripName"); head.selectAll("*").remove();
+  head.append("span").text(`${aspName(a.key)} · ${SUBJ[si].name}`);
+  head.append("button").attr("class", "mini").attr("title", "Move every image of A to where its same-seed image lands in B, and back").text("▶").on("click", playMorph);
+  head.append("span").attr("id", "selCount").style("margin-left", "auto");
+  head.append("button").attr("class", "mini").attr("id", "selClear").attr("title", "Clear the selected seeds").text("✕")
+    .on("click", () => { st.seedSel = null; drawStrip(); seedHL(); });
+  const host = d3.select("#strip"); host.selectAll("*").remove();
+  const { w: W, h: H } = box("#strip");
+  const ra = SCORES[st.A][si], rb = SCORES[st.B][si], ma = mi(ra.map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;
+  const ext = Math.max(2, d3.max([...ra, ...rb], r => Math.abs(v(r))) * 1.06);
+  const m = { l: 14, r: 14, t: 4, b: 20 }, mid = (H - m.b + m.t) / 2, track = 9, gap = track + 4;
+  const x = d3.scaleLinear([-ext, ext], [m.l + 24, W - m.r - 24]);
+  // three rows per side and thumbnails as large as the rows allow; where images crowd, they overlap (a pile reads as
+  // density) and hovering brings one to the front
+  const ROWS = 3, sz = Math.max(22, Math.min(64, (mid - m.t - gap) / ROWS - 2));
+  const place = rows => { const last = d3.range(ROWS).map(() => -1e9); return [...rows].sort((p, q2) => v(p) - v(q2)).map(r => {
+    const cx = x(v(r)), free = last.findIndex(l => cx - l >= sz + 2);
+    const row = free >= 0 ? free : d3.maxIndex(last.map(l => cx - l)); last[row] = cx; return { r, cx, row }; }); };
+  const PA = place(ra), PB = place(rb);
+  const svg = host.append("svg").attr("width", W).attr("height", H).attr("class", "imgax");
+  svg.append("rect").attr("class", "band").attr("x", x(-M_LOC)).attr("width", x(M_LOC) - x(-M_LOC)).attr("y", m.t).attr("height", H - m.b - m.t).attr("rx", 4);
+  svg.append("line").attr("class", "zero").attr("x1", m.l).attr("x2", W - m.r).attr("y1", mid).attr("y2", mid);
+  const items = [...PA.map(d => ({ ...d, g: st.A, side: -1 })), ...PB.map(d => ({ ...d, g: st.B, side: 1 }))];
+  items.forEach(d => { d.y = d.side < 0 ? mid - gap - (d.row + 1) * (sz + 2) : mid + gap + d.row * (sz + 2); d.x0 = d.cx - sz / 2; });
+  Object.assign(AX, { items, sz });
+  [[-1, mid - gap + 1, "var(--a)"], [1, mid + 3, "var(--b)"]].forEach(([side, y0, c]) => {
+    svg.append("rect").attr("class", "axtrack").attr("x", x.range()[0]).attr("width", x.range()[1] - x.range()[0]).attr("y", y0).attr("height", track).attr("rx", 4);
+    const md = x(d3.median(side < 0 ? ra : rb, v));
+    svg.append("path").attr("d", d3.symbol(d3.symbolTriangle, 46)()).attr("transform", `translate(${md},${y0 + track / 2}) rotate(${side < 0 ? 180 : 0})`).attr("fill", c);
+    svg.append("circle").attr("cx", m.l + 6).attr("cy", y0 + track / 2).attr("r", 5).attr("fill", c);
+    const br = d3.brushX().extent([[x.range()[0], y0], [x.range()[1], y0 + track]]).on("end", e => {
+      if (!e.sourceEvent) return;
+      if (!e.selection) st.seedSel = null;
+      else { const [p, q2] = e.selection; st.seedSel = new Set(items.filter(d => d.side === side && d.cx >= p && d.cx <= q2).map(d => d.r[2])); }
+      st.seedSubj = si; seedHL();
+    });
+    svg.append("g").attr("class", "axbrush").call(br);
   });
-  lane.select(".lanehead i").style("background", l => l.c);
-  lane.select(".lanehead span").text(l => G[l.g].label);
-  lane.select(".lane").style("grid-template-columns", `repeat(${cols}, minmax(0, 1fr))`)
-    .selectAll("img").data(l => l.rows.map(r => ({ g: l.g, r })), d => d.g + d.r[2]).join("img")
-    .attr("src", d => `thumbs/${d.g}/${d.r[2]}.jpg`).attr("alt", "").attr("data-j", d => d.r[2])
-    .on("mouseenter", (e, d) => { st.job = d.r[2]; st.jobB = null; markJob(); })
-    .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r)))
-    .on("mouseleave", hideTip)
-    .order();
-  const ends = d3.select("#strip").selectAll("div.endwrap").data([a]).join(en => {
-    const w = en.append("div").attr("class", "endwrap");
-    w.append("div").attr("class", "grad").style("background", "linear-gradient(90deg,var(--faint),var(--ink-2))");
-    const e2 = w.append("div").attr("class", "ends"); e2.append("span").attr("class", "l"); e2.append("span").attr("class", "r");
-    return w;
-  });
-  ends.select(".l").text(d => poleWord(d.left)); ends.select(".r").text(d => poleWord(d.right));
-  markJob();
+  const g = svg.append("g").selectAll("g.axi").data(items, d => d.g + d.r[2]).join("g").attr("class", "axi")
+    .attr("transform", d => `translate(${d.x0},${d.y})`)
+    .on("mouseenter", function (e, d) { d3.select(this).raise(); st.job = d.r[2]; st.jobB = null; markJob(); })
+    .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r))).on("mouseleave", hideTip)
+    .on("click", (e, d) => { st.seedSel = new Set([d.r[2]]); st.seedSubj = si; seedHL(); });
+  g.append("image").attr("href", d => `thumbs/${d.g}/${d.r[2]}.jpg`).attr("width", sz).attr("height", sz).attr("preserveAspectRatio", "xMidYMid slice");
+  g.append("rect").attr("class", "axb").attr("width", sz).attr("height", sz).attr("rx", 3).attr("stroke", d => d.side < 0 ? "var(--a)" : "var(--b)");
+  svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 5).text(poleWord(a.left));
+  svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 5).attr("text-anchor", "end").text(poleWord(a.right));
+  markJob(); seedHL();
+}
+function playMorph() {
+  const bx = new Map(AX.items.filter(d => d.side > 0).map(d => [d.r[2], d]));
+  d3.selectAll("g.axi").filter(d => d.side < 0 && bx.has(d.r[2])).raise()
+    .transition().duration(1400).ease(d3.easeCubicInOut).attr("transform", d => `translate(${bx.get(d.r[2]).cx - AX.sz / 2},${d.y})`)
+    .transition().delay(1100).duration(1100).ease(d3.easeCubicInOut).attr("transform", d => `translate(${d.x0},${d.y})`);
+}
+function seedHL() {
+  const S = st.seedSubj === cur() ? st.seedSel : null, has = j => !!S && S.has(j);
+  d3.selectAll("g.axi").classed("sel", d => has(d.r[2])).classed("dim", d => !!S && !has(d.r[2]));
+  d3.selectAll(".traj").classed("sel", function () { return has(this.dataset.j); }).classed("dim", function () { return !!S && !has(this.dataset.j); })
+    .filter(function () { return has(this.dataset.j); }).raise();
+  d3.selectAll(".cpt.ab").classed("sel", function () { return has(this.dataset.j); }).classed("dim", function () { return !!S && !has(this.dataset.j); });
+  d3.selectAll(".rug").classed("sel", function () { return has(this.dataset.j); });
+  d3.select("#selCount").style("display", S ? null : "none").text(S ? `${S.size} seeds` : "");
+  d3.select("#selClear").style("display", S ? null : "none");
 }
 function markJob() {
-  d3.selectAll(".lane img").classed("hl", d => d.r[2] === st.job || (d.g === st.B && d.r[2] === st.jobB));
+  d3.selectAll("g.axi").classed("hl", d => d.r[2] === st.job || (d.g === st.B && d.r[2] === st.jobB));
   d3.selectAll(".traj").classed("hl", function () { return this.dataset.j === st.job; }).filter(function () { return this.dataset.j === st.job; }).raise();
   d3.selectAll(".cpt.ab").classed("hl", function () { return this.dataset.j === st.job; }).filter(function () { return this.dataset.j === st.job; }).raise();
   d3.selectAll(".rug").classed("hl", function () { return this.dataset.j === st.job && this.parentNode.style.opacity === "1"; })
