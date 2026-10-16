@@ -239,7 +239,7 @@ The **contrast scatters**, one per aspect, place each subject at (Δ, log IQR ra
 - **The appearance map** places all images of a subject from every configuration on a shared t-SNE of CLIP image embeddings, with A and B as density contours. It reveals defaults outside the five aspects.
 - **Image strips** show all images sorted along the aspect, with the same seed highlighted across configurations.
 
-### 4.4 Language views [to be built for v2]
+### 4.4 Language views
 - **Rewrite view.** For a rewriting contrast, it lists the rewritten prompts of the selected subject next to their images. It marks the pre-registered word families (lighting, time of day, cinematic, colour, background, style), and it plots each rewrite's text-side score against its image's score on the selected aspect. A rewrite that says "vivid" next to an image that is muted is visible as a point off the diagonal.
 - **Statement view.** For a VLM description of a contrast, each statement is listed with its coded aspect and direction. Selecting a statement selects the matching contrast scatter, trajectories and images, and colours the statement by the audit's verdict: confirmed, contradicted, or "the audit finds a narrowing, not a shift" (T4).
 
