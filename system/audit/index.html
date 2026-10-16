@@ -11,21 +11,22 @@
   color-scheme: light;
   --page: #f5f6f8; --panel: #ffffff; --ink: #1f2328; --ink-2: #4b5260; --muted: #8a909a; --faint: #c9cdd4;
   --grid: #eef0f3; --band: rgba(31,35,40,.045); --dot: #b4b9c2;
-  --a: #4c78a8; --b: #f58518; --hl: #7b61ff; --warn: #c27c0e; --shadow: 0 1px 2px rgba(16,24,40,.04), 0 6px 20px rgba(16,24,40,.05);
+  --a: #3d6fa5; --b: #d9822b; --hl: #6e56cf; --warn: #b9862f; --ok: #4f9a86; --bad: #c0564b;
+  --shadow: 0 0 0 1px rgba(16,24,40,.06);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --faint: #3a3f48;
-    --grid: #23272e; --band: rgba(255,255,255,.05); --dot: #5c626d; --a: #6f9ccf; --b: #f7a24b; --hl: #9d8bff; --warn: #e3a33a;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+    --grid: #23272e; --band: rgba(255,255,255,.05); --dot: #5c626d; --a: #77a1d3; --b: #ec9c50; --hl: #9d8bff; --warn: #d8a64e; --ok: #6cbba5; --bad: #db7a70;
+    --shadow: 0 0 0 1px rgba(255,255,255,.06);
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
   --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --faint: #3a3f48;
-  --grid: #23272e; --band: rgba(255,255,255,.05); --dot: #5c626d; --a: #6f9ccf; --b: #f7a24b; --hl: #9d8bff; --warn: #e3a33a;
-  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  --grid: #23272e; --band: rgba(255,255,255,.05); --dot: #5c626d; --a: #77a1d3; --b: #ec9c50; --hl: #9d8bff; --warn: #d8a64e; --ok: #6cbba5; --bad: #db7a70;
+  --shadow: 0 0 0 1px rgba(255,255,255,.06);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
@@ -40,8 +41,9 @@ header h1 { font-size: 18px; font-weight: 650; margin: 0 8px 0 0; letter-spacing
 .pill select { border: 0; background: transparent; font: inherit; font-weight: 600; color: var(--ink); outline: none; cursor: pointer; }
 .iconbtn { width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--panel); box-shadow: var(--shadow); color: var(--ink-2); font-size: 15px; cursor: pointer; flex: none; }
 .diff { display: flex; gap: 6px; min-width: 0; overflow: hidden; }
-.diff span { font-size: 13px; color: var(--ink-2); background: var(--panel); border-radius: 999px; padding: 3px 10px; box-shadow: var(--shadow); white-space: nowrap; }
+.diff span { font-size: 12px; color: var(--ink-2); background: var(--panel); border-radius: 999px; padding: 3px 10px; box-shadow: var(--shadow); white-space: nowrap; }
 .diff span.warn { color: var(--warn); font-weight: 600; }
+.diff span { max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
 .seg { display: flex; gap: 2px; background: var(--panel); border-radius: 999px; padding: 3px; box-shadow: var(--shadow); margin-left: auto; flex: none; }
 .seg button { border: 0; background: transparent; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 13px; color: var(--ink-2); cursor: pointer; }
 .seg button.on { background: var(--ink); color: var(--panel); font-weight: 600; }
@@ -52,8 +54,11 @@ header h1 { font-size: 18px; font-weight: 650; margin: 0 8px 0 0; letter-spacing
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) clamp(230px, 18vw, 320px);
   grid-template-rows: minmax(0, 1.6fr) minmax(0, 1fr);
   grid-template-areas: "map matrix side" "strip ridge side"; }
-.card { background: var(--panel); border-radius: 14px; box-shadow: var(--shadow); min-width: 0; min-height: 0; display: flex; flex-direction: column; transition: box-shadow .2s; }
-.card h2 { font-size: 14px; font-weight: 600; margin: 0; padding: 10px 14px 0; display: flex; align-items: center; gap: 8px; flex: none; color: var(--ink); }
+.card { background: var(--panel); border-radius: 10px; box-shadow: var(--shadow); min-width: 0; min-height: 0; display: flex; flex-direction: column; transition: box-shadow .2s; }
+.card h2 { font-size: 12.5px; font-weight: 600; margin: 0; padding: 9px 12px 0; display: flex; align-items: center; gap: 7px; flex: none; color: var(--ink-2); }
+#mapCard h2 { font-size: 15px; color: var(--ink); padding-top: 11px; }
+.pl { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 5px; background: var(--ink-2); color: var(--panel); font-size: 10.5px; font-weight: 700; flex: none; }
+#mapCard .pl { background: var(--ink); width: 19px; height: 19px; }
 .card h2 small { color: var(--muted); font-weight: 400; font-size: 12px; }
 .card h2 select { margin-left: auto; font: inherit; font-size: 13px; font-weight: 500; border: 0; background: var(--page); border-radius: 999px; padding: 3px 10px; color: var(--ink); cursor: pointer; max-width: 55%; }
 .card .body { flex: 1; min-height: 0; position: relative; }
@@ -63,10 +68,10 @@ header h1 { font-size: 18px; font-weight: 650; margin: 0 8px 0 0; letter-spacing
 #side .card.on { box-shadow: 0 0 0 2px var(--hl), var(--shadow); }
 #side .card h2 { padding-top: 7px; font-size: 13px; }
 svg { display: block; }
-svg text { fill: var(--muted); font-size: 12px; font-family: inherit; }
+svg text { fill: var(--muted); font-size: 11px; font-family: inherit; }
 .band { fill: var(--band); }
 .zero { stroke: var(--faint); stroke-width: 1; }
-.pole { font-size: 12px; fill: var(--muted); }
+.pole { font-size: 10.5px; fill: var(--muted); }
 /* map */
 .cfg circle.pt { stroke: var(--panel); stroke-width: 2; cursor: pointer; }
 .cfg .ring { fill: none; stroke-width: 2.5; }
@@ -168,8 +173,8 @@ g.axi.dim { opacity: .16; }
 /* statement verdicts by the user */
 .stmt { grid-template-columns: 12px 1fr auto; }
 .uv button { border: 0; background: var(--page); color: var(--muted); border-radius: 999px; width: 24px; height: 22px; margin-left: 3px; cursor: pointer; font-size: 12px; }
-.uv button.on.ok { background: #2f9e6e; color: #fff; }
-.uv button.on.no { background: #d1495b; color: #fff; }
+.uv button.on.ok { background: var(--ok); color: #fff; }
+.uv button.on.no { background: var(--bad); color: #fff; }
 .stbar div { cursor: pointer; }
 .stbar div.off { opacity: .25; }
 .famchips { position: absolute; left: 10px; top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
@@ -289,13 +294,16 @@ function diffChips() {
   const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(k => String(a[k]) !== String(b[k]) && k !== "pipeline");
   const tail = v => String(v ?? "–").split("/").pop().replace(/^guidance_scale = |^true_cfg_scale = /, "");
   keys.sort((p, r) => (r === "weights") - (p === "weights"));
-  const chips = keys.map(k => ({ cls: "", title: k, text: `${tail(a[k])} → ${tail(b[k])}` }));
+  const pr = g => g.rewrite ? { rwF: "FLUX.2 rewrite", rwQ: "Qwen rewrite", rw1: "one rewrite" }[g.rewrite] : "minimal prompt";
+  const chips = keys.map(k => k === "prompt" ? { cls: "", title: `${a[k]} → ${b[k]}`, text: `${pr(G[st.A])} → ${pr(G[st.B])}` }
+    : { cls: "", title: k, text: `${tail(a[k])} → ${tail(b[k])}` });
   if (keys.length > 1) chips.unshift({ cls: "warn", title: `${keys.length} declared settings differ: the difference cannot be attributed to one of them`, text: `⚠ ${keys.length}` });
   d3.select("#diff").selectAll("span").data(chips).join("span").attr("class", c => c.cls).attr("title", c => c.title).text(c => c.text);
 }
 
 // ---------------- main view: configuration map ----------------
-const FAMC = { "Stable Diffusion": "#6b7a8f", "FLUX.2": "#2f9e8f", "Qwen-Image": "#c2577a" };
+const FAMC = { "Stable Diffusion": "#8a93a6", "FLUX.2": "#4f9a86", "Qwen-Image": "#b07a93" };
+const DIV = d3.interpolateRgbBasis(["#2f6f73", "#8dbab3", "#f1eee7", "#d9b97f", "#9b6b2c"]);   // left pole ... right pole
 const SHORT = { G01: "SD1.5", G02: "SDXL", G03: "Turbo", G04: "SD3.5", G05: "dev", G06: "kb4·4", G07: "kb4·1", G08: "k4",
   G09: "Qw·4", G10: "Qw·1", G11: "kb9", G12: "k9" };
 const ORDER = ["G01", "G02", "G03", "G04", "G05", "G11", "G12", "G06", "G07", "G08", "G09", "G10"];
@@ -448,7 +456,7 @@ function drawMatrix() {
   OVS.mx = mx;
   const val = new Map(); OV.forEach(d => d.per.forEach(p => val.set(d.g.id + "|" + p.si, p)));
   const ext = Math.max(1, d3.quantile([...val.values()].map(p => Math.abs(p.x)).sort(d3.ascending), .95));
-  const col = d3.scaleDiverging(t => d3.interpolateBrBG(1 - t)).domain([-ext, 0, ext]).clamp(true);
+  const col = d3.scaleDiverging(DIV).domain([-ext, 0, ext]).clamp(true);
   const cx = i => lw + i * cw;
   mx.append("g").selectAll("rect").data(CFGS).join("rect").attr("class", "colhl")
     .attr("x", (g, i) => cx(i) - 1).attr("width", cw).attr("y", top - 4).attr("height", yy - top + 2).attr("rx", 4).attr("fill", "none");
@@ -539,7 +547,7 @@ function buildScatters() {
   const side = d3.select("#side"); side.selectAll("*").remove();
   for (const a of RET) {
     const card = side.append("section").attr("class", "card").attr("data-a", a.key).on("click", e => { if (e.target.tagName !== "circle") pick(st.subj, a.key); });
-    card.append("h2").text(aspName(a.key));
+    card.append("h2").call(h => { if (a === RET[0]) h.append("span").attr("class", "pl").text("E"); h.append("span").text(aspName(a.key)); });
     card.append("div").attr("class", "body");
   }
   side.selectAll(".card").each(function () {
@@ -663,7 +671,7 @@ function pick(si, aspect) {
   const changed = aspect !== st.aspect;
   st.subj = si; st.aspect = aspect; st.job = null; st.hover = null; d3.select("#selS").property("value", si);
   if (changed) { aspectSeg(); drawMap(true); }
-  else if (st.main === "statements" && st.stLevel === "subject") drawStatements();
+  else if (st.main === "statements") drawStatements();
   linked();
 }
 
@@ -765,7 +773,7 @@ function drawContrastOverview() {
   const svg = OVS.co, { w: W, h: H } = box("#map"); svg.attr("width", W).attr("height", H).selectAll("*").remove();
   const rows = coData(), lw = 150, top = 34, cw = (W - lw - 10) / RET.length, ch = Math.min(110, (H - top - 30) / rows.length);
   const dmax = Math.max(1, d3.max(rows, r => d3.max(RET, a => Math.abs(r.R[a.key].pool.d))));
-  const col = d3.scaleDiverging(t => d3.interpolateBrBG(1 - t)).domain([-dmax, 0, dmax]);
+  const col = d3.scaleDiverging(DIV).domain([-dmax, 0, dmax]);
   svg.append("defs").append("marker").attr("id", "coah").attr("viewBox", "0 0 10 10").attr("refX", 6).attr("refY", 5)
     .attr("markerWidth", 5).attr("markerHeight", 5).attr("orient", "auto").append("path").attr("d", "M 0 0 L 10 5 L 0 10 z").attr("fill", "context-stroke");
   svg.append("g").selectAll("text").data(RET).join("text").attr("class", "cohead").attr("x", (a, i) => lw + (i + .5) * cw).attr("y", top - 14)
@@ -896,53 +904,79 @@ function drawRewrites(host, si) {
 // Each free-text statement a VLM made about the selected pair, coded to an aspect and direction, with the audit's
 // verdict for the same contrast, level and subject. The bar summarises the verdicts; clicking a statement selects its
 // aspect and subject so the other views show the evidence.
-const VCOL = v => v.startsWith("confirmed") ? "#2f9e6e" : v === "contradicted" ? "#d1495b" : v.startsWith("narrowed") ? "var(--hl)"
+const VCOL = v => v.startsWith("confirmed") ? "var(--ok)" : v === "contradicted" ? "var(--bad)" : v.startsWith("narrowed") ? "var(--hl)"
   : v === "audit: no shift" ? "var(--warn)" : "var(--faint)";
 const VORDER = ["confirmed", "narrowed, did not move", "audit: no shift", "contradicted", "other"];
 const vkey = v => v.startsWith("confirmed") ? "confirmed" : VORDER.includes(v) ? v : "other";
 st.vlm = "all"; st.stLevel = "subject";
+// rows = pooled + subjects, columns = the five aspects, variety, other; one small glyph per statement (circle = Qwen-4B,
+// square = Mistral-24B) coloured by the audit's verdict. The bar above summarises the verdicts and filters them. Text
+// appears only on hover and for the selected statement at the bottom, where the analyst can record ✓ / ✗.
+const SCOLS = ["sat", "medium", "shot", "tone", "bg", "variety", "other"];
 function drawStatements() {
   const host = d3.select("#map"); host.selectAll("*").remove();
-  const wrap = host.append("div").attr("id", "stmts");
   const all = (typeof STATEMENTS === "undefined" ? [] : STATEMENTS).filter(s => s.A === st.A && s.B === st.B);
   if (!all.length) {
-    wrap.append("div").attr("class", "m").style("color", "var(--muted)").style("margin", "8px 0").text("No VLM description of this pair. Described pairs:");
+    const wrap = host.append("div").attr("id", "stmts");
+    wrap.append("div").attr("class", "m").style("color", "var(--muted)").style("margin", "8px 0").text("No VLM description of this pair.");
     const pairs = d3.groups(STATEMENTS || [], s => s.A + ">" + s.B).map(([, ss]) => ss[0]);
     wrap.selectAll("button.chipbtn").data(pairs).join("button").attr("class", "chipbtn").text(s => `${sh(G[s.A])} → ${sh(G[s.B])}`).on("click", (e, s) => setPair(s.A, s.B));
     return;
   }
-  const ctl = wrap.append("div").attr("class", "stctl");
-  ctl.append("div").attr("class", "seg mini").selectAll("button").data([["all", "both VLMs"], ["qwen", "Qwen-4B"], ["mistral", "Mistral-24B"]]).join("button")
+  const { w: W, h: H } = box("#map");
+  const ctl = host.append("div").attr("class", "stctl").style("position", "absolute").style("left", "12px").style("top", "2px");
+  ctl.append("div").attr("class", "seg mini").selectAll("button").data([["all", "●■"], ["qwen", "● Qwen-4B"], ["mistral", "■ Mistral-24B"]]).join("button")
     .text(d => d[1]).classed("on", d => d[0] === st.vlm).on("click", (e, d) => { st.vlm = d[0]; drawStatements(); });
-  ctl.append("div").attr("class", "seg mini").selectAll("button").data([["subject", "this subject"], ["all", "all subjects"]]).join("button")
-    .text(d => d[1]).classed("on", d => d[0] === st.stLevel).on("click", (e, d) => { st.stLevel = d[0]; drawStatements(); });
-  ctl.append("button").attr("class", "mini").style("margin-left", "auto").attr("title", "Download your own verdicts (✓ / ✗) as CSV").text("⤓").on("click", exportVerdicts);
+  ctl.append("button").attr("class", "mini").attr("title", "Download your own verdicts (✓ / ✗) as CSV").text("⤓").on("click", exportVerdicts);
   const list0 = all.filter(s => st.vlm === "all" || s.vlm === st.vlm);
-  const counts = d3.rollup(list0, v => v.length, s => vkey(s.verdict));
-  wrap.append("div").attr("class", "stbar").selectAll("div").data(VORDER.filter(k => counts.get(k))).join("div")
-    .style("flex", k => counts.get(k)).style("background", k => VCOL(k === "other" ? "" : k)).classed("off", k => st.vFilter && st.vFilter !== k)
-    .on("mousemove", (e, k) => showTip(e, `<b>${k}</b>: ${counts.get(k)} of ${list0.length} statements<br><span style="color:var(--muted)">click to show only these</span>`)).on("mouseleave", hideTip)
-    .on("click", (e, k) => { st.vFilter = st.vFilter === k ? null : k; drawStatements(); });
   const list = list0.filter(s => !st.vFilter || vkey(s.verdict) === st.vFilter);
-  const groups = [["pooled", list.filter(s => s.level === "pooled")],
-    [st.stLevel === "subject" ? SUBJ[st.subj].name : "per subject", list.filter(s => s.level === "subject" && (st.stLevel === "all" || s.si === st.subj))]];
-  groups.forEach(([name, ss]) => {
-    if (!ss.length) return;
-    wrap.append("div").attr("class", "stgrp").text(name);
-    const row = wrap.selectAll(null).data(ss).join("div").attr("class", "stmt")
-      .on("mousemove", (e, s) => showTip(e, `<b>${s.verdict}</b><br>${s.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"} · ${s.level === "pooled" ? "pooled" : SUBJ[s.si].name}${s.prop ? " · coded: " + aspName(s.prop) + (s.dir ? " → " + s.dir : "") : ""}`))
-      .on("mouseleave", hideTip)
-      .on("click", (e, s) => { st.stSel = s; pick(s.si >= 0 ? s.si : st.subj, s.aspect || st.aspect); });
-    row.append("i").style("background", s => VCOL(s.verdict));
-    row.append("div").call(d => d.append("div").attr("class", "t").text(s => s.text))
-      .call(d => d.append("div").attr("class", "m").text(s => `${s.vlm === "qwen" ? "Qwen-4B" : "Mistral-24B"}${st.stLevel === "all" && s.si >= 0 ? " · " + SUBJ[s.si].name : ""}`));
-    // the analyst's own verdict after looking at the evidence (kept in this browser; ⤓ exports them)
-    row.append("div").attr("class", "uv").selectAll("button").data(s => [["ok", "✓", s], ["no", "✗", s]]).join("button")
-      .attr("class", d => d[0]).classed("on", d => userV()[vid(d[2])] === d[0]).text(d => d[1])
-      .attr("title", d => d[0] === "ok" ? "I agree after checking the evidence" : "I disagree after checking the evidence")
-      .on("click", (e, d) => { e.stopPropagation(); const U = userV(), k = vid(d[2]); U[k] = U[k] === d[0] ? undefined : d[0]; saveV(U); drawStatements(); });
-  });
-  stmtHL();
+  const svg = host.append("svg").attr("width", W).attr("height", H);
+  const m = { l: 128, r: 14, t: 60, b: st.stSel ? 46 : 14 }, bw = W - m.l - m.r;
+  // verdict bar (filter)
+  const counts = d3.rollup(list0, v => v.length, s => vkey(s.verdict)), keys = VORDER.filter(k => counts.get(k));
+  const bx = d3.scaleLinear([0, list0.length], [m.l, m.l + bw]); let acc = 0;
+  svg.append("g").selectAll("rect").data(keys.map(k => { const r = { k, x0: acc, n: counts.get(k) }; acc += r.n; return r; })).join("rect")
+    .attr("x", d => bx(d.x0) + 1).attr("width", d => Math.max(1, bx(d.x0 + d.n) - bx(d.x0) - 2)).attr("y", 33).attr("height", 6).attr("rx", 2)
+    .attr("fill", d => VCOL(d.k === "other" ? "" : d.k)).attr("opacity", d => st.vFilter && st.vFilter !== d.k ? .25 : 1).style("cursor", "pointer")
+    .on("mousemove", (e, d) => showTip(e, `<b>${d.k}</b> · ${d.n} of ${list0.length}`)).on("mouseleave", hideTip)
+    .on("click", (e, d) => { st.vFilter = st.vFilter === d.k ? null : d.k; drawStatements(); });
+  // glyph matrix
+  const rows = [{ key: -1, name: "pooled" }, ...SUBJ.map((s, i) => ({ key: i, name: s.name.replace(/^an? /, "") }))];
+  const rh = Math.max(8, (H - m.t - m.b) / rows.length), cw = bw / SCOLS.length, gsz = Math.max(4, Math.min(8, rh - 4));
+  const ry = d3.scaleBand(rows.map(r => r.key), [m.t, H - m.b]).paddingInner(.08);
+  svg.append("g").selectAll("text").data(SCOLS).join("text").attr("x", (c, i) => m.l + (i + .5) * cw).attr("y", m.t - 4).attr("text-anchor", "middle")
+    .style("font-size", "11px").style("fill", "var(--ink-2)").style("font-weight", 500).text(c => SCOLS.indexOf(c) < 5 ? aspName(c) : c);
+  svg.append("g").selectAll("rect").data(rows).join("rect").attr("class", "strow").attr("x", 6).attr("width", W - 12).attr("y", r => ry(r.key)).attr("height", ry.bandwidth()).attr("rx", 3)
+    .attr("fill", r => r.key === st.subj ? "var(--band)" : "none");
+  svg.append("g").selectAll("text").data(rows).join("text").attr("x", m.l - 8).attr("y", r => ry(r.key) + ry.bandwidth() / 2).attr("dy", "0.35em").attr("text-anchor", "end")
+    .style("font-size", Math.min(11, rh - 1) + "px").style("fill", r => r.key === st.subj ? "var(--ink)" : "var(--ink-2)").style("font-weight", r => r.key < 0 ? 600 : 400)
+    .text(r => r.name).style("cursor", "pointer").on("click", (e, r) => { if (r.key >= 0) pick(r.key, st.aspect); });
+  svg.append("g").selectAll("line").data(d3.range(SCOLS.length + 1)).join("line").attr("x1", i => m.l + i * cw).attr("x2", i => m.l + i * cw)
+    .attr("y1", m.t).attr("y2", H - m.b).attr("stroke", "var(--grid)");
+  const cell = d3.group(list, s => (s.level === "pooled" ? -1 : s.si) + "|" + (SCOLS.slice(0, 5).includes(s.prop) ? s.prop : s.prop === "variety" ? "variety" : "other"));
+  const glyphs = [];
+  for (const [k, ss] of cell) {
+    const [rk, col] = k.split("|"), ci = SCOLS.indexOf(col), step = Math.min(gsz + 2, (cw - 8) / Math.max(1, ss.length));
+    ss.forEach((s, j) => glyphs.push({ s, x: m.l + ci * cw + 4 + gsz / 2 + j * step, y: ry(+rk) + ry.bandwidth() / 2 }));
+  }
+  const U = userV();
+  svg.append("g").selectAll("path").data(glyphs).join("path").attr("class", "sg")
+    .attr("d", d => d3.symbol(d.s.vlm === "qwen" ? d3.symbolCircle : d3.symbolSquare, gsz * gsz * (d.s.vlm === "qwen" ? .85 : .7))())
+    .attr("transform", d => `translate(${d.x},${d.y})`).attr("fill", d => VCOL(d.s.verdict))
+    .attr("stroke", d => d.s === st.stSel ? "var(--ink)" : U[vid(d.s)] ? "var(--ink-2)" : "var(--panel)").attr("stroke-width", d => d.s === st.stSel ? 2 : 1)
+    .style("cursor", "pointer")
+    .on("mousemove", (e, d) => showTip(e, `<b style="color:${VCOL(d.s.verdict)}">${d.s.verdict}</b><br>${esc(d.s.text)}<br><span style="color:var(--muted)">${d.s.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"}</span>`))
+    .on("mouseleave", hideTip)
+    .on("click", (e, d) => { st.stSel = d.s; pick(d.s.si >= 0 ? d.s.si : st.subj, d.s.aspect || st.aspect); drawStatements(); });
+  // the selected statement, with the analyst's verdict
+  if (st.stSel && all.includes(st.stSel)) {
+    const d = host.append("div").attr("class", "stmt on").style("position", "absolute").style("left", "10px").style("right", "10px").style("bottom", "6px").style("background", "var(--panel)");
+    d.append("i").style("background", VCOL(st.stSel.verdict));
+    d.append("div").attr("class", "t").style("font-size", "12px").text(st.stSel.text);
+    d.append("div").attr("class", "uv").selectAll("button").data([["ok", "✓"], ["no", "✗"]]).join("button").attr("class", b => b[0])
+      .classed("on", b => U[vid(st.stSel)] === b[0]).text(b => b[1])
+      .on("click", (e, b) => { const V = userV(), k = vid(st.stSel); V[k] = V[k] === b[0] ? undefined : b[0]; saveV(V); drawStatements(); });
+  }
 }
 const vid = s => [s.vlm, s.A, s.B, s.level, s.si, s.text].join("|");
 function userV() { try { return JSON.parse(localStorage.getItem("auditUserVerdicts") || "{}"); } catch (e) { return {}; } }
@@ -953,7 +987,7 @@ function exportVerdicts() {
     .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "statement_verdicts.csv"; a.click();
 }
-function stmtHL() { d3.selectAll(".stmt").classed("on", s => s === st.stSel); }
+function stmtHL() { d3.selectAll(".strow").attr("fill", r => r.key === cur() ? "var(--band)" : "none"); }
 
 // ---------------- auxiliary: image strips ----------------
 // Every image of A (above the axis) and of B (below) placed by its score on the chosen aspect, in scale units from A's
@@ -966,6 +1000,7 @@ function drawStrip() {
   const si = cur(), a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key];
   if (st.seedSubj !== si) { st.seedSel = null; st.seedSubj = si; }
   const head = d3.select("#stripName"); head.selectAll("*").remove();
+  head.append("span").attr("class", "pl").text("C");
   head.append("span").text(`${aspName(a.key)} · ${SUBJ[si].name}`);
   head.append("button").attr("class", "mini").attr("title", "Move every image of A to where its same-seed image lands in B, and back").text("▶").on("click", playMorph);
   head.append("span").attr("id", "selCount").style("margin-left", "auto");
@@ -1052,6 +1087,10 @@ let R = null;
 function update() { diffChips(); R = contrast(); drawScatters(true); drawMap(true); }
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
 header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
+[["#mapCard h2", "A"], ["#matrixCard h2", "B"], ["#ridgeCard h2", "D"], ["#stripCard", "C"]].forEach(([sel, l]) => {
+  const h = sel === "#stripCard" ? d3.select("#stripName") : d3.select(sel);
+  if (sel !== "#stripCard") { const sp = document.createElement("span"); sp.className = "pl"; sp.textContent = l; h.node().prepend(sp); }
+});
 let rt = null;
 new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(layout, 120); }).observe(document.getElementById("app"));
 </script>
