@@ -1,9 +1,17 @@
 vlm,level,question,n,accuracy,answer_none_or_same,truth_none_or_same,rate,provisional_round3
-qwen,pooled,shift,60,0.167,0.017,0.833,,True
-qwen,pooled,variety,55,0.491,0.000,0.091,,True
-qwen,subject,shift,235,0.515,0.034,0.196,,True
-qwen,subject,variety,208,0.659,0.000,0.000,,True
-qwen,subject,concentration reported as shift,13,,,,0.923,True
-qwen,subject,"missed concentration (truth less, answer same)",207,,,,0.000,True
-qwen,subject,"widening missed (truth more, answer same)",1,,,,0.000,True
-qwen,pooled,pooled shift claimed on misleading aspects,40,,,,0.975,True
+mistral,pooled,shift,80,0.150,0.000,0.812,,True
+mistral,pooled,variety,70,0.357,0.000,0.286,,True
+mistral,subject,shift,321,0.489,0.000,0.218,,True
+mistral,subject,variety,235,0.809,0.000,0.000,,True
+qwen,pooled,shift,80,0.150,0.013,0.812,,True
+qwen,pooled,variety,70,0.386,0.000,0.286,,True
+qwen,subject,shift,321,0.495,0.031,0.218,,True
+qwen,subject,variety,235,0.638,0.000,0.000,,True
+mistral,subject,concentration reported as shift,14,,,,1.000,True
+mistral,subject,"missed concentration (truth less, answer same)",211,,,,0.000,True
+mistral,subject,"widening missed (truth more, answer same)",24,,,,0.000,True
+qwen,subject,concentration reported as shift,14,,,,0.929,True
+qwen,subject,"missed concentration (truth less, answer same)",211,,,,0.000,True
+qwen,subject,"widening missed (truth more, answer same)",24,,,,0.000,True
+mistral,pooled,pooled shift claimed on misleading aspects,55,,,,1.000,True
+qwen,pooled,pooled shift claimed on misleading aspects,55,,,,0.982,True
