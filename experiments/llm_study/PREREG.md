@@ -110,3 +110,9 @@ Only aspects validated on the configuration set involved are scored.
 - **Fix:** `rewrite.py` now calls the same model with the same system message, message format, temperature and token limit, without padding. The 32 rewrites of a subject are 32 samples of one unpadded input.
 - **Check:** two subjects were inspected and gave fluent rewrites.
 - **Record:** the degenerate file is kept as `rewrites_mistral_diffusers_padded.csv`. No image was generated from it.
+
+## Deviation 2 (2026-10-16, after the first Q5 answers were scored)
+- **Why:** both VLMs almost never answered "no clear difference". To test whether the question format itself invites a difference, we add two **null contrasts** that were not pre-registered: klein 4B against itself and SDXL against itself, with B using seeds shifted by 16 (k + 16 mod 32) and everything else as in Q5.
+- **Truth:** "no difference" and "about equally varied" by construction.
+- **Measure:** the share of null answers that report a shift or a change in variety (false-difference rate).
+- **Status:** reported as an added control, outside the pre-registered measures.

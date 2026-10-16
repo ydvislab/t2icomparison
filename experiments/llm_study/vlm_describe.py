@@ -37,6 +37,9 @@ CONTRASTS = {
     "sdxl_turbo": (f"{OPEN}/G02_sdxl", f"{OPEN}/G03_sdxl_turbo"),
     "rw_klein": (f"{OPEN}/G08_klein4b", f"{LLM}/G08_klein4b__mistral"),
     "rw_flux": (f"{OPEN}/G05_flux2_dev", f"{LLM}/G05_flux2_dev__mistral"),
+    # null controls (deviation 2): the same configuration on both sides, B uses seeds shifted by 16
+    "null_klein4b": (f"{OPEN}/G08_klein4b", f"{OPEN}/G08_klein4b", 16),
+    "null_sdxl": (f"{OPEN}/G02_sdxl", f"{OPEN}/G02_sdxl", 16),
 }
 TILE, NDRAW, MAXNEW = 256, 5, 300
 
@@ -126,13 +129,14 @@ done_free = {(r["contrast"], r["level"], r["unit"]) for r in free}
 done_prop = {(r["contrast"], r["unit"]) for r in prop}
 t0, n = time.time(), 0
 for c in a.contrasts.split(","):
-    A, B = CONTRASTS[c]
+    A, B, off = (CONTRASTS[c] + (0,))[:3]
     if not (os.path.exists(f"{B}/meta.csv") and os.path.exists(f"{A}/meta.csv")):
         print("skip", c, "(images missing)", flush=True)
         continue
     for level in a.levels.split(","):
         for unit, subject, jobs, cols in units(level):
-            imgs = [grid([f"{A}/{j}.png" for j in jobs], cols), grid([f"{B}/{j}.png" for j in jobs], cols)]
+            jobs_b = [f"{j[:4]}{(int(j[4:]) + off) % 32:02d}" for j in jobs]
+            imgs = [grid([f"{A}/{j}.png" for j in jobs], cols), grid([f"{B}/{j}.png" for j in jobs_b], cols)]
             head = intro(level, subject)
             for asp, P in POLES.items():
                 for q in ("shift", "variety"):
