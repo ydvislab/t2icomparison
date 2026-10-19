@@ -12,6 +12,21 @@
 - **Rewrites:** one per seed. Median length is 156 words (FLUX.2) and 126 words (Qwen).
 - **Images:** klein 4B and FLUX.2 dev, with the same seeds as the original images.
 
+## Validity (human check round 3, 2026-10-19)
+- **On rewritten images:**
+  - saturation and tone pass;
+  - medium passes, not stably;
+  - shot and background fail.
+- **Readings below are interpretable only on aspects validated on both sides:**
+  - P1 klein 4B: saturation, tone, medium;
+  - P2 FLUX.2 dev: saturation, medium. FLUX.2 dev's own images are in round 2, where only shot, saturation and medium passed.
+- **The confirmed P2 background displacement is not interpretable.** Background fails on both sides, and on the rewritten images CLIP's background reading disagrees with people (0.38).
+- **The answer to Q4 on validated aspects:**
+  - no confirmed displacement;
+  - no widening beyond the margin;
+  - a trend toward illustration (medium +0.53 and +0.37).
+- **D1 (Qwen rewrites)** was not checked separately and is read with the same aspects.
+
 ## Primary tests (original prompt → FLUX.2 rewrite)
 | Aspect | P1 klein 4B: shift | spread | P2 FLUX.2 dev: shift | spread |
 |---|---|---|---|---|
@@ -21,8 +36,8 @@
 | tone | −0.15, same place | ×1.13, same spread | −0.06, inconclusive | ×1.03, same spread |
 | background | +0.49, inconclusive | ×1.30, inconclusive | **+0.67 [+0.47, +0.91], p_holm .002, displaced** (17 up, 0 down) | ×1.09, inconclusive |
 
-**Answer to Q4.**
-1. **The official FLUX.2 rewriter displaces FLUX.2 dev's background toward busy.** This holds in 17 of 24 subjects, and none moves the other way. It is the only confirmed effect.
+**Answer to Q4 before validation** (kept for the record; see Validity above).
+1. The official FLUX.2 rewriter displaces FLUX.2 dev's background toward busy: 17 of 24 subjects move that way and none the other way. **Background is not validated on these images, so this is not a finding about appearance.**
 2. **Rewriting does not make outputs more varied beyond the margin** in either generator. Every spread ratio is between ×1.03 and ×1.49, and none is resolved as "widened".
 3. **klein 4B moves toward illustration (+0.53) and busier backgrounds (+0.49)** in most subjects. Neither effect survives the correction over 20 tests, so both are reported as trends. The images show it clearly (`figures/largest_shifts_klein.jpg`).
 

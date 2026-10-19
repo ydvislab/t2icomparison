@@ -558,154 +558,95 @@ qwen,sdxl_turbo,pooled,d4,,tone,shift,right,0.9947,0.0046,0.0007,210,*,*,True,no
 qwen,sdxl_turbo,pooled,d4,,shot,shift,right,0.8072,0.0964,0.0964,102,*,*,True,none,,0.0837,0.7170,True,none,False
 qwen,sdxl_turbo,pooled,d4,,bg,shift,left,0.3734,0.5433,0.0833,12,*,*,True,none,,0.1117,0.5114,True,none,False
 qwen,rw_klein,subject,s00,a doctor,sat,shift,right,0.6569,0.2738,0.0692,102,s00,s00,True,none,,0.1965,0.9296,,none,False
-qwen,rw_klein,subject,s00,a doctor,bg,shift,right,0.9933,0.0052,0.0015,102,s00,s00,True,none,,-0.0087,1.5698,,none,False
 qwen,rw_klein,subject,s01,a person reading a book,tone,shift,right,0.9045,0.0742,0.0213,102,s01,s01,True,none,,0.0486,1.1979,,none,False
-qwen,rw_klein,subject,s01,a person reading a book,shot,shift,right,0.9644,0.0291,0.0065,210,s01,s01,True,right,,0.9870,1.1380,,right,True
 qwen,rw_klein,subject,s01,a person reading a book,medium,shift,left,0.0159,0.9833,0.0008,21,s01,s01,True,right,,0.7123,1.0329,,right,False
 qwen,rw_klein,subject,s02,a musician,tone,shift,right,0.9816,0.0075,0.0109,102,s02,s02,True,none,,0.1404,1.0959,,none,False
-qwen,rw_klein,subject,s02,a musician,shot,shift,right,0.9863,0.0040,0.0097,120,s02,s02,True,none,,-0.0084,1.4944,,none,False
 qwen,rw_klein,subject,s02,a musician,medium,shift,left,0.4567,0.5175,0.0258,102,s02,s02,True,right,,0.5921,1.3685,,right,False
-qwen,rw_klein,subject,s02,a musician,bg,shift,right,0.8834,0.0565,0.0601,12,s02,s02,True,right,,1.3590,0.8940,,right,True
 qwen,rw_klein,subject,s03,a traveler,tone,shift,left,0.0036,0.9947,0.0017,21,s03,s03,True,right,,1.2163,1.6912,,right,False
 qwen,rw_klein,subject,s03,a traveler,sat,shift,left,0.0013,0.9964,0.0023,12,s03,s03,True,left,,-1.4401,1.9868,,left,True
-qwen,rw_klein,subject,s03,a traveler,shot,variety,more,0.4442,0.3460,0.2098,102,s03,s03,True,,more,0.2896,2.1157,,more,True
 qwen,rw_klein,subject,s03,a traveler,medium,variety,less,0.0414,0.8312,0.1275,12,s03,s03,True,,more,-0.3822,2.5146,,more,False
-qwen,rw_klein,subject,s03,a traveler,bg,shift,right,0.7020,0.2926,0.0054,120,s03,s03,True,right,more,0.8534,1.8703,,right,True
-qwen,rw_klein,subject,s03,a traveler,bg,variety,more,0.5377,0.1746,0.2878,102,s03,s03,True,right,more,0.8534,1.8703,,more,True
 qwen,rw_klein,subject,s04,a dog,tone,shift,left,0.0097,0.9900,0.0003,201,s04,s04,True,left,,-0.8957,1.1892,,left,True
 qwen,rw_klein,subject,s04,a dog,sat,shift,right,0.9976,0.0022,0.0002,210,s04,s04,True,right,,0.7032,0.7182,,right,True
-qwen,rw_klein,subject,s04,a dog,shot,shift,left,0.0144,0.7867,0.1989,12,s04,s04,True,none,,0.0680,1.2523,,none,False
 qwen,rw_klein,subject,s05,a bird on a branch,sat,shift,right,0.9631,0.0330,0.0039,102,s05,s05,True,right,more,2.1432,2.0550,,right,True
 qwen,rw_klein,subject,s05,a bird on a branch,sat,variety,less,0.2119,0.5761,0.2119,12,s05,s05,True,right,more,2.1432,2.0550,,more,False
-qwen,rw_klein,subject,s05,a bird on a branch,shot,shift,none,0.1452,0.3482,0.5066,12,s05,s05,True,left,,-0.7134,1.4434,,left,False
 qwen,rw_klein,subject,s05,a bird on a branch,medium,shift,right,0.9893,0.0097,0.0010,12,s05,s05,True,right,more,5.1101,5.3404,,right,True
 qwen,rw_klein,subject,s05,a bird on a branch,medium,variety,less,0.0901,0.8552,0.0547,12,s05,s05,True,right,more,5.1101,5.3404,,more,False
-qwen,rw_klein,subject,s05,a bird on a branch,bg,shift,right,0.8079,0.1404,0.0517,12,s05,s05,True,right,more,3.3409,5.5294,,right,True
-qwen,rw_klein,subject,s05,a bird on a branch,bg,variety,less,0.0328,0.9589,0.0083,21,s05,s05,True,right,more,3.3409,5.5294,,more,False
 qwen,rw_klein,subject,s06,a cat,tone,shift,left,0.0019,0.9945,0.0036,21,s06,s06,True,left,more,-2.2062,3.3359,,left,True
 qwen,rw_klein,subject,s06,a cat,tone,variety,more,0.7546,0.2162,0.0293,102,s06,s06,True,left,more,-2.2062,3.3359,,more,True
 qwen,rw_klein,subject,s06,a cat,sat,shift,left,0.0067,0.9890,0.0043,12,s06,s06,True,left,,-0.8135,1.2917,,left,True
-qwen,rw_klein,subject,s06,a cat,bg,shift,right,0.6461,0.3458,0.0081,201,s06,s06,True,left,,-0.7107,1.0657,,left,False
 qwen,rw_klein,subject,s07,a horse,tone,shift,left,0.0026,0.9961,0.0012,12,s07,s07,True,left,less,-0.6420,0.4551,,left,True
 qwen,rw_klein,subject,s07,a horse,tone,variety,more,0.5922,0.3170,0.0908,120,s07,s07,True,left,less,-0.6420,0.4551,,less,False
 qwen,rw_klein,subject,s07,a horse,sat,shift,left,0.2162,0.7546,0.0293,21,s07,s07,True,right,,0.7274,0.6431,,right,False
-qwen,rw_klein,subject,s07,a horse,shot,shift,right,0.9031,0.0129,0.0840,102,s07,s07,True,none,less,0.0775,0.2836,,none,False
-qwen,rw_klein,subject,s07,a horse,shot,variety,less,0.0228,0.9688,0.0084,201,s07,s07,True,none,less,0.0775,0.2836,,less,True
 qwen,rw_klein,subject,s07,a horse,medium,shift,right,0.5267,0.4648,0.0085,102,s07,s07,True,right,,1.5874,1.1002,,right,True
 qwen,rw_klein,subject,s08,a car,tone,shift,left,0.0006,0.9992,0.0002,201,s08,s08,True,none,,0.0887,0.9152,,none,False
-qwen,rw_klein,subject,s08,a car,shot,shift,right,0.9935,0.0041,0.0025,210,s08,s08,True,none,,0.0935,1.1810,,none,False
 qwen,rw_klein,subject,s08,a car,medium,shift,left,0.3481,0.6504,0.0014,210,s08,s08,True,right,,1.1784,0.4813,,right,False
-qwen,rw_klein,subject,s08,a car,bg,shift,right,0.9810,0.0180,0.0011,201,s08,s08,True,right,less,1.4930,0.6063,,right,True
-qwen,rw_klein,subject,s08,a car,bg,variety,less,0.0096,0.9808,0.0096,21,s08,s08,True,right,less,1.4930,0.6063,,less,True
 qwen,rw_klein,subject,s09,a cup of coffee,tone,shift,right,0.7307,0.2372,0.0321,120,s09,s09,True,none,more,0.0754,1.5507,,none,False
 qwen,rw_klein,subject,s09,a cup of coffee,tone,variety,more,0.8931,0.0941,0.0127,210,s09,s09,True,none,more,0.0754,1.5507,,more,True
 qwen,rw_klein,subject,s09,a cup of coffee,sat,shift,left,0.0036,0.9879,0.0085,21,s09,s09,True,none,,-0.2358,1.4759,,none,False
-qwen,rw_klein,subject,s09,a cup of coffee,shot,shift,left,0.1065,0.7870,0.1065,21,s09,s09,True,right,more,0.9899,1.9018,,right,False
-qwen,rw_klein,subject,s09,a cup of coffee,shot,variety,more,0.5773,0.3090,0.1137,102,s09,s09,True,right,more,0.9899,1.9018,,more,True
 qwen,rw_klein,subject,s09,a cup of coffee,medium,shift,left,0.3434,0.6415,0.0151,120,s09,s09,True,none,,0.2364,1.5057,,none,False
-qwen,rw_klein,subject,s09,a cup of coffee,bg,shift,right,0.9369,0.0599,0.0032,201,s09,s09,True,none,more,0.0577,2.1550,,none,False
-qwen,rw_klein,subject,s09,a cup of coffee,bg,variety,less,0.2338,0.7202,0.0460,21,s09,s09,True,none,more,0.0577,2.1550,,more,False
 qwen,rw_klein,subject,s10,a bicycle,tone,shift,left,0.0203,0.9774,0.0023,201,s10,s10,True,left,less,-2.3021,0.3043,,left,True
 qwen,rw_klein,subject,s10,a bicycle,tone,variety,less,0.0123,0.9802,0.0075,201,s10,s10,True,left,less,-2.3021,0.3043,,less,True
 qwen,rw_klein,subject,s10,a bicycle,sat,shift,left,0.0012,0.9975,0.0012,12,s10,s10,True,left,,-0.9743,0.4414,,left,True
-qwen,rw_klein,subject,s10,a bicycle,shot,shift,left,0.0390,0.8881,0.0729,21,s10,s10,True,left,,-1.4447,0.7415,,left,True
 qwen,rw_klein,subject,s10,a bicycle,medium,shift,left,0.0211,0.8956,0.0833,12,s10,s10,True,right,,1.3853,1.3279,,right,False
-qwen,rw_klein,subject,s10,a bicycle,bg,shift,right,0.4972,0.4972,0.0055,201,s10,s10,True,right,,1.0597,1.3661,,right,True
 qwen,rw_klein,subject,s11,a bowl of fruit,tone,shift,left,0.0041,0.9955,0.0004,201,s11,s11,True,right,,1.1268,1.6924,,right,False
 qwen,rw_klein,subject,s11,a bowl of fruit,sat,shift,right,0.8741,0.1183,0.0076,201,s11,s11,True,left,,-0.5960,1.3051,,left,False
-qwen,rw_klein,subject,s11,a bowl of fruit,shot,shift,right,0.6473,0.3058,0.0469,201,s11,s11,True,right,more,2.1828,1.7103,,right,True
-qwen,rw_klein,subject,s11,a bowl of fruit,shot,variety,less,0.1034,0.7639,0.1327,12,s11,s11,True,right,more,2.1828,1.7103,,more,False
 qwen,rw_klein,subject,s11,a bowl of fruit,medium,shift,left,0.0041,0.9940,0.0019,12,s11,s11,True,left,,-0.8948,0.8009,,left,True
-qwen,rw_klein,subject,s11,a bowl of fruit,bg,shift,right,0.5528,0.4305,0.0167,102,s11,s11,True,right,,0.5233,1.2409,,right,True
 qwen,rw_klein,subject,s12,a kitchen,tone,shift,left,0.0003,0.9975,0.0022,21,s12,s12,True,left,,-2.2231,0.5455,,left,True
 qwen,rw_klein,subject,s12,a kitchen,sat,shift,left,0.0331,0.9665,0.0004,201,s12,s12,True,left,,-0.6579,1.0532,,left,True
-qwen,rw_klein,subject,s12,a kitchen,shot,shift,right,0.9977,0.0012,0.0012,210,s12,s12,True,none,,-0.1233,1.2457,,none,False
 qwen,rw_klein,subject,s12,a kitchen,medium,shift,left,0.4593,0.5205,0.0202,120,s12,s12,True,right,,0.5754,1.0138,,right,False
 qwen,rw_klein,subject,s13,a living room,tone,shift,right,0.4223,0.4223,0.1554,102,s13,s13,True,none,,0.0923,0.9451,,none,False
-qwen,rw_klein,subject,s13,a living room,shot,shift,right,0.9510,0.0073,0.0418,102,s13,s13,True,none,,-0.0153,1.3140,,none,False
 qwen,rw_klein,subject,s13,a living room,medium,shift,right,0.7878,0.1551,0.0571,102,s13,s13,True,none,,0.1614,1.2760,,none,False
-qwen,rw_klein,subject,s13,a living room,bg,shift,left,0.1296,0.8449,0.0255,21,s13,s13,True,right,,0.9325,0.8254,,right,False
 qwen,rw_klein,subject,s14,a library,sat,shift,left,0.0558,0.8726,0.0716,12,s14,s14,True,left,,-0.6527,1.1333,,left,True
 qwen,rw_klein,subject,s14,a library,medium,shift,left,0.0598,0.9353,0.0049,21,s14,s14,True,right,more,1.6971,6.6247,,right,False
 qwen,rw_klein,subject,s14,a library,medium,variety,more,0.5735,0.3942,0.0324,210,s14,s14,True,right,more,1.6971,6.6247,,more,True
-qwen,rw_klein,subject,s14,a library,bg,shift,right,0.8550,0.1157,0.0293,21,s14,s14,True,right,more,1.4349,2.8776,,right,True
-qwen,rw_klein,subject,s14,a library,bg,variety,less,0.0849,0.7113,0.2038,12,s14,s14,True,right,more,1.4349,2.8776,,more,False
 qwen,rw_klein,subject,s15,a restaurant,tone,shift,left,0.0079,0.9679,0.0242,12,s15,s15,True,none,,-0.2705,1.6276,,none,False
 qwen,rw_klein,subject,s15,a restaurant,sat,shift,left,0.0675,0.9312,0.0013,201,s15,s15,True,left,,-0.7039,0.8200,,left,True
-qwen,rw_klein,subject,s15,a restaurant,shot,shift,left,0.2324,0.7158,0.0519,21,s15,s15,True,right,,1.0216,1.1331,,right,False
 qwen,rw_klein,subject,s15,a restaurant,medium,shift,right,0.9500,0.0473,0.0027,120,s15,s15,True,right,more,1.1624,6.0106,,right,True
 qwen,rw_klein,subject,s15,a restaurant,medium,variety,more,0.4018,0.2437,0.3546,102,s15,s15,True,right,more,1.1624,6.0106,,more,True
-qwen,rw_klein,subject,s15,a restaurant,bg,shift,right,0.9965,0.0032,0.0003,120,s15,s15,True,right,more,0.9332,3.4423,,right,True
-qwen,rw_klein,subject,s15,a restaurant,bg,variety,more,0.9871,0.0110,0.0019,210,s15,s15,True,right,more,0.9332,3.4423,,more,True
 qwen,rw_klein,subject,s16,a house,tone,shift,left,0.0022,0.9975,0.0003,201,s16,s16,True,left,,-0.5955,1.4483,,left,True
-qwen,rw_klein,subject,s16,a house,shot,shift,right,0.9820,0.0040,0.0140,120,s16,s16,True,left,,-1.1292,1.5666,,left,False
 qwen,rw_klein,subject,s16,a house,medium,shift,left,0.3480,0.6501,0.0019,210,s16,s16,True,none,,-0.1291,1.5638,,none,False
-qwen,rw_klein,subject,s16,a house,bg,shift,right,0.5553,0.4325,0.0123,102,s16,s16,True,left,,-0.6198,1.4425,,left,False
 qwen,rw_klein,subject,s17,a city street,sat,shift,left,0.1946,0.7695,0.0360,12,s17,s17,True,right,more,0.6003,1.5157,,right,False
 qwen,rw_klein,subject,s17,a city street,sat,variety,less,0.0282,0.9355,0.0363,21,s17,s17,True,right,more,0.6003,1.5157,,more,False
-qwen,rw_klein,subject,s17,a city street,shot,shift,right,0.8991,0.0738,0.0271,201,s17,s17,True,none,,-0.0167,0.9217,,none,False
 qwen,rw_klein,subject,s17,a city street,medium,shift,right,0.9680,0.0292,0.0027,120,s17,s17,True,right,more,1.2056,9.5236,,right,True
 qwen,rw_klein,subject,s17,a city street,medium,variety,less,0.0328,0.9598,0.0073,201,s17,s17,True,right,more,1.2056,9.5236,,more,False
-qwen,rw_klein,subject,s17,a city street,bg,shift,right,0.6685,0.3158,0.0157,21,s17,s17,True,right,more,3.0519,2.2233,,right,True
-qwen,rw_klein,subject,s17,a city street,bg,variety,less,0.0798,0.8580,0.0622,21,s17,s17,True,right,more,3.0519,2.2233,,more,False
 qwen,rw_klein,subject,s18,a mountain,tone,shift,left,0.0532,0.9429,0.0039,210,s18,s18,True,right,,0.6962,0.8851,,right,False
 qwen,rw_klein,subject,s18,a mountain,sat,shift,left,0.1349,0.8264,0.0387,12,s18,s18,True,none,,-0.2458,0.5697,,none,False
 qwen,rw_klein,subject,s19,a beach,sat,shift,right,0.9726,0.0084,0.0190,102,s19,s19,True,left,,-0.6519,1.2469,,left,False
-qwen,rw_klein,subject,s19,a beach,shot,shift,right,0.9466,0.0391,0.0144,210,s19,s19,True,left,,-0.5864,1.6370,,left,False
 qwen,rw_klein,subject,s19,a beach,medium,shift,right,0.6652,0.2447,0.0900,102,s19,s19,True,none,,0.2018,1.3887,,none,False
 qwen,rw_klein,subject,s20,a market,tone,shift,left,0.0052,0.9940,0.0008,201,s20,s20,True,right,,0.5281,1.9234,,right,False
 qwen,rw_klein,subject,s20,a market,sat,variety,more,0.8789,0.1050,0.0161,210,s20,s20,True,,more,0.3351,4.1825,,more,True
-qwen,rw_klein,subject,s20,a market,shot,shift,none,0.2308,0.0584,0.7109,12,s20,s20,True,left,,-0.6581,0.8803,,left,False
 qwen,rw_klein,subject,s20,a market,medium,shift,right,0.9990,0.0009,0.0001,210,s20,s20,True,right,more,1.0592,19.3004,,right,True
 qwen,rw_klein,subject,s20,a market,medium,variety,less,0.0013,0.9972,0.0015,201,s20,s20,True,right,more,1.0592,19.3004,,more,False
-qwen,rw_klein,subject,s20,a market,bg,variety,more,0.9040,0.0510,0.0450,120,s20,s20,True,,more,0.2407,4.3436,,more,True
 qwen,rw_klein,subject,s21,a train station,sat,shift,right,0.5903,0.4057,0.0040,201,s21,s21,True,right,,1.0573,0.7829,,right,True
 qwen,rw_klein,subject,s21,a train station,medium,shift,right,0.6784,0.3205,0.0012,210,s21,s21,True,none,,0.1111,0.7583,,none,False
-qwen,rw_klein,subject,s21,a train station,bg,shift,right,0.9134,0.0850,0.0017,201,s21,s21,True,right,,1.3388,0.5854,,right,True
-qwen,rw_klein,subject,s22,a birthday party,shot,shift,right,0.9993,0.0003,0.0004,120,s22,s22,True,right,,1.0834,1.3361,,right,True
 qwen,rw_klein,subject,s22,a birthday party,medium,shift,left,0.1643,0.8346,0.0011,210,s22,s22,True,left,,-0.5921,0.8713,,left,True
 qwen,rw_klein,subject,s23,a picnic,tone,shift,left,0.0059,0.9937,0.0004,201,s23,s23,True,none,,-0.1208,1.4665,,none,False
-qwen,rw_klein,subject,s23,a picnic,shot,shift,right,0.9945,0.0036,0.0019,210,s23,s23,True,left,,-0.6392,1.1745,,left,False
 qwen,rw_klein,subject,s23,a picnic,medium,shift,right,0.9827,0.0159,0.0014,12,s23,s23,True,right,more,4.2150,7.9379,,right,True
 qwen,rw_klein,subject,s23,a picnic,medium,variety,less,0.0399,0.8021,0.1579,12,s23,s23,True,right,more,4.2150,7.9379,,more,False
-qwen,rw_klein,subject,s23,a picnic,bg,shift,right,0.7043,0.2936,0.0021,201,s23,s23,True,right,more,2.2610,3.6614,,right,True
-qwen,rw_klein,subject,s23,a picnic,bg,variety,less,0.0124,0.9857,0.0019,201,s23,s23,True,right,more,2.2610,3.6614,,more,False
 qwen,rw_klein,pooled,d0,,tone,shift,left,0.0025,0.9972,0.0003,201,*,*,True,none,same,-0.1509,1.1326,True,none,False
 qwen,rw_klein,pooled,d0,,tone,variety,less,0.0372,0.9589,0.0039,201,*,*,True,none,same,-0.1509,1.1326,True,same,False
 qwen,rw_klein,pooled,d0,,sat,shift,right,0.9987,0.0009,0.0004,120,*,*,True,none,same,-0.2408,1.2398,True,none,False
 qwen,rw_klein,pooled,d0,,sat,variety,more,0.7362,0.1862,0.0776,120,*,*,True,none,same,-0.2408,1.2398,True,same,False
-qwen,rw_klein,pooled,d0,,shot,shift,right,0.6454,0.3454,0.0092,201,*,*,True,none,same,-0.0118,1.2828,True,none,False
-qwen,rw_klein,pooled,d0,,shot,variety,more,0.8215,0.1260,0.0525,120,*,*,True,none,same,-0.0118,1.2828,True,same,False
 qwen,rw_klein,pooled,d1,,tone,shift,left,0.0159,0.9824,0.0017,210,*,*,True,none,same,-0.1509,1.1326,True,none,False
 qwen,rw_klein,pooled,d1,,tone,variety,less,0.0504,0.8926,0.0571,12,*,*,True,none,same,-0.1509,1.1326,True,same,False
 qwen,rw_klein,pooled,d1,,sat,shift,right,0.9957,0.0041,0.0003,210,*,*,True,none,same,-0.2408,1.2398,True,none,False
 qwen,rw_klein,pooled,d1,,sat,variety,less,0.0085,0.9874,0.0040,201,*,*,True,none,same,-0.2408,1.2398,True,same,False
-qwen,rw_klein,pooled,d1,,shot,shift,left,0.1039,0.8698,0.0263,21,*,*,True,none,same,-0.0118,1.2828,True,none,False
-qwen,rw_klein,pooled,d1,,shot,variety,more,0.4498,0.4498,0.1004,102,*,*,True,none,same,-0.0118,1.2828,True,same,False
 qwen,rw_klein,pooled,d2,,tone,shift,left,0.0649,0.8958,0.0394,102,*,*,True,none,same,-0.1509,1.1326,True,none,False
 qwen,rw_klein,pooled,d2,,tone,variety,less,0.0121,0.9622,0.0256,21,*,*,True,none,same,-0.1509,1.1326,True,same,False
 qwen,rw_klein,pooled,d2,,sat,shift,right,0.7754,0.2222,0.0025,201,*,*,True,none,same,-0.2408,1.2398,True,none,False
 qwen,rw_klein,pooled,d2,,sat,variety,more,0.9124,0.0661,0.0215,210,*,*,True,none,same,-0.2408,1.2398,True,same,False
-qwen,rw_klein,pooled,d2,,shot,shift,right,0.9954,0.0041,0.0005,210,*,*,True,none,same,-0.0118,1.2828,True,none,False
-qwen,rw_klein,pooled,d2,,shot,variety,more,0.6487,0.2386,0.1127,120,*,*,True,none,same,-0.0118,1.2828,True,same,False
 qwen,rw_klein,pooled,d3,,tone,shift,left,0.0019,0.9977,0.0003,201,*,*,True,none,same,-0.1509,1.1326,True,none,False
 qwen,rw_klein,pooled,d3,,tone,variety,less,0.0473,0.8391,0.1136,12,*,*,True,none,same,-0.1509,1.1326,True,same,False
 qwen,rw_klein,pooled,d3,,sat,shift,left,0.0046,0.9929,0.0025,21,*,*,True,none,same,-0.2408,1.2398,True,none,False
 qwen,rw_klein,pooled,d3,,sat,variety,less,0.0140,0.9832,0.0028,21,*,*,True,none,same,-0.2408,1.2398,True,same,False
-qwen,rw_klein,pooled,d3,,shot,shift,right,0.9977,0.0019,0.0004,210,*,*,True,none,same,-0.0118,1.2828,True,none,False
-qwen,rw_klein,pooled,d3,,shot,variety,less,0.0975,0.8164,0.0861,12,*,*,True,none,same,-0.0118,1.2828,True,same,False
 qwen,rw_klein,pooled,d4,,tone,shift,left,0.0003,0.9994,0.0003,21,*,*,True,none,same,-0.1509,1.1326,True,none,False
 qwen,rw_klein,pooled,d4,,tone,variety,less,0.0258,0.9669,0.0074,201,*,*,True,none,same,-0.1509,1.1326,True,same,False
 qwen,rw_klein,pooled,d4,,sat,shift,right,0.8449,0.1468,0.0083,201,*,*,True,none,same,-0.2408,1.2398,True,none,False
 qwen,rw_klein,pooled,d4,,sat,variety,more,0.9515,0.0287,0.0197,210,*,*,True,none,same,-0.2408,1.2398,True,same,False
-qwen,rw_klein,pooled,d4,,shot,shift,right,0.9981,0.0012,0.0007,120,*,*,True,none,same,-0.0118,1.2828,True,none,False
-qwen,rw_klein,pooled,d4,,shot,variety,less,0.0139,0.9776,0.0085,21,*,*,True,none,same,-0.0118,1.2828,True,same,False
 qwen,rw_flux,subject,s00,a doctor,sat,shift,right,0.7979,0.1571,0.0450,120,s00,s00,True,none,,0.1783,1.5443,,none,False
 qwen,rw_flux,subject,s00,a doctor,medium,shift,left,0.2221,0.7751,0.0028,210,s00,s00,True,none,,-0.2881,1.1432,,none,False
 qwen,rw_flux,subject,s01,a person reading a book,sat,shift,left,0.0055,0.9836,0.0109,12,s01,s01,True,none,,-0.1378,0.9046,,none,False
-qwen,rw_flux,subject,s01,a person reading a book,shot,shift,right,0.9737,0.0084,0.0178,120,s01,s01,True,right,,0.8837,0.9964,,right,True
 qwen,rw_flux,subject,s02,a musician,sat,variety,more,0.8740,0.0921,0.0339,120,s02,s02,True,,more,-0.1767,2.3942,,more,True
-qwen,rw_flux,subject,s02,a musician,shot,shift,left,0.0409,0.9310,0.0281,21,s02,s02,True,left,,-0.8811,1.3800,,left,True
 qwen,rw_flux,subject,s02,a musician,medium,shift,left,0.1821,0.8159,0.0020,201,s02,s02,True,right,,0.5021,1.6379,,right,False
 qwen,rw_flux,subject,s03,a traveler,sat,shift,left,0.0597,0.9332,0.0071,210,s03,s03,True,left,more,-1.8569,1.8830,,left,True
 qwen,rw_flux,subject,s03,a traveler,sat,variety,more,0.4669,0.2832,0.2499,102,s03,s03,True,left,more,-1.8569,1.8830,,more,True
@@ -714,66 +655,40 @@ qwen,rw_flux,subject,s04,a dog,sat,shift,right,0.9982,0.0017,0.0001,210,s04,s04,
 qwen,rw_flux,subject,s04,a dog,medium,shift,left,0.0007,0.9991,0.0001,201,s04,s04,True,none,,0.0924,1.4142,,none,False
 qwen,rw_flux,subject,s05,a bird on a branch,sat,shift,right,0.9985,0.0012,0.0002,210,s05,s05,True,right,more,2.9615,2.3887,,right,True
 qwen,rw_flux,subject,s05,a bird on a branch,sat,variety,less,0.0519,0.9203,0.0278,201,s05,s05,True,right,more,2.9615,2.3887,,more,False
-qwen,rw_flux,subject,s05,a bird on a branch,shot,shift,none,0.2224,0.1732,0.6045,12,s05,s05,True,left,,-0.5995,1.5335,,left,False
 qwen,rw_flux,subject,s05,a bird on a branch,medium,shift,left,0.3761,0.6202,0.0037,201,s05,s05,True,right,more,1.3194,8.7760,,right,False
 qwen,rw_flux,subject,s05,a bird on a branch,medium,variety,more,0.4749,0.4191,0.1060,102,s05,s05,True,right,more,1.3194,8.7760,,more,True
 qwen,rw_flux,subject,s06,a cat,sat,shift,left,0.0215,0.9124,0.0661,21,s06,s06,True,none,,0.0087,1.3804,,none,False
 qwen,rw_flux,subject,s07,a horse,sat,shift,right,0.9879,0.0075,0.0046,201,s07,s07,True,right,,1.9173,0.6744,,right,True
-qwen,rw_flux,subject,s07,a horse,shot,shift,left,0.0386,0.8795,0.0818,21,s07,s07,True,none,,-0.0142,0.6661,,none,False
 qwen,rw_flux,subject,s07,a horse,medium,shift,left,0.4321,0.5548,0.0130,120,s07,s07,True,right,,0.9566,0.9490,,right,False
-qwen,rw_flux,subject,s08,a car,shot,variety,less,0.0096,0.9837,0.0066,201,s08,s08,True,,less,-0.2397,0.6469,,less,True
 qwen,rw_flux,subject,s08,a car,medium,shift,left,0.2015,0.7971,0.0014,210,s08,s08,True,right,,0.9039,0.6004,,right,False
 qwen,rw_flux,subject,s09,a cup of coffee,sat,shift,left,0.3727,0.6145,0.0128,210,s09,s09,True,left,,-0.5455,1.2127,,left,True
-qwen,rw_flux,subject,s09,a cup of coffee,shot,shift,left,0.1387,0.4842,0.3771,12,s09,s09,True,right,,0.9084,1.4668,,right,False
 qwen,rw_flux,subject,s09,a cup of coffee,medium,shift,left,0.1063,0.8901,0.0036,210,s09,s09,True,none,,0.1845,1.6848,,none,False
 qwen,rw_flux,subject,s10,a bicycle,sat,shift,right,0.7546,0.1908,0.0547,102,s10,s10,True,left,more,-0.7822,1.8199,,left,False
 qwen,rw_flux,subject,s10,a bicycle,sat,variety,less,0.2038,0.7113,0.0849,12,s10,s10,True,left,more,-0.7822,1.8199,,more,False
-qwen,rw_flux,subject,s10,a bicycle,shot,shift,none,0.0890,0.3989,0.5121,12,s10,s10,True,right,,0.5537,0.6449,,right,False
 qwen,rw_flux,subject,s10,a bicycle,medium,shift,left,0.0180,0.9810,0.0011,201,s10,s10,True,right,more,1.1472,2.7349,,right,False
 qwen,rw_flux,subject,s10,a bicycle,medium,variety,more,0.6095,0.3262,0.0642,210,s10,s10,True,right,more,1.1472,2.7349,,more,True
 qwen,rw_flux,subject,s11,a bowl of fruit,sat,shift,left,0.3735,0.6159,0.0106,12,s11,s11,True,right,,1.5635,1.0693,,right,False
-qwen,rw_flux,subject,s11,a bowl of fruit,shot,shift,right,0.8596,0.1027,0.0378,210,s11,s11,True,right,,0.7043,1.4119,,right,True
 qwen,rw_flux,subject,s12,a kitchen,medium,shift,left,0.1479,0.8513,0.0008,210,s12,s12,True,none,,-0.1128,1.3458,,none,False
 qwen,rw_flux,subject,s13,a living room,sat,shift,right,0.9515,0.0287,0.0197,102,s13,s13,True,right,,1.2213,2.1614,,right,True
 qwen,rw_flux,subject,s13,a living room,medium,shift,right,0.6332,0.3389,0.0278,120,s13,s13,True,left,,-0.7786,1.1358,,left,False
 qwen,rw_flux,subject,s14,a library,sat,shift,left,0.0326,0.9538,0.0136,21,s14,s14,True,left,,-0.6877,1.3283,,left,True
-qwen,rw_flux,subject,s14,a library,shot,variety,less,0.3838,0.4349,0.1813,120,s14,s14,True,,less,-0.2299,0.4984,,less,True
 qwen,rw_flux,subject,s14,a library,medium,shift,right,0.9571,0.0421,0.0009,201,s14,s14,True,right,more,3.3688,8.4831,,right,True
 qwen,rw_flux,subject,s14,a library,medium,variety,less,0.3204,0.5283,0.1513,102,s14,s14,True,right,more,3.3688,8.4831,,more,False
-qwen,rw_flux,subject,s15,a restaurant,shot,shift,right,0.9972,0.0020,0.0007,120,s15,s15,True,none,,0.1066,1.4452,,none,False
 qwen,rw_flux,subject,s16,a house,sat,shift,right,0.9812,0.0180,0.0008,210,s16,s16,True,left,,-0.5023,1.3220,,left,False
-qwen,rw_flux,subject,s16,a house,shot,shift,right,0.9098,0.0242,0.0659,102,s16,s16,True,left,,-1.0918,0.8149,,left,False
 qwen,rw_flux,subject,s16,a house,medium,shift,left,0.0067,0.9922,0.0011,12,s16,s16,True,right,,2.2009,2.1354,,right,False
 qwen,rw_flux,subject,s17,a city street,sat,shift,right,0.9891,0.0076,0.0034,102,s17,s17,True,right,more,1.6624,1.9411,,right,True
 qwen,rw_flux,subject,s17,a city street,sat,variety,less,0.1864,0.5742,0.2394,12,s17,s17,True,right,more,1.6624,1.9411,,more,False
 qwen,rw_flux,subject,s17,a city street,medium,shift,left,0.0757,0.9228,0.0015,201,s17,s17,True,none,,0.1984,1.8440,,none,False
-qwen,rw_flux,subject,s18,a mountain,shot,shift,right,0.7474,0.2426,0.0100,201,s18,s18,True,left,,-0.9503,1.9116,,left,False
 qwen,rw_flux,subject,s19,a beach,sat,shift,left,0.2878,0.5377,0.1746,21,s19,s19,True,right,less,0.7560,0.4483,,right,False
 qwen,rw_flux,subject,s19,a beach,sat,variety,more,0.8510,0.0792,0.0699,120,s19,s19,True,right,less,0.7560,0.4483,,less,False
-qwen,rw_flux,subject,s19,a beach,shot,shift,right,0.8543,0.1310,0.0147,201,s19,s19,True,left,,-0.7745,1.0037,,left,False
 qwen,rw_flux,subject,s19,a beach,medium,shift,right,0.8486,0.1475,0.0039,120,s19,s19,True,right,,0.7728,1.5623,,right,True
 qwen,rw_flux,subject,s20,a market,sat,variety,more,0.9016,0.0839,0.0146,210,s20,s20,True,,more,0.5670,4.4795,,more,True
-qwen,rw_flux,subject,s20,a market,shot,shift,none,0.3204,0.0810,0.5986,12,s20,s20,True,left,,-0.7993,0.6080,,left,False
 qwen,rw_flux,subject,s20,a market,medium,shift,left,0.1475,0.8486,0.0039,21,s20,s20,True,right,more,1.3449,7.8582,,right,False
 qwen,rw_flux,subject,s20,a market,medium,variety,same,0.2787,0.3158,0.4055,102,s20,s20,True,right,more,1.3449,7.8582,,more,False
 qwen,rw_flux,subject,s21,a train station,sat,shift,right,0.7015,0.2924,0.0061,201,s21,s21,True,right,,1.3543,1.0618,,right,True
-qwen,rw_flux,subject,s21,a train station,shot,shift,right,0.9031,0.0840,0.0129,201,s21,s21,True,left,less,-1.8900,0.3934,,left,False
-qwen,rw_flux,subject,s21,a train station,shot,variety,less,0.2408,0.4499,0.3092,102,s21,s21,True,left,less,-1.8900,0.3934,,less,True
 qwen,rw_flux,subject,s22,a birthday party,sat,shift,right,0.9959,0.0025,0.0016,102,s22,s22,True,right,,1.3130,1.3029,,right,True
-qwen,rw_flux,subject,s22,a birthday party,shot,shift,right,0.9987,0.0006,0.0007,120,s22,s22,True,right,,1.2558,1.2379,,right,True
 qwen,rw_flux,subject,s22,a birthday party,medium,shift,right,0.4955,0.4955,0.0091,120,s22,s22,True,left,,-0.5710,0.7219,,left,False
-qwen,rw_flux,subject,s23,a picnic,shot,shift,none,0.2629,0.1807,0.5565,12,s23,s23,True,right,,0.6781,1.1538,,right,False
 qwen,rw_flux,subject,s23,a picnic,medium,variety,more,0.7970,0.0952,0.1079,120,s23,s23,True,,more,3.3049,10.3294,,more,True
-qwen,rw_flux,pooled,d0,,shot,shift,right,0.9979,0.0017,0.0004,210,*,*,True,none,same,0.1148,1.0870,True,none,False
-qwen,rw_flux,pooled,d0,,shot,variety,less,0.0524,0.9284,0.0193,201,*,*,True,none,same,0.1148,1.0870,True,same,False
-qwen,rw_flux,pooled,d1,,shot,shift,right,0.3721,0.3721,0.2558,12,*,*,True,none,same,0.1148,1.0870,True,none,False
-qwen,rw_flux,pooled,d1,,shot,variety,less,0.1384,0.7963,0.0654,12,*,*,True,none,same,0.1148,1.0870,True,same,False
-qwen,rw_flux,pooled,d2,,shot,shift,left,0.1614,0.4970,0.3416,12,*,*,True,none,same,0.1148,1.0870,True,none,False
-qwen,rw_flux,pooled,d2,,shot,variety,less,0.0228,0.9678,0.0095,201,*,*,True,none,same,0.1148,1.0870,True,same,False
-qwen,rw_flux,pooled,d3,,shot,shift,right,0.9496,0.0135,0.0368,102,*,*,True,none,same,0.1148,1.0870,True,none,False
-qwen,rw_flux,pooled,d3,,shot,variety,more,0.8550,0.1157,0.0293,120,*,*,True,none,same,0.1148,1.0870,True,same,False
-qwen,rw_flux,pooled,d4,,shot,shift,right,0.3721,0.2558,0.3721,12,*,*,True,none,same,0.1148,1.0870,True,none,False
-qwen,rw_flux,pooled,d4,,shot,variety,more,0.8668,0.1173,0.0159,210,*,*,True,none,same,0.1148,1.0870,True,same,False
 mistral,guid_klein,subject,s00,a doctor,tone,shift,left,0.0059,0.9866,0.0075,21,s00,s00,True,right,,0.5630,0.8802,,right,False
 mistral,guid_klein,subject,s00,a doctor,sat,variety,less,0.1052,0.8806,0.0142,120,s00,s00,True,,less,0.2041,0.5954,,less,True
 mistral,guid_klein,subject,s00,a doctor,shot,shift,left,0.0041,0.9914,0.0046,102,s00,s00,True,right,,0.8811,0.7221,,right,False
@@ -1333,154 +1248,95 @@ mistral,sdxl_turbo,pooled,d4,,tone,shift,right,0.9559,0.0420,0.0021,120,*,*,True
 mistral,sdxl_turbo,pooled,d4,,shot,shift,left,0.0258,0.9691,0.0051,102,*,*,True,none,,0.0837,0.7170,True,none,False
 mistral,sdxl_turbo,pooled,d4,,bg,shift,right,0.9752,0.0202,0.0045,21,*,*,True,none,,0.1117,0.5114,True,none,False
 mistral,rw_klein,subject,s00,a doctor,sat,shift,left,0.0934,0.8858,0.0208,210,s00,s00,True,none,,0.1965,0.9296,,none,False
-mistral,rw_klein,subject,s00,a doctor,bg,shift,right,0.9697,0.0293,0.0010,12,s00,s00,True,none,,-0.0087,1.5698,,none,False
 mistral,rw_klein,subject,s01,a person reading a book,tone,shift,left,0.0670,0.9250,0.0080,21,s01,s01,True,none,,0.0486,1.1979,,none,False
-mistral,rw_klein,subject,s01,a person reading a book,shot,shift,left,0.2682,0.7291,0.0026,102,s01,s01,True,right,,0.9870,1.1380,,right,False
 mistral,rw_klein,subject,s01,a person reading a book,medium,shift,left,0.0032,0.9949,0.0019,210,s01,s01,True,right,,0.7123,1.0329,,right,False
 mistral,rw_klein,subject,s02,a musician,tone,shift,left,0.0076,0.9903,0.0022,120,s02,s02,True,none,,0.1404,1.0959,,none,False
-mistral,rw_klein,subject,s02,a musician,shot,shift,left,0.0046,0.9937,0.0017,102,s02,s02,True,none,,-0.0084,1.4944,,none,False
 mistral,rw_klein,subject,s02,a musician,medium,shift,left,0.0010,0.9982,0.0008,210,s02,s02,True,right,,0.5921,1.3685,,right,False
-mistral,rw_klein,subject,s02,a musician,bg,shift,left,0.0258,0.9691,0.0051,210,s02,s02,True,right,,1.3590,0.8940,,right,False
 mistral,rw_klein,subject,s03,a traveler,tone,shift,left,0.2169,0.7572,0.0259,201,s03,s03,True,right,,1.2163,1.6912,,right,False
 mistral,rw_klein,subject,s03,a traveler,sat,shift,right,0.9237,0.0758,0.0005,12,s03,s03,True,left,,-1.4401,1.9868,,left,False
-mistral,rw_klein,subject,s03,a traveler,shot,variety,less,0.4408,0.4995,0.0597,201,s03,s03,True,,more,0.2896,2.1157,,more,False
 mistral,rw_klein,subject,s03,a traveler,medium,variety,less,0.0291,0.9651,0.0057,21,s03,s03,True,,more,-0.3822,2.5146,,more,False
-mistral,rw_klein,subject,s03,a traveler,bg,shift,right,0.6219,0.3772,0.0008,102,s03,s03,True,right,more,0.8534,1.8703,,right,True
-mistral,rw_klein,subject,s03,a traveler,bg,variety,more,0.9302,0.0595,0.0103,120,s03,s03,True,right,more,0.8534,1.8703,,more,True
 mistral,rw_klein,subject,s04,a dog,tone,shift,left,0.0059,0.9889,0.0052,210,s04,s04,True,left,,-0.8957,1.1892,,left,True
 mistral,rw_klein,subject,s04,a dog,sat,shift,right,0.9910,0.0086,0.0004,102,s04,s04,True,right,,0.7032,0.7182,,right,True
-mistral,rw_klein,subject,s04,a dog,shot,shift,right,0.9944,0.0028,0.0028,201,s04,s04,True,none,,0.0680,1.2523,,none,False
 mistral,rw_klein,subject,s05,a bird on a branch,sat,shift,right,0.9854,0.0141,0.0005,120,s05,s05,True,right,more,2.1432,2.0550,,right,True
 mistral,rw_klein,subject,s05,a bird on a branch,sat,variety,more,0.9810,0.0180,0.0010,12,s05,s05,True,right,more,2.1432,2.0550,,more,True
-mistral,rw_klein,subject,s05,a bird on a branch,shot,shift,right,0.8477,0.1473,0.0050,21,s05,s05,True,left,,-0.7134,1.4434,,left,False
 mistral,rw_klein,subject,s05,a bird on a branch,medium,shift,right,0.9996,0.0004,0.0001,12,s05,s05,True,right,more,5.1101,5.3404,,right,True
 mistral,rw_klein,subject,s05,a bird on a branch,medium,variety,less,0.1995,0.7892,0.0113,120,s05,s05,True,right,more,5.1101,5.3404,,more,False
-mistral,rw_klein,subject,s05,a bird on a branch,bg,shift,right,0.9564,0.0420,0.0016,102,s05,s05,True,right,more,3.3409,5.5294,,right,True
-mistral,rw_klein,subject,s05,a bird on a branch,bg,variety,more,0.5272,0.4653,0.0075,21,s05,s05,True,right,more,3.3409,5.5294,,more,True
 mistral,rw_klein,subject,s06,a cat,tone,shift,left,0.0096,0.9837,0.0066,210,s06,s06,True,left,more,-2.2062,3.3359,,left,True
 mistral,rw_klein,subject,s06,a cat,tone,variety,more,0.6570,0.3103,0.0327,120,s06,s06,True,left,more,-2.2062,3.3359,,more,True
 mistral,rw_klein,subject,s06,a cat,sat,shift,right,0.8507,0.1478,0.0014,12,s06,s06,True,left,,-0.8135,1.2917,,left,False
-mistral,rw_klein,subject,s06,a cat,bg,shift,right,0.9493,0.0473,0.0034,12,s06,s06,True,left,,-0.7107,1.0657,,left,False
 mistral,rw_klein,subject,s07,a horse,tone,shift,left,0.0418,0.9510,0.0073,12,s07,s07,True,left,less,-0.6420,0.4551,,left,True
 mistral,rw_klein,subject,s07,a horse,tone,variety,less,0.1734,0.7770,0.0497,201,s07,s07,True,left,less,-0.6420,0.4551,,less,True
 mistral,rw_klein,subject,s07,a horse,sat,shift,right,0.9908,0.0086,0.0006,120,s07,s07,True,right,,0.7274,0.6431,,right,True
-mistral,rw_klein,subject,s07,a horse,shot,shift,right,0.9962,0.0019,0.0019,21,s07,s07,True,none,less,0.0775,0.2836,,none,False
-mistral,rw_klein,subject,s07,a horse,shot,variety,more,0.6059,0.3675,0.0266,102,s07,s07,True,none,less,0.0775,0.2836,,less,False
 mistral,rw_klein,subject,s07,a horse,medium,shift,left,0.0025,0.9944,0.0032,201,s07,s07,True,right,,1.5874,1.1002,,right,False
 mistral,rw_klein,subject,s08,a car,tone,shift,left,0.0032,0.9928,0.0041,21,s08,s08,True,none,,0.0887,0.9152,,none,False
-mistral,rw_klein,subject,s08,a car,shot,shift,right,0.9105,0.0747,0.0147,120,s08,s08,True,none,,0.0935,1.1810,,none,False
 mistral,rw_klein,subject,s08,a car,medium,shift,left,0.0036,0.9942,0.0022,21,s08,s08,True,right,,1.1784,0.4813,,right,False
-mistral,rw_klein,subject,s08,a car,bg,shift,right,0.6790,0.3207,0.0003,102,s08,s08,True,right,less,1.4930,0.6063,,right,True
-mistral,rw_klein,subject,s08,a car,bg,variety,more,0.9648,0.0257,0.0095,210,s08,s08,True,right,less,1.4930,0.6063,,less,False
 mistral,rw_klein,subject,s09,a cup of coffee,tone,shift,left,0.2187,0.7633,0.0180,12,s09,s09,True,none,more,0.0754,1.5507,,none,False
 mistral,rw_klein,subject,s09,a cup of coffee,tone,variety,more,0.6984,0.2569,0.0446,210,s09,s09,True,none,more,0.0754,1.5507,,more,True
 mistral,rw_klein,subject,s09,a cup of coffee,sat,shift,right,0.9300,0.0674,0.0026,102,s09,s09,True,none,,-0.2358,1.4759,,none,False
-mistral,rw_klein,subject,s09,a cup of coffee,shot,shift,right,0.9910,0.0059,0.0032,12,s09,s09,True,right,more,0.9899,1.9018,,right,True
-mistral,rw_klein,subject,s09,a cup of coffee,shot,variety,more,0.6477,0.3467,0.0056,12,s09,s09,True,right,more,0.9899,1.9018,,more,True
 mistral,rw_klein,subject,s09,a cup of coffee,medium,shift,left,0.0019,0.9975,0.0006,102,s09,s09,True,none,,0.2364,1.5057,,none,False
-mistral,rw_klein,subject,s09,a cup of coffee,bg,shift,right,0.8506,0.1478,0.0016,120,s09,s09,True,none,more,0.0577,2.1550,,none,False
-mistral,rw_klein,subject,s09,a cup of coffee,bg,variety,more,0.9784,0.0203,0.0013,12,s09,s09,True,none,more,0.0577,2.1550,,more,True
 mistral,rw_klein,subject,s10,a bicycle,tone,shift,left,0.0226,0.9598,0.0176,201,s10,s10,True,left,less,-2.3021,0.3043,,left,True
 mistral,rw_klein,subject,s10,a bicycle,tone,variety,less,0.2122,0.7405,0.0473,201,s10,s10,True,left,less,-2.3021,0.3043,,less,True
 mistral,rw_klein,subject,s10,a bicycle,sat,shift,left,0.0228,0.9698,0.0074,201,s10,s10,True,left,,-0.9743,0.4414,,left,True
-mistral,rw_klein,subject,s10,a bicycle,shot,shift,left,0.4314,0.5539,0.0148,120,s10,s10,True,left,,-1.4447,0.7415,,left,True
 mistral,rw_klein,subject,s10,a bicycle,medium,shift,left,0.0140,0.9815,0.0045,12,s10,s10,True,right,,1.3853,1.3279,,right,False
-mistral,rw_klein,subject,s10,a bicycle,bg,shift,left,0.4050,0.5892,0.0058,21,s10,s10,True,right,,1.0597,1.3661,,right,False
 mistral,rw_klein,subject,s11,a bowl of fruit,tone,shift,left,0.1318,0.8597,0.0084,12,s11,s11,True,right,,1.1268,1.6924,,right,False
 mistral,rw_klein,subject,s11,a bowl of fruit,sat,shift,left,0.1633,0.8295,0.0072,210,s11,s11,True,left,,-0.5960,1.3051,,left,True
-mistral,rw_klein,subject,s11,a bowl of fruit,shot,shift,left,0.0948,0.8992,0.0061,120,s11,s11,True,right,more,2.1828,1.7103,,right,False
-mistral,rw_klein,subject,s11,a bowl of fruit,shot,variety,less,0.1680,0.7527,0.0793,201,s11,s11,True,right,more,2.1828,1.7103,,more,False
 mistral,rw_klein,subject,s11,a bowl of fruit,medium,shift,left,0.0025,0.9966,0.0009,120,s11,s11,True,left,,-0.8948,0.8009,,left,True
-mistral,rw_klein,subject,s11,a bowl of fruit,bg,shift,right,0.8343,0.1643,0.0014,21,s11,s11,True,right,,0.5233,1.2409,,right,True
 mistral,rw_klein,subject,s12,a kitchen,tone,shift,left,0.0006,0.9986,0.0008,12,s12,s12,True,left,,-2.2231,0.5455,,left,True
 mistral,rw_klein,subject,s12,a kitchen,sat,shift,left,0.1635,0.8302,0.0063,120,s12,s12,True,left,,-0.6579,1.0532,,left,True
-mistral,rw_klein,subject,s12,a kitchen,shot,shift,right,0.9978,0.0007,0.0015,12,s12,s12,True,none,,-0.1233,1.2457,,none,False
 mistral,rw_klein,subject,s12,a kitchen,medium,shift,left,0.0019,0.9974,0.0006,120,s12,s12,True,right,,0.5754,1.0138,,right,False
 mistral,rw_klein,subject,s13,a living room,tone,shift,left,0.0012,0.9982,0.0006,120,s13,s13,True,none,,0.0923,0.9451,,none,False
-mistral,rw_klein,subject,s13,a living room,shot,shift,right,0.8749,0.1184,0.0067,102,s13,s13,True,none,,-0.0153,1.3140,,none,False
 mistral,rw_klein,subject,s13,a living room,medium,shift,left,0.0028,0.9920,0.0052,201,s13,s13,True,none,,0.1614,1.2760,,none,False
-mistral,rw_klein,subject,s13,a living room,bg,shift,right,0.7835,0.1981,0.0184,201,s13,s13,True,right,,0.9325,0.8254,,right,True
 mistral,rw_klein,subject,s14,a library,sat,shift,left,0.2196,0.7664,0.0140,201,s14,s14,True,left,,-0.6527,1.1333,,left,True
 mistral,rw_klein,subject,s14,a library,medium,shift,left,0.0086,0.9899,0.0015,120,s14,s14,True,right,more,1.6971,6.6247,,right,False
 mistral,rw_klein,subject,s14,a library,medium,variety,less,0.2182,0.7615,0.0203,120,s14,s14,True,right,more,1.6971,6.6247,,more,False
-mistral,rw_klein,subject,s14,a library,bg,shift,right,0.9559,0.0420,0.0021,120,s14,s14,True,right,more,1.4349,2.8776,,right,True
-mistral,rw_klein,subject,s14,a library,bg,variety,more,0.8756,0.1185,0.0059,21,s14,s14,True,right,more,1.4349,2.8776,,more,True
 mistral,rw_klein,subject,s15,a restaurant,tone,shift,left,0.0052,0.9912,0.0036,210,s15,s15,True,none,,-0.2705,1.6276,,none,False
 mistral,rw_klein,subject,s15,a restaurant,sat,shift,right,0.8796,0.1190,0.0013,12,s15,s15,True,left,,-0.7039,0.8200,,left,False
-mistral,rw_klein,subject,s15,a restaurant,shot,shift,right,0.9953,0.0019,0.0028,201,s15,s15,True,right,,1.0216,1.1331,,right,True
 mistral,rw_klein,subject,s15,a restaurant,medium,shift,left,0.0067,0.9918,0.0015,12,s15,s15,True,right,more,1.1624,6.0106,,right,False
 mistral,rw_klein,subject,s15,a restaurant,medium,variety,less,0.0831,0.8931,0.0238,210,s15,s15,True,right,more,1.1624,6.0106,,more,False
-mistral,rw_klein,subject,s15,a restaurant,bg,shift,right,0.9973,0.0017,0.0010,21,s15,s15,True,right,more,0.9332,3.4423,,right,True
-mistral,rw_klein,subject,s15,a restaurant,bg,variety,more,0.7486,0.2430,0.0083,12,s15,s15,True,right,more,0.9332,3.4423,,more,True
 mistral,rw_klein,subject,s16,a house,tone,shift,left,0.0019,0.9945,0.0036,102,s16,s16,True,left,,-0.5955,1.4483,,left,True
-mistral,rw_klein,subject,s16,a house,shot,shift,right,0.9958,0.0010,0.0032,12,s16,s16,True,left,,-1.1292,1.5666,,left,False
 mistral,rw_klein,subject,s16,a house,medium,shift,left,0.0096,0.9829,0.0075,210,s16,s16,True,none,,-0.1291,1.5638,,none,False
-mistral,rw_klein,subject,s16,a house,bg,shift,left,0.0365,0.9414,0.0221,210,s16,s16,True,left,,-0.6198,1.4425,,left,True
 mistral,rw_klein,subject,s17,a city street,sat,shift,right,0.9973,0.0022,0.0005,210,s17,s17,True,right,more,0.6003,1.5157,,right,True
 mistral,rw_klein,subject,s17,a city street,sat,variety,more,0.9815,0.0140,0.0045,210,s17,s17,True,right,more,0.6003,1.5157,,more,True
-mistral,rw_klein,subject,s17,a city street,shot,shift,right,0.9691,0.0201,0.0108,210,s17,s17,True,none,,-0.0167,0.9217,,none,False
 mistral,rw_klein,subject,s17,a city street,medium,shift,left,0.0032,0.9957,0.0012,210,s17,s17,True,right,more,1.2056,9.5236,,right,False
 mistral,rw_klein,subject,s17,a city street,medium,variety,less,0.4010,0.5835,0.0155,12,s17,s17,True,right,more,1.2056,9.5236,,more,False
-mistral,rw_klein,subject,s17,a city street,bg,shift,right,0.9834,0.0159,0.0007,102,s17,s17,True,right,more,3.0519,2.2233,,right,True
-mistral,rw_klein,subject,s17,a city street,bg,variety,more,0.9899,0.0086,0.0015,102,s17,s17,True,right,more,3.0519,2.2233,,more,True
 mistral,rw_klein,subject,s18,a mountain,tone,shift,left,0.0577,0.9026,0.0397,201,s18,s18,True,right,,0.6962,0.8851,,right,False
 mistral,rw_klein,subject,s18,a mountain,sat,shift,right,0.9814,0.0180,0.0006,102,s18,s18,True,none,,-0.2458,0.5697,,none,False
 mistral,rw_klein,subject,s19,a beach,sat,shift,right,0.9651,0.0330,0.0019,120,s19,s19,True,left,,-0.6519,1.2469,,left,False
-mistral,rw_klein,subject,s19,a beach,shot,shift,left,0.4360,0.5598,0.0043,102,s19,s19,True,left,,-0.5864,1.6370,,left,True
 mistral,rw_klein,subject,s19,a beach,medium,shift,left,0.0052,0.9931,0.0017,102,s19,s19,True,none,,0.2018,1.3887,,none,False
 mistral,rw_klein,subject,s20,a market,tone,shift,left,0.0140,0.9841,0.0019,102,s20,s20,True,right,,0.5281,1.9234,,right,False
 mistral,rw_klein,subject,s20,a market,sat,variety,more,0.9358,0.0598,0.0043,102,s20,s20,True,,more,0.3351,4.1825,,more,True
-mistral,rw_klein,subject,s20,a market,shot,shift,right,0.9781,0.0179,0.0040,102,s20,s20,True,left,,-0.6581,0.8803,,left,False
 mistral,rw_klein,subject,s20,a market,medium,shift,right,0.9979,0.0017,0.0004,201,s20,s20,True,right,more,1.0592,19.3004,,right,True
 mistral,rw_klein,subject,s20,a market,medium,variety,less,0.4347,0.5582,0.0070,210,s20,s20,True,right,more,1.0592,19.3004,,more,False
-mistral,rw_klein,subject,s20,a market,bg,variety,more,0.9868,0.0097,0.0036,210,s20,s20,True,,more,0.2407,4.3436,,more,True
 mistral,rw_klein,subject,s21,a train station,sat,shift,right,0.5809,0.3992,0.0199,210,s21,s21,True,right,,1.0573,0.7829,,right,True
 mistral,rw_klein,subject,s21,a train station,medium,shift,left,0.0013,0.9982,0.0005,102,s21,s21,True,none,,0.1111,0.7583,,none,False
-mistral,rw_klein,subject,s21,a train station,bg,shift,right,0.9987,0.0012,0.0002,12,s21,s21,True,right,,1.3388,0.5854,,right,True
-mistral,rw_klein,subject,s22,a birthday party,shot,shift,right,0.9994,0.0003,0.0003,12,s22,s22,True,right,,1.0834,1.3361,,right,True
 mistral,rw_klein,subject,s22,a birthday party,medium,shift,left,0.0032,0.9958,0.0010,12,s22,s22,True,left,,-0.5921,0.8713,,left,True
 mistral,rw_klein,subject,s23,a picnic,tone,shift,left,0.0067,0.9893,0.0040,210,s23,s23,True,none,,-0.1208,1.4665,,none,False
-mistral,rw_klein,subject,s23,a picnic,shot,shift,right,0.9556,0.0371,0.0073,120,s23,s23,True,left,,-0.6392,1.1745,,left,False
 mistral,rw_klein,subject,s23,a picnic,medium,shift,right,0.9998,0.0001,0.0001,21,s23,s23,True,right,more,4.2150,7.9379,,right,True
 mistral,rw_klein,subject,s23,a picnic,medium,variety,less,0.1476,0.8496,0.0027,201,s23,s23,True,right,more,4.2150,7.9379,,more,False
-mistral,rw_klein,subject,s23,a picnic,bg,shift,right,0.9311,0.0675,0.0014,21,s23,s23,True,right,more,2.2610,3.6614,,right,True
-mistral,rw_klein,subject,s23,a picnic,bg,variety,more,0.9004,0.0949,0.0047,120,s23,s23,True,right,more,2.2610,3.6614,,more,True
 mistral,rw_klein,pooled,d0,,tone,shift,left,0.0178,0.9714,0.0108,21,*,*,True,none,same,-0.1509,1.1326,True,none,False
 mistral,rw_klein,pooled,d0,,tone,variety,less,0.3427,0.6402,0.0171,12,*,*,True,none,same,-0.1509,1.1326,True,same,False
 mistral,rw_klein,pooled,d0,,sat,shift,right,0.9686,0.0293,0.0021,201,*,*,True,none,same,-0.2408,1.2398,True,none,False
 mistral,rw_klein,pooled,d0,,sat,variety,more,0.9438,0.0470,0.0093,120,*,*,True,none,same,-0.2408,1.2398,True,same,False
-mistral,rw_klein,pooled,d0,,shot,shift,right,0.9949,0.0032,0.0019,12,*,*,True,none,same,-0.0118,1.2828,True,none,False
-mistral,rw_klein,pooled,d0,,shot,variety,more,0.7815,0.1744,0.0441,120,*,*,True,none,same,-0.0118,1.2828,True,same,False
 mistral,rw_klein,pooled,d1,,tone,shift,left,0.0086,0.9890,0.0025,120,*,*,True,none,same,-0.1509,1.1326,True,none,False
 mistral,rw_klein,pooled,d1,,tone,variety,less,0.4492,0.5090,0.0418,201,*,*,True,none,same,-0.1509,1.1326,True,same,False
 mistral,rw_klein,pooled,d1,,sat,shift,right,0.9126,0.0849,0.0026,102,*,*,True,none,same,-0.2408,1.2398,True,none,False
 mistral,rw_klein,pooled,d1,,sat,variety,more,0.9538,0.0326,0.0136,210,*,*,True,none,same,-0.2408,1.2398,True,same,False
-mistral,rw_klein,pooled,d1,,shot,shift,left,0.4328,0.5557,0.0115,120,*,*,True,none,same,-0.0118,1.2828,True,none,False
-mistral,rw_klein,pooled,d1,,shot,variety,less,0.4103,0.5268,0.0629,201,*,*,True,none,same,-0.0118,1.2828,True,same,False
 mistral,rw_klein,pooled,d2,,tone,shift,left,0.0022,0.9969,0.0009,102,*,*,True,none,same,-0.1509,1.1326,True,none,False
 mistral,rw_klein,pooled,d2,,tone,variety,more,0.7638,0.1931,0.0431,210,*,*,True,none,same,-0.1509,1.1326,True,same,False
 mistral,rw_klein,pooled,d2,,sat,shift,right,0.9429,0.0532,0.0039,201,*,*,True,none,same,-0.2408,1.2398,True,none,False
 mistral,rw_klein,pooled,d2,,sat,variety,more,0.9714,0.0178,0.0108,210,*,*,True,none,same,-0.2408,1.2398,True,same,False
-mistral,rw_klein,pooled,d2,,shot,shift,right,0.9953,0.0032,0.0015,12,*,*,True,none,same,-0.0118,1.2828,True,none,False
-mistral,rw_klein,pooled,d2,,shot,variety,less,0.1768,0.7925,0.0307,21,*,*,True,none,same,-0.0118,1.2828,True,same,False
 mistral,rw_klein,pooled,d3,,tone,shift,left,0.0096,0.9795,0.0109,201,*,*,True,none,same,-0.1509,1.1326,True,none,False
 mistral,rw_klein,pooled,d3,,tone,variety,less,0.3287,0.6141,0.0571,201,*,*,True,none,same,-0.1509,1.1326,True,same,False
 mistral,rw_klein,pooled,d3,,sat,shift,right,0.9731,0.0259,0.0010,21,*,*,True,none,same,-0.2408,1.2398,True,none,False
 mistral,rw_klein,pooled,d3,,sat,variety,more,0.9714,0.0178,0.0108,210,*,*,True,none,same,-0.2408,1.2398,True,same,False
-mistral,rw_klein,pooled,d3,,shot,shift,right,0.9852,0.0097,0.0052,21,*,*,True,none,same,-0.0118,1.2828,True,none,False
-mistral,rw_klein,pooled,d3,,shot,variety,more,0.7235,0.2662,0.0103,102,*,*,True,none,same,-0.0118,1.2828,True,same,False
 mistral,rw_klein,pooled,d4,,tone,shift,left,0.0177,0.9684,0.0138,201,*,*,True,none,same,-0.1509,1.1326,True,none,False
 mistral,rw_klein,pooled,d4,,tone,variety,more,0.8762,0.1186,0.0052,102,*,*,True,none,same,-0.1509,1.1326,True,same,False
 mistral,rw_klein,pooled,d4,,sat,shift,right,0.9045,0.0841,0.0114,210,*,*,True,none,same,-0.2408,1.2398,True,none,False
 mistral,rw_klein,pooled,d4,,sat,variety,more,0.6446,0.3450,0.0104,21,*,*,True,none,same,-0.2408,1.2398,True,same,False
-mistral,rw_klein,pooled,d4,,shot,shift,right,0.8256,0.1626,0.0118,120,*,*,True,none,same,-0.0118,1.2828,True,none,False
-mistral,rw_klein,pooled,d4,,shot,variety,more,0.8834,0.0931,0.0235,120,*,*,True,none,same,-0.0118,1.2828,True,same,False
 mistral,rw_flux,subject,s00,a doctor,sat,shift,left,0.2203,0.7688,0.0110,120,s00,s00,True,none,,0.1783,1.5443,,none,False
 mistral,rw_flux,subject,s00,a doctor,medium,shift,left,0.0017,0.9973,0.0010,102,s00,s00,True,none,,-0.2881,1.1432,,none,False
 mistral,rw_flux,subject,s01,a person reading a book,sat,shift,right,0.6786,0.3205,0.0009,12,s01,s01,True,none,,-0.1378,0.9046,,none,False
-mistral,rw_flux,subject,s01,a person reading a book,shot,shift,left,0.4305,0.5528,0.0167,210,s01,s01,True,right,,0.8837,0.9964,,right,False
 mistral,rw_flux,subject,s02,a musician,sat,variety,more,0.6309,0.3377,0.0314,210,s02,s02,True,,more,-0.1767,2.3942,,more,True
-mistral,rw_flux,subject,s02,a musician,shot,shift,left,0.1810,0.8111,0.0080,120,s02,s02,True,left,,-0.8811,1.3800,,left,True
 mistral,rw_flux,subject,s02,a musician,medium,shift,left,0.0036,0.9952,0.0012,120,s02,s02,True,right,,0.5021,1.6379,,right,False
 mistral,rw_flux,subject,s03,a traveler,sat,shift,right,0.5277,0.4657,0.0066,201,s03,s03,True,left,more,-1.8569,1.8830,,left,False
 mistral,rw_flux,subject,s03,a traveler,sat,variety,less,0.1039,0.8698,0.0263,21,s03,s03,True,left,more,-1.8569,1.8830,,more,False
@@ -1489,63 +1345,37 @@ mistral,rw_flux,subject,s04,a dog,sat,shift,right,0.9951,0.0046,0.0003,21,s04,s0
 mistral,rw_flux,subject,s04,a dog,medium,shift,left,0.0052,0.9931,0.0017,21,s04,s04,True,none,,0.0924,1.4142,,none,False
 mistral,rw_flux,subject,s05,a bird on a branch,sat,shift,right,0.9935,0.0052,0.0013,210,s05,s05,True,right,more,2.9615,2.3887,,right,True
 mistral,rw_flux,subject,s05,a bird on a branch,sat,variety,more,0.9848,0.0124,0.0028,120,s05,s05,True,right,more,2.9615,2.3887,,more,True
-mistral,rw_flux,subject,s05,a bird on a branch,shot,shift,right,0.9944,0.0041,0.0015,12,s05,s05,True,left,,-0.5995,1.5335,,left,False
 mistral,rw_flux,subject,s05,a bird on a branch,medium,shift,left,0.0949,0.9004,0.0047,201,s05,s05,True,right,more,1.3194,8.7760,,right,False
 mistral,rw_flux,subject,s05,a bird on a branch,medium,variety,less,0.2654,0.7214,0.0132,201,s05,s05,True,right,more,1.3194,8.7760,,more,False
 mistral,rw_flux,subject,s06,a cat,sat,shift,right,0.9657,0.0330,0.0013,21,s06,s06,True,none,,0.0087,1.3804,,none,False
 mistral,rw_flux,subject,s07,a horse,sat,shift,right,0.9984,0.0015,0.0001,12,s07,s07,True,right,,1.9173,0.6744,,right,True
-mistral,rw_flux,subject,s07,a horse,shot,shift,right,0.9982,0.0008,0.0010,12,s07,s07,True,none,,-0.0142,0.6661,,none,False
 mistral,rw_flux,subject,s07,a horse,medium,shift,left,0.0330,0.9658,0.0011,12,s07,s07,True,right,,0.9566,0.9490,,right,False
-mistral,rw_flux,subject,s08,a car,shot,variety,less,0.2615,0.7109,0.0276,21,s08,s08,True,,less,-0.2397,0.6469,,less,True
 mistral,rw_flux,subject,s08,a car,medium,shift,left,0.0019,0.9972,0.0009,210,s08,s08,True,right,,0.9039,0.6004,,right,False
 mistral,rw_flux,subject,s09,a cup of coffee,sat,shift,right,0.8643,0.1325,0.0031,102,s09,s09,True,left,,-0.5455,1.2127,,left,False
-mistral,rw_flux,subject,s09,a cup of coffee,shot,shift,left,0.0330,0.9636,0.0035,120,s09,s09,True,right,,0.9084,1.4668,,right,False
 mistral,rw_flux,subject,s09,a cup of coffee,medium,shift,left,0.0036,0.9960,0.0004,102,s09,s09,True,none,,0.1845,1.6848,,none,False
 mistral,rw_flux,subject,s10,a bicycle,sat,shift,left,0.0469,0.9413,0.0118,210,s10,s10,True,left,more,-0.7822,1.8199,,left,True
 mistral,rw_flux,subject,s10,a bicycle,sat,variety,more,0.6911,0.2881,0.0209,120,s10,s10,True,left,more,-0.7822,1.8199,,more,True
-mistral,rw_flux,subject,s10,a bicycle,shot,shift,right,0.9960,0.0015,0.0025,12,s10,s10,True,right,,0.5537,0.6449,,right,True
 mistral,rw_flux,subject,s10,a bicycle,medium,shift,left,0.0067,0.9918,0.0015,120,s10,s10,True,right,more,1.1472,2.7349,,right,False
 mistral,rw_flux,subject,s10,a bicycle,medium,variety,less,0.1785,0.8001,0.0213,120,s10,s10,True,right,more,1.1472,2.7349,,more,False
 mistral,rw_flux,subject,s11,a bowl of fruit,sat,shift,right,0.8649,0.1326,0.0024,102,s11,s11,True,right,,1.5635,1.0693,,right,True
-mistral,rw_flux,subject,s11,a bowl of fruit,shot,shift,left,0.0066,0.9867,0.0066,210,s11,s11,True,right,,0.7043,1.4119,,right,False
 mistral,rw_flux,subject,s12,a kitchen,medium,shift,left,0.0017,0.9966,0.0017,201,s12,s12,True,none,,-0.1128,1.3458,,none,False
 mistral,rw_flux,subject,s13,a living room,sat,shift,left,0.1473,0.8477,0.0050,12,s13,s13,True,right,,1.2213,2.1614,,right,False
 mistral,rw_flux,subject,s13,a living room,medium,shift,left,0.0109,0.9845,0.0046,21,s13,s13,True,left,,-0.7786,1.1358,,left,True
 mistral,rw_flux,subject,s14,a library,sat,shift,right,0.9873,0.0124,0.0003,21,s14,s14,True,left,,-0.6877,1.3283,,left,False
-mistral,rw_flux,subject,s14,a library,shot,variety,more,0.6437,0.3445,0.0118,12,s14,s14,True,,less,-0.2299,0.4984,,less,False
 mistral,rw_flux,subject,s14,a library,medium,shift,left,0.0076,0.9920,0.0004,210,s14,s14,True,right,more,3.3688,8.4831,,right,False
 mistral,rw_flux,subject,s14,a library,medium,variety,less,0.1470,0.8457,0.0073,12,s14,s14,True,right,more,3.3688,8.4831,,more,False
-mistral,rw_flux,subject,s15,a restaurant,shot,shift,right,0.9795,0.0096,0.0109,210,s15,s15,True,none,,0.1066,1.4452,,none,False
 mistral,rw_flux,subject,s16,a house,sat,shift,right,0.9308,0.0674,0.0018,21,s16,s16,True,left,,-0.5023,1.3220,,left,False
-mistral,rw_flux,subject,s16,a house,shot,shift,right,0.9158,0.0752,0.0090,102,s16,s16,True,left,,-1.0918,0.8149,,left,False
 mistral,rw_flux,subject,s16,a house,medium,shift,left,0.0287,0.9490,0.0223,201,s16,s16,True,right,,2.2009,2.1354,,right,False
 mistral,rw_flux,subject,s17,a city street,sat,shift,right,0.9875,0.0110,0.0015,201,s17,s17,True,right,more,1.6624,1.9411,,right,True
 mistral,rw_flux,subject,s17,a city street,sat,variety,more,0.8967,0.0945,0.0088,201,s17,s17,True,right,more,1.6624,1.9411,,more,True
 mistral,rw_flux,subject,s17,a city street,medium,shift,left,0.0140,0.9843,0.0017,21,s17,s17,True,none,,0.1984,1.8440,,none,False
-mistral,rw_flux,subject,s18,a mountain,shot,shift,right,0.9977,0.0012,0.0012,12,s18,s18,True,left,,-0.9503,1.9116,,left,False
 mistral,rw_flux,subject,s19,a beach,sat,shift,right,0.9986,0.0013,0.0001,12,s19,s19,True,right,less,0.7560,0.4483,,right,True
 mistral,rw_flux,subject,s19,a beach,sat,variety,more,0.8723,0.1180,0.0097,21,s19,s19,True,right,less,0.7560,0.4483,,less,False
-mistral,rw_flux,subject,s19,a beach,shot,shift,right,0.9988,0.0008,0.0004,12,s19,s19,True,left,,-0.7745,1.0037,,left,False
 mistral,rw_flux,subject,s19,a beach,medium,shift,left,0.0022,0.9974,0.0004,102,s19,s19,True,right,,0.7728,1.5623,,right,False
 mistral,rw_flux,subject,s20,a market,sat,variety,more,0.9863,0.0097,0.0040,210,s20,s20,True,,more,0.5670,4.4795,,more,True
-mistral,rw_flux,subject,s20,a market,shot,shift,right,0.9979,0.0008,0.0013,12,s20,s20,True,left,,-0.7993,0.6080,,left,False
 mistral,rw_flux,subject,s20,a market,medium,shift,right,0.9696,0.0293,0.0011,201,s20,s20,True,right,more,1.3449,7.8582,,right,True
 mistral,rw_flux,subject,s20,a market,medium,variety,less,0.1186,0.8762,0.0052,12,s20,s20,True,right,more,1.3449,7.8582,,more,False
 mistral,rw_flux,subject,s21,a train station,sat,shift,right,0.9700,0.0293,0.0007,21,s21,s21,True,right,,1.3543,1.0618,,right,True
-mistral,rw_flux,subject,s21,a train station,shot,shift,right,0.9831,0.0124,0.0046,120,s21,s21,True,left,less,-1.8900,0.3934,,left,False
-mistral,rw_flux,subject,s21,a train station,shot,variety,more,0.6638,0.3135,0.0227,201,s21,s21,True,left,less,-1.8900,0.3934,,less,False
 mistral,rw_flux,subject,s22,a birthday party,sat,shift,right,0.9781,0.0123,0.0096,210,s22,s22,True,right,,1.3130,1.3029,,right,True
-mistral,rw_flux,subject,s22,a birthday party,shot,shift,right,0.9902,0.0067,0.0032,120,s22,s22,True,right,,1.2558,1.2379,,right,True
 mistral,rw_flux,subject,s22,a birthday party,medium,shift,left,0.0009,0.9988,0.0003,102,s22,s22,True,left,,-0.5710,0.7219,,left,True
-mistral,rw_flux,subject,s23,a picnic,shot,shift,right,0.9989,0.0004,0.0006,12,s23,s23,True,right,,0.6781,1.1538,,right,True
 mistral,rw_flux,subject,s23,a picnic,medium,variety,less,0.2210,0.7714,0.0076,102,s23,s23,True,,more,3.3049,10.3294,,more,False
-mistral,rw_flux,pooled,d0,,shot,shift,right,0.9949,0.0036,0.0015,12,*,*,True,none,same,0.1148,1.0870,True,none,False
-mistral,rw_flux,pooled,d0,,shot,variety,less,0.4335,0.4912,0.0753,201,*,*,True,none,same,0.1148,1.0870,True,same,False
-mistral,rw_flux,pooled,d1,,shot,shift,right,0.9688,0.0228,0.0084,201,*,*,True,none,same,0.1148,1.0870,True,none,False
-mistral,rw_flux,pooled,d1,,shot,variety,more,0.8021,0.1579,0.0399,120,*,*,True,none,same,0.1148,1.0870,True,same,False
-mistral,rw_flux,pooled,d2,,shot,shift,right,0.9888,0.0067,0.0046,21,*,*,True,none,same,0.1148,1.0870,True,none,False
-mistral,rw_flux,pooled,d2,,shot,variety,more,0.8059,0.1587,0.0354,120,*,*,True,none,same,0.1148,1.0870,True,same,False
-mistral,rw_flux,pooled,d3,,shot,shift,left,0.1061,0.8880,0.0060,210,*,*,True,none,same,0.1148,1.0870,True,none,False
-mistral,rw_flux,pooled,d3,,shot,variety,more,0.8295,0.1633,0.0072,102,*,*,True,none,same,0.1148,1.0870,True,same,False
-mistral,rw_flux,pooled,d4,,shot,shift,right,0.9922,0.0046,0.0032,21,*,*,True,none,same,0.1148,1.0870,True,none,False
-mistral,rw_flux,pooled,d4,,shot,variety,more,0.8922,0.0732,0.0346,210,*,*,True,none,same,0.1148,1.0870,True,same,False

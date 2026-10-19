@@ -107,3 +107,12 @@ Purpose: check that the 5 frozen aspects (sat, medium, shot, tone, bg) also hold
   - on the later configurations, shot, saturation and medium are validated;
   - background and tone are validated on the round-1 configurations only.
 - Details: `results/annotation_round2/RESULTS.md`.
+
+### Round 3 results (2026-10-19; design in experiments/llm_study/PREREG.md)
+- **Rewritten-prompt images:**
+  - saturation (0.90) and tone (0.89) pass, stable;
+  - medium (0.77) passes, not stable;
+  - shot (0.63) and background (0.38) fail.
+- **VLM-proposed axes:** none of the six candidates passes (0.34–0.70).
+- Details and consequences: `results/annotation_round3/RESULTS.md`.
+

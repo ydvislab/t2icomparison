@@ -1,0 +1,157 @@
+pid,aspect,kind,prompt,left,right,left_group,right_group,clip_dir,gap,A,B,C,all_against_clip,annotators_disagree
+bg-r3-00,bg,large,a market,G08_klein4b-mistral__m20_24,G08_klein4b-mistral__m20_17,G08_klein4b-mistral,G08_klein4b-mistral,right,0.06717,left,none,left,False,True
+bg-r3-01,bg,large,a bird on a branch,G05_flux2_dev-mistral__m05_15,G08_klein4b-mistral__m05_23,G05_flux2_dev-mistral,G08_klein4b-mistral,right,0.08016,none,left,left,False,True
+bg-r3-02,bg,small,a restaurant,G05_flux2_dev-mistral__m15_16,G08_klein4b-mistral__m15_24,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.01193,left,left,none,False,True
+bg-r3-03,bg,large,a bowl of fruit,G05_flux2_dev-mistral__m11_28,G08_klein4b-mistral__m11_03,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.02733,left,left,left,False,False
+bg-r3-04,bg,large,a mountain,G05_flux2_dev-mistral__m18_22,G08_klein4b-mistral__m18_18,G05_flux2_dev-mistral,G08_klein4b-mistral,right,0.02403,right,right,none,False,True
+bg-r3-05,bg,small,a musician,G08_klein4b-mistral__m02_07,G05_flux2_dev-mistral__m02_06,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.00068,left,left,left,True,False
+bg-r3-06,bg,small,a birthday party,G05_flux2_dev-mistral__m22_09,G08_klein4b-mistral__m22_15,G05_flux2_dev-mistral,G08_klein4b-mistral,right,0.00184,none,right,none,False,True
+bg-r3-07,bg,large,a cat,G08_klein4b-mistral__m06_19,G05_flux2_dev-mistral__m06_07,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.02641,left,none,none,False,True
+bg-r3-08,bg,large,a kitchen,G05_flux2_dev-mistral__m12_30,G08_klein4b-mistral__m12_28,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.02812,right,right,right,True,False
+bg-r3-09,bg,large,a cup of coffee,G08_klein4b-mistral__m09_08,G05_flux2_dev-mistral__m09_31,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.03055,left,left,none,False,True
+bg-r3-10,bg,small,a house,G08_klein4b-mistral__m16_15,G08_klein4b-mistral__m16_25,G08_klein4b-mistral,G08_klein4b-mistral,right,0.00168,none,none,none,False,False
+bg-r3-11,bg,large,a doctor,G05_flux2_dev-mistral__m00_01,G08_klein4b-mistral__m00_22,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.04331,none,left,none,False,True
+cand_contrast-r3-00,cand_contrast,large,a birthday party,G05_flux2_dev__m22_12,G01_sd15__m22_01,G05_flux2_dev,G01_sd15,right,0.02916,left,left,right,False,True
+cand_contrast-r3-01,cand_contrast,small,a horse,G10_qwen_image_cfg1__m07_04,G10_qwen_image_cfg1__m07_10,G10_qwen_image_cfg1,G10_qwen_image_cfg1,left,0.00666,right,left,none,False,True
+cand_contrast-r3-02,cand_contrast,large,a restaurant,G02_sdxl__m15_16,G01_sd15__m15_09,G02_sdxl,G01_sd15,right,0.03782,right,right,right,False,False
+cand_contrast-r3-03,cand_contrast,large,a bicycle,G04_sd35_large__m10_07,G12_klein9b__m10_01,G04_sd35_large,G12_klein9b,left,0.02728,left,left,left,False,False
+cand_contrast-r3-04,cand_contrast,small,a beach,G11_klein_base9b__m19_18,G07_klein_base4b_cfg1__m19_20,G11_klein_base9b,G07_klein_base4b_cfg1,right,0.00494,right,right,right,False,False
+cand_contrast-r3-05,cand_contrast,large,a musician,G03_sdxl_turbo__m02_07,G09_qwen_image_cfg4__m02_29,G03_sdxl_turbo,G09_qwen_image_cfg4,right,0.0437,right,right,right,False,False
+cand_contrast-r3-06,cand_contrast,large,a train station,G01_sd15__m21_13,G06_klein_base4b_cfg4__m21_22,G01_sd15,G06_klein_base4b_cfg4,left,0.02385,right,left,none,False,True
+cand_contrast-r3-07,cand_contrast,large,a cat,G08_klein4b__m06_08,G05_flux2_dev__m06_11,G08_klein4b,G05_flux2_dev,right,0.02264,left,right,right,False,True
+cand_contrast-r3-08,cand_contrast,large,a library,G10_qwen_image_cfg1__m14_13,G07_klein_base4b_cfg1__m14_01,G10_qwen_image_cfg1,G07_klein_base4b_cfg1,right,0.02241,left,none,right,False,True
+cand_contrast-r3-09,cand_contrast,large,a cup of coffee,G02_sdxl__m09_04,G07_klein_base4b_cfg1__m09_28,G02_sdxl,G07_klein_base4b_cfg1,left,0.01653,left,left,none,False,True
+cand_contrast-r3-10,cand_contrast,small,a mountain,G02_sdxl__m18_00,G09_qwen_image_cfg4__m18_20,G02_sdxl,G09_qwen_image_cfg4,right,0.00067,left,right,left,False,True
+cand_contrast-r3-11,cand_contrast,large,a doctor,G07_klein_base4b_cfg1__m00_19,G02_sdxl__m00_09,G07_klein_base4b_cfg1,G02_sdxl,right,0.02332,left,left,none,False,True
+cand_contrast-r3-12,cand_contrast,large,a picnic,G12_klein9b__m23_03,G07_klein_base4b_cfg1__m23_07,G12_klein9b,G07_klein_base4b_cfg1,right,0.03127,left,right,right,False,True
+cand_contrast-r3-13,cand_contrast,large,a bird on a branch,G10_qwen_image_cfg1__m05_19,G10_qwen_image_cfg1__m05_12,G10_qwen_image_cfg1,G10_qwen_image_cfg1,right,0.02172,left,left,left,True,False
+cand_contrast-r3-14,cand_contrast,large,a living room,G02_sdxl__m13_13,G12_klein9b__m13_09,G02_sdxl,G12_klein9b,left,0.03128,right,right,right,True,False
+cand_contrast-r3-15,cand_contrast,small,a bowl of fruit,G09_qwen_image_cfg4__m11_23,G06_klein_base4b_cfg4__m11_01,G09_qwen_image_cfg4,G06_klein_base4b_cfg4,left,0.00109,left,left,none,False,True
+cand_detail-r3-00,cand_detail,large,a train station,G06_klein_base4b_cfg4__m21_11,G08_klein4b__m21_27,G06_klein_base4b_cfg4,G08_klein4b,left,0.02432,left,left,none,False,True
+cand_detail-r3-01,cand_detail,large,a bird on a branch,G09_qwen_image_cfg4__m05_19,G06_klein_base4b_cfg4__m05_01,G09_qwen_image_cfg4,G06_klein_base4b_cfg4,left,0.03686,left,left,none,False,True
+cand_detail-r3-02,cand_detail,large,a kitchen,G12_klein9b__m12_07,G03_sdxl_turbo__m12_13,G12_klein9b,G03_sdxl_turbo,right,0.02479,left,none,left,False,True
+cand_detail-r3-03,cand_detail,large,a bicycle,G04_sd35_large__m10_01,G02_sdxl__m10_30,G04_sd35_large,G02_sdxl,right,0.03981,right,none,left,False,True
+cand_detail-r3-04,cand_detail,large,a beach,G05_flux2_dev__m19_26,G02_sdxl__m19_13,G05_flux2_dev,G02_sdxl,right,0.03797,right,left,left,False,True
+cand_detail-r3-05,cand_detail,large,a person reading a book,G07_klein_base4b_cfg1__m01_17,G04_sd35_large__m01_20,G07_klein_base4b_cfg1,G04_sd35_large,left,0.03369,left,left,left,False,False
+cand_detail-r3-06,cand_detail,large,a birthday party,G02_sdxl__m22_23,G03_sdxl_turbo__m22_14,G02_sdxl,G03_sdxl_turbo,right,0.04895,left,left,left,True,False
+cand_detail-r3-07,cand_detail,large,a cat,G06_klein_base4b_cfg4__m06_05,G07_klein_base4b_cfg1__m06_19,G06_klein_base4b_cfg4,G07_klein_base4b_cfg1,left,0.0525,right,left,left,False,True
+cand_detail-r3-08,cand_detail,small,a restaurant,G11_klein_base9b__m15_01,G12_klein9b__m15_23,G11_klein_base9b,G12_klein9b,left,0.00938,right,right,none,False,True
+cand_detail-r3-09,cand_detail,small,a cup of coffee,G12_klein9b__m09_21,G06_klein_base4b_cfg4__m09_20,G12_klein9b,G06_klein_base4b_cfg4,right,0.00207,left,left,left,True,False
+cand_detail-r3-10,cand_detail,large,a city street,G01_sd15__m17_13,G10_qwen_image_cfg1__m17_12,G01_sd15,G10_qwen_image_cfg1,right,0.03228,left,left,left,True,False
+cand_detail-r3-11,cand_detail,large,a musician,G12_klein9b__m02_18,G02_sdxl__m02_26,G12_klein9b,G02_sdxl,right,0.03795,left,left,left,True,False
+cand_detail-r3-12,cand_detail,large,a picnic,G03_sdxl_turbo__m23_09,G10_qwen_image_cfg1__m23_21,G03_sdxl_turbo,G10_qwen_image_cfg1,left,0.05564,right,right,right,True,False
+cand_detail-r3-13,cand_detail,large,a horse,G04_sd35_large__m07_19,G01_sd15__m07_30,G04_sd35_large,G01_sd15,right,0.0214,left,left,left,True,False
+cand_detail-r3-14,cand_detail,small,a living room,G08_klein4b__m13_03,G03_sdxl_turbo__m13_02,G08_klein4b,G03_sdxl_turbo,left,0.00808,right,right,none,False,True
+cand_detail-r3-15,cand_detail,small,a bowl of fruit,G06_klein_base4b_cfg4__m11_13,G06_klein_base4b_cfg4__m11_22,G06_klein_base4b_cfg4,G06_klein_base4b_cfg4,right,0.00459,left,left,none,False,True
+cand_ideal-r3-00,cand_ideal,large,a train station,G11_klein_base9b__m21_18,G09_qwen_image_cfg4__m21_16,G11_klein_base9b,G09_qwen_image_cfg4,left,0.03175,right,right,none,False,True
+cand_ideal-r3-01,cand_ideal,large,a dog,G04_sd35_large__m04_22,G02_sdxl__m04_28,G04_sd35_large,G02_sdxl,right,0.02602,left,right,none,False,True
+cand_ideal-r3-02,cand_ideal,large,a kitchen,G02_sdxl__m12_03,G06_klein_base4b_cfg4__m12_15,G02_sdxl,G06_klein_base4b_cfg4,left,0.01777,left,right,left,False,True
+cand_ideal-r3-03,cand_ideal,large,a cup of coffee,G02_sdxl__m09_07,G04_sd35_large__m09_18,G02_sdxl,G04_sd35_large,left,0.01936,left,right,left,False,True
+cand_ideal-r3-04,cand_ideal,large,a city street,G07_klein_base4b_cfg1__m17_14,G09_qwen_image_cfg4__m17_23,G07_klein_base4b_cfg1,G09_qwen_image_cfg4,left,0.02968,right,right,left,False,True
+cand_ideal-r3-05,cand_ideal,large,a doctor,G07_klein_base4b_cfg1__m00_15,G02_sdxl__m00_22,G07_klein_base4b_cfg1,G02_sdxl,right,0.04398,right,right,right,False,False
+cand_ideal-r3-06,cand_ideal,large,a market,G02_sdxl__m20_06,G01_sd15__m20_17,G02_sdxl,G01_sd15,left,0.0398,left,left,left,False,False
+cand_ideal-r3-07,cand_ideal,large,a horse,G01_sd15__m07_03,G08_klein4b__m07_05,G01_sd15,G08_klein4b,left,0.02625,left,left,left,False,False
+cand_ideal-r3-08,cand_ideal,small,a restaurant,G06_klein_base4b_cfg4__m15_08,G04_sd35_large__m15_04,G06_klein_base4b_cfg4,G04_sd35_large,left,0.00454,right,left,right,False,True
+cand_ideal-r3-09,cand_ideal,large,a bowl of fruit,G08_klein4b__m11_10,G03_sdxl_turbo__m11_22,G08_klein4b,G03_sdxl_turbo,right,0.0215,right,right,none,False,True
+cand_ideal-r3-10,cand_ideal,small,a house,G11_klein_base9b__m16_18,G06_klein_base4b_cfg4__m16_24,G11_klein_base9b,G06_klein_base4b_cfg4,right,0.00334,right,right,none,False,True
+cand_ideal-r3-11,cand_ideal,small,a musician,G08_klein4b__m02_25,G12_klein9b__m02_24,G08_klein4b,G12_klein9b,right,0.00474,right,none,none,False,True
+cand_ideal-r3-12,cand_ideal,small,a picnic,G12_klein9b__m23_07,G01_sd15__m23_26,G12_klein9b,G01_sd15,right,0.00201,left,right,right,False,True
+cand_ideal-r3-13,cand_ideal,large,a cat,G02_sdxl__m06_03,G05_flux2_dev__m06_10,G02_sdxl,G05_flux2_dev,left,0.05154,left,left,left,False,False
+cand_ideal-r3-14,cand_ideal,large,a living room,G08_klein4b__m13_22,G07_klein_base4b_cfg1__m13_06,G08_klein4b,G07_klein_base4b_cfg1,right,0.02171,none,right,none,False,True
+cand_ideal-r3-15,cand_ideal,large,a bicycle,G07_klein_base4b_cfg1__m10_11,G02_sdxl__m10_07,G07_klein_base4b_cfg1,G02_sdxl,right,0.02343,left,left,left,True,False
+cand_lightdrama-r3-00,cand_lightdrama,small,a picnic,G06_klein_base4b_cfg4__m23_04,G11_klein_base9b__m23_27,G06_klein_base4b_cfg4,G11_klein_base9b,left,0.00482,left,left,right,False,True
+cand_lightdrama-r3-01,cand_lightdrama,large,a cat,G01_sd15__m06_07,G07_klein_base4b_cfg1__m06_13,G01_sd15,G07_klein_base4b_cfg1,left,0.05653,left,left,left,False,False
+cand_lightdrama-r3-02,cand_lightdrama,large,a living room,G03_sdxl_turbo__m13_12,G05_flux2_dev__m13_13,G03_sdxl_turbo,G05_flux2_dev,left,0.03943,right,none,left,False,True
+cand_lightdrama-r3-03,cand_lightdrama,large,a car,G09_qwen_image_cfg4__m08_16,G04_sd35_large__m08_21,G09_qwen_image_cfg4,G04_sd35_large,left,0.03746,left,left,none,False,True
+cand_lightdrama-r3-04,cand_lightdrama,large,a city street,G03_sdxl_turbo__m17_10,G01_sd15__m17_28,G03_sdxl_turbo,G01_sd15,right,0.05272,right,none,right,False,True
+cand_lightdrama-r3-05,cand_lightdrama,large,a musician,G09_qwen_image_cfg4__m02_31,G02_sdxl__m02_07,G09_qwen_image_cfg4,G02_sdxl,left,0.05846,left,left,right,False,True
+cand_lightdrama-r3-06,cand_lightdrama,large,a train station,G07_klein_base4b_cfg1__m21_11,G09_qwen_image_cfg4__m21_07,G07_klein_base4b_cfg1,G09_qwen_image_cfg4,right,0.04646,right,right,left,False,True
+cand_lightdrama-r3-07,cand_lightdrama,small,a dog,G10_qwen_image_cfg1__m04_00,G10_qwen_image_cfg1__m04_12,G10_qwen_image_cfg1,G10_qwen_image_cfg1,left,0.00149,none,none,none,False,False
+cand_lightdrama-r3-08,cand_lightdrama,small,a library,G03_sdxl_turbo__m14_30,G11_klein_base9b__m14_16,G03_sdxl_turbo,G11_klein_base9b,right,0.00032,left,right,left,False,True
+cand_lightdrama-r3-09,cand_lightdrama,large,a bowl of fruit,G03_sdxl_turbo__m11_01,G02_sdxl__m11_18,G03_sdxl_turbo,G02_sdxl,left,0.04098,none,none,right,False,True
+cand_lightdrama-r3-10,cand_lightdrama,large,a beach,G02_sdxl__m19_18,G04_sd35_large__m19_01,G02_sdxl,G04_sd35_large,left,0.03739,none,none,left,False,True
+cand_lightdrama-r3-11,cand_lightdrama,large,a doctor,G02_sdxl__m00_10,G12_klein9b__m00_17,G02_sdxl,G12_klein9b,right,0.0276,right,left,left,False,True
+cand_lightdrama-r3-12,cand_lightdrama,large,a market,G02_sdxl__m20_09,G08_klein4b__m20_31,G02_sdxl,G08_klein4b,left,0.05762,left,left,left,False,False
+cand_lightdrama-r3-13,cand_lightdrama,small,a bird on a branch,G02_sdxl__m05_05,G07_klein_base4b_cfg1__m05_07,G02_sdxl,G07_klein_base4b_cfg1,right,0.00237,none,left,none,False,True
+cand_lightdrama-r3-14,cand_lightdrama,large,a restaurant,G10_qwen_image_cfg1__m15_20,G01_sd15__m15_17,G10_qwen_image_cfg1,G01_sd15,right,0.03672,left,left,right,False,True
+cand_lightdrama-r3-15,cand_lightdrama,large,a bicycle,G09_qwen_image_cfg4__m10_10,G01_sd15__m10_07,G09_qwen_image_cfg4,G01_sd15,left,0.04951,left,none,none,False,True
+cand_sharp-r3-00,cand_sharp,small,a train station,G11_klein_base9b__m21_16,G07_klein_base4b_cfg1__m21_13,G11_klein_base9b,G07_klein_base4b_cfg1,left,0.00317,none,right,none,False,True
+cand_sharp-r3-01,cand_sharp,small,a bird on a branch,G11_klein_base9b__m05_22,G08_klein4b__m05_22,G11_klein_base9b,G08_klein4b,left,0.00337,right,right,none,False,True
+cand_sharp-r3-02,cand_sharp,large,a kitchen,G12_klein9b__m12_08,G04_sd35_large__m12_10,G12_klein9b,G04_sd35_large,left,0.03177,left,left,right,False,True
+cand_sharp-r3-03,cand_sharp,small,a bicycle,G11_klein_base9b__m10_31,G02_sdxl__m10_01,G11_klein_base9b,G02_sdxl,right,0.00152,left,left,left,True,False
+cand_sharp-r3-04,cand_sharp,large,a beach,G05_flux2_dev__m19_28,G02_sdxl__m19_00,G05_flux2_dev,G02_sdxl,right,0.0353,left,left,left,True,False
+cand_sharp-r3-05,cand_sharp,large,a traveler,G10_qwen_image_cfg1__m03_27,G02_sdxl__m03_17,G10_qwen_image_cfg1,G02_sdxl,left,0.04123,left,left,left,False,False
+cand_sharp-r3-06,cand_sharp,large,a birthday party,G03_sdxl_turbo__m22_30,G02_sdxl__m22_17,G03_sdxl_turbo,G02_sdxl,right,0.03939,none,none,none,False,False
+cand_sharp-r3-07,cand_sharp,large,a horse,G01_sd15__m07_00,G02_sdxl__m07_21,G01_sd15,G02_sdxl,left,0.03283,right,none,right,False,True
+cand_sharp-r3-08,cand_sharp,large,a library,G06_klein_base4b_cfg4__m14_02,G12_klein9b__m14_01,G06_klein_base4b_cfg4,G12_klein9b,right,0.02966,right,none,none,False,True
+cand_sharp-r3-09,cand_sharp,large,a bowl of fruit,G07_klein_base4b_cfg1__m11_24,G10_qwen_image_cfg1__m11_25,G07_klein_base4b_cfg1,G10_qwen_image_cfg1,right,0.05032,right,right,none,False,True
+cand_sharp-r3-10,cand_sharp,large,a city street,G11_klein_base9b__m17_13,G10_qwen_image_cfg1__m17_24,G11_klein_base9b,G10_qwen_image_cfg1,right,0.01999,right,none,right,False,True
+cand_sharp-r3-11,cand_sharp,large,a musician,G10_qwen_image_cfg1__m02_20,G02_sdxl__m02_19,G10_qwen_image_cfg1,G02_sdxl,left,0.06019,left,left,left,False,False
+cand_sharp-r3-12,cand_sharp,large,a picnic,G06_klein_base4b_cfg4__m23_21,G03_sdxl_turbo__m23_28,G06_klein_base4b_cfg4,G03_sdxl_turbo,left,0.03089,left,left,left,False,False
+cand_sharp-r3-13,cand_sharp,large,a dog,G05_flux2_dev__m04_21,G02_sdxl__m04_17,G05_flux2_dev,G02_sdxl,left,0.02666,left,left,left,False,False
+cand_sharp-r3-14,cand_sharp,small,a restaurant,G04_sd35_large__m15_03,G09_qwen_image_cfg4__m15_29,G04_sd35_large,G09_qwen_image_cfg4,right,0.00448,right,left,right,False,True
+cand_sharp-r3-15,cand_sharp,large,a cup of coffee,G02_sdxl__m09_27,G12_klein9b__m09_30,G02_sdxl,G12_klein9b,left,0.02851,right,right,right,True,False
+cand_texture-r3-00,cand_texture,large,a train station,G09_qwen_image_cfg4__m21_26,G04_sd35_large__m21_15,G09_qwen_image_cfg4,G04_sd35_large,right,0.03686,right,right,right,False,False
+cand_texture-r3-01,cand_texture,large,a horse,G08_klein4b__m07_29,G04_sd35_large__m07_03,G08_klein4b,G04_sd35_large,left,0.03224,right,left,none,False,True
+cand_texture-r3-02,cand_texture,small,a restaurant,G05_flux2_dev__m15_05,G05_flux2_dev__m15_07,G05_flux2_dev,G05_flux2_dev,left,0.00272,right,none,right,False,True
+cand_texture-r3-03,cand_texture,large,a bicycle,G11_klein_base9b__m10_29,G10_qwen_image_cfg1__m10_02,G11_klein_base9b,G10_qwen_image_cfg1,left,0.04723,left,none,right,False,True
+cand_texture-r3-04,cand_texture,large,a city street,G10_qwen_image_cfg1__m17_19,G12_klein9b__m17_08,G10_qwen_image_cfg1,G12_klein9b,right,0.04707,right,left,left,False,True
+cand_texture-r3-05,cand_texture,large,a musician,G01_sd15__m02_04,G02_sdxl__m02_06,G01_sd15,G02_sdxl,left,0.05368,right,right,right,True,False
+cand_texture-r3-06,cand_texture,large,a birthday party,G07_klein_base4b_cfg1__m22_09,G11_klein_base9b__m22_31,G07_klein_base4b_cfg1,G11_klein_base9b,right,0.08633,right,left,left,False,True
+cand_texture-r3-07,cand_texture,large,a bird on a branch,G07_klein_base4b_cfg1__m05_14,G01_sd15__m05_08,G07_klein_base4b_cfg1,G01_sd15,right,0.04738,right,none,left,False,True
+cand_texture-r3-08,cand_texture,small,a kitchen,G05_flux2_dev__m12_22,G02_sdxl__m12_08,G05_flux2_dev,G02_sdxl,left,0.01361,right,none,left,False,True
+cand_texture-r3-09,cand_texture,small,a cup of coffee,G11_klein_base9b__m09_20,G08_klein4b__m09_25,G11_klein_base9b,G08_klein4b,left,0.00031,left,none,right,False,True
+cand_texture-r3-10,cand_texture,large,a mountain,G08_klein4b__m18_00,G01_sd15__m18_24,G08_klein4b,G01_sd15,left,0.06038,right,left,right,False,True
+cand_texture-r3-11,cand_texture,large,a person reading a book,G06_klein_base4b_cfg4__m01_09,G04_sd35_large__m01_18,G06_klein_base4b_cfg4,G04_sd35_large,left,0.04528,left,left,left,False,False
+cand_texture-r3-12,cand_texture,large,a picnic,G08_klein4b__m23_02,G10_qwen_image_cfg1__m23_10,G08_klein4b,G10_qwen_image_cfg1,left,0.05264,left,right,right,False,True
+cand_texture-r3-13,cand_texture,large,a dog,G08_klein4b__m04_21,G04_sd35_large__m04_19,G08_klein4b,G04_sd35_large,left,0.03566,right,none,left,False,True
+cand_texture-r3-14,cand_texture,large,a library,G05_flux2_dev__m14_07,G10_qwen_image_cfg1__m14_01,G05_flux2_dev,G10_qwen_image_cfg1,left,0.03555,left,right,right,False,True
+cand_texture-r3-15,cand_texture,small,a car,G09_qwen_image_cfg4__m08_26,G03_sdxl_turbo__m08_30,G09_qwen_image_cfg4,G03_sdxl_turbo,left,0.01424,left,right,right,False,True
+medium-r3-00,medium,large,a market,G08_klein4b-mistral__m20_18,G05_flux2_dev-mistral__m20_28,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.09603,right,right,right,False,False
+medium-r3-01,medium,large,a dog,G05_flux2_dev-mistral__m04_19,G08_klein4b-mistral__m04_05,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.02416,left,left,left,False,False
+medium-r3-02,medium,large,a restaurant,G05_flux2_dev-mistral__m15_31,G08_klein4b-mistral__m15_25,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.07201,left,left,left,False,False
+medium-r3-03,medium,small,a bowl of fruit,G08_klein4b-mistral__m11_00,G05_flux2_dev-mistral__m11_21,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.00056,none,none,none,False,False
+medium-r3-04,medium,small,a beach,G05_flux2_dev-mistral__m19_02,G05_flux2_dev-mistral__m19_13,G05_flux2_dev-mistral,G05_flux2_dev-mistral,right,0.00401,left,left,none,False,True
+medium-r3-05,medium,large,a traveler,G08_klein4b-mistral__m03_28,G08_klein4b-mistral__m03_15,G08_klein4b-mistral,G08_klein4b-mistral,left,0.03615,none,left,none,False,True
+medium-r3-06,medium,large,a birthday party,G08_klein4b-mistral__m22_13,G08_klein4b-mistral__m22_23,G08_klein4b-mistral,G08_klein4b-mistral,right,0.02716,left,left,none,False,True
+medium-r3-07,medium,large,a horse,G05_flux2_dev-mistral__m07_05,G08_klein4b-mistral__m07_24,G05_flux2_dev-mistral,G08_klein4b-mistral,right,0.01125,none,right,left,False,True
+medium-r3-08,medium,small,a library,G08_klein4b-mistral__m14_07,G05_flux2_dev-mistral__m14_30,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.01508,left,left,none,False,True
+medium-r3-09,medium,large,a bicycle,G05_flux2_dev-mistral__m10_02,G05_flux2_dev-mistral__m10_16,G05_flux2_dev-mistral,G05_flux2_dev-mistral,left,0.03652,left,right,none,False,True
+medium-r3-10,medium,small,a city street,G08_klein4b-mistral__m17_20,G05_flux2_dev-mistral__m17_26,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.00824,right,none,none,False,True
+medium-r3-11,medium,large,a musician,G08_klein4b-mistral__m02_06,G05_flux2_dev-mistral__m02_00,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.02638,none,right,none,False,True
+sat-r3-00,sat,large,a train station,G08_klein4b-mistral__m21_23,G05_flux2_dev-mistral__m21_25,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.01861,left,right,right,False,True
+sat-r3-01,sat,large,a bird on a branch,G05_flux2_dev-mistral__m05_31,G05_flux2_dev-mistral__m05_02,G05_flux2_dev-mistral,G05_flux2_dev-mistral,left,0.08889,left,left,left,False,False
+sat-r3-02,sat,large,a living room,G08_klein4b-mistral__m13_22,G05_flux2_dev-mistral__m13_06,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.03474,left,left,left,False,False
+sat-r3-03,sat,large,a bicycle,G08_klein4b-mistral__m10_28,G08_klein4b-mistral__m10_22,G08_klein4b-mistral,G08_klein4b-mistral,right,0.04243,right,right,none,False,True
+sat-r3-04,sat,small,a city street,G05_flux2_dev-mistral__m17_02,G08_klein4b-mistral__m17_02,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.00064,left,left,left,False,False
+sat-r3-05,sat,large,a musician,G05_flux2_dev-mistral__m02_15,G05_flux2_dev-mistral__m02_20,G05_flux2_dev-mistral,G05_flux2_dev-mistral,right,0.05193,right,right,right,False,False
+sat-r3-06,sat,large,a birthday party,G05_flux2_dev-mistral__m22_10,G08_klein4b-mistral__m22_09,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.03216,left,left,none,False,True
+sat-r3-07,sat,large,a dog,G05_flux2_dev-mistral__m04_28,G05_flux2_dev-mistral__m04_12,G05_flux2_dev-mistral,G05_flux2_dev-mistral,right,0.01773,right,right,right,False,False
+sat-r3-08,sat,small,a kitchen,G08_klein4b-mistral__m12_19,G08_klein4b-mistral__m12_30,G08_klein4b-mistral,G08_klein4b-mistral,left,4e-05,right,right,right,True,False
+sat-r3-09,sat,small,a bowl of fruit,G05_flux2_dev-mistral__m11_12,G05_flux2_dev-mistral__m11_01,G05_flux2_dev-mistral,G05_flux2_dev-mistral,left,0.00045,right,right,none,False,True
+sat-r3-10,sat,large,a mountain,G05_flux2_dev-mistral__m18_14,G08_klein4b-mistral__m18_15,G05_flux2_dev-mistral,G08_klein4b-mistral,right,0.02129,right,right,none,False,True
+sat-r3-11,sat,small,a doctor,G05_flux2_dev-mistral__m00_06,G08_klein4b-mistral__m00_20,G05_flux2_dev-mistral,G08_klein4b-mistral,right,0.00218,right,left,none,False,True
+shot-r3-00,shot,small,a picnic,G08_klein4b-mistral__m23_13,G05_flux2_dev-mistral__m23_21,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.00119,left,none,none,False,True
+shot-r3-01,shot,large,a dog,G05_flux2_dev-mistral__m04_16,G05_flux2_dev-mistral__m04_06,G05_flux2_dev-mistral,G05_flux2_dev-mistral,right,0.03438,right,none,none,False,True
+shot-r3-02,shot,small,a living room,G05_flux2_dev-mistral__m13_20,G05_flux2_dev-mistral__m13_24,G05_flux2_dev-mistral,G05_flux2_dev-mistral,left,0.0026,none,none,none,False,False
+shot-r3-03,shot,large,a cup of coffee,G08_klein4b-mistral__m09_11,G08_klein4b-mistral__m09_14,G08_klein4b-mistral,G08_klein4b-mistral,right,0.02679,right,none,none,False,True
+shot-r3-04,shot,large,a house,G08_klein4b-mistral__m16_05,G05_flux2_dev-mistral__m16_29,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.04551,left,none,none,False,True
+shot-r3-05,shot,large,a doctor,G08_klein4b-mistral__m00_26,G05_flux2_dev-mistral__m00_22,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.07081,left,left,left,False,False
+shot-r3-06,shot,large,a train station,G08_klein4b-mistral__m21_10,G05_flux2_dev-mistral__m21_28,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.05532,right,right,right,True,False
+shot-r3-07,shot,small,a horse,G08_klein4b-mistral__m07_23,G05_flux2_dev-mistral__m07_22,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.00282,left,left,none,False,True
+shot-r3-08,shot,large,a restaurant,G05_flux2_dev-mistral__m15_29,G05_flux2_dev-mistral__m15_13,G05_flux2_dev-mistral,G05_flux2_dev-mistral,right,0.02155,left,right,none,False,True
+shot-r3-09,shot,large,a car,G08_klein4b-mistral__m08_14,G05_flux2_dev-mistral__m08_12,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.03862,left,left,left,False,False
+shot-r3-10,shot,large,a city street,G08_klein4b-mistral__m17_22,G05_flux2_dev-mistral__m17_10,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.02613,right,right,none,False,True
+shot-r3-11,shot,small,a person reading a book,G05_flux2_dev-mistral__m01_17,G08_klein4b-mistral__m01_05,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.00426,right,none,none,False,True
+tone-r3-00,tone,large,a train station,G05_flux2_dev-mistral__m21_15,G08_klein4b-mistral__m21_25,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.02573,left,left,none,False,True
+tone-r3-01,tone,small,a horse,G08_klein4b-mistral__m07_19,G05_flux2_dev-mistral__m07_20,G08_klein4b-mistral,G05_flux2_dev-mistral,left,0.00012,right,right,right,True,False
+tone-r3-02,tone,large,a library,G05_flux2_dev-mistral__m14_16,G08_klein4b-mistral__m14_19,G05_flux2_dev-mistral,G08_klein4b-mistral,right,0.03536,right,right,none,False,True
+tone-r3-03,tone,small,a bicycle,G08_klein4b-mistral__m10_07,G08_klein4b-mistral__m10_19,G08_klein4b-mistral,G08_klein4b-mistral,left,0.00321,right,none,none,False,True
+tone-r3-04,tone,large,a mountain,G08_klein4b-mistral__m18_19,G05_flux2_dev-mistral__m18_26,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.02618,right,right,none,False,True
+tone-r3-05,tone,large,a traveler,G08_klein4b-mistral__m03_23,G05_flux2_dev-mistral__m03_17,G08_klein4b-mistral,G05_flux2_dev-mistral,right,0.03103,right,right,right,False,False
+tone-r3-06,tone,large,a market,G08_klein4b-mistral__m20_08,G08_klein4b-mistral__m20_12,G08_klein4b-mistral,G08_klein4b-mistral,left,0.02736,left,left,left,False,False
+tone-r3-07,tone,large,a dog,G05_flux2_dev-mistral__m04_18,G08_klein4b-mistral__m04_19,G05_flux2_dev-mistral,G08_klein4b-mistral,left,0.01398,left,left,left,False,False
+tone-r3-08,tone,small,a living room,G08_klein4b-mistral__m13_08,G08_klein4b-mistral__m13_29,G08_klein4b-mistral,G08_klein4b-mistral,right,0.00271,none,none,none,False,False
+tone-r3-09,tone,large,a cup of coffee,G05_flux2_dev-mistral__m09_13,G08_klein4b-mistral__m09_09,G05_flux2_dev-mistral,G08_klein4b-mistral,right,0.02529,left,left,none,False,True
+tone-r3-10,tone,small,a beach,G08_klein4b-mistral__m19_11,G08_klein4b-mistral__m19_04,G08_klein4b-mistral,G08_klein4b-mistral,left,0.00087,none,left,none,False,True
+tone-r3-11,tone,large,a doctor,G08_klein4b-mistral__m00_04,G08_klein4b-mistral__m00_05,G08_klein4b-mistral,G08_klein4b-mistral,left,0.02962,left,left,none,False,True
