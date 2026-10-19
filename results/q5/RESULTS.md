@@ -2,7 +2,7 @@
 
 **Final run, 2026-10-19.**
 - **Coverage:** both VLMs (Qwen3.5-4B; Mistral-Small-3.2-24B), all six pre-registered contrasts, and the two null controls of deviation 2.
-- **Round 3 applied (2026-10-19):** the rewriting contrasts are scored only on aspects validated on both sides. Numbers below are from the run without round-3 restrictions; with them, every rate changes by at most 0.03 and every conclusion holds (`summary.csv` is the restricted run).
+- **Round 3 applied (2026-10-19):** the rewriting contrasts are scored only on aspects validated on both sides. Numbers below are from the run without round-3 restrictions; with them, per-subject rates change by at most 0.02 and pooled variety accuracy by up to 0.06 (0.33 → 0.38, 0.36 → 0.42); every conclusion holds (`summary.csv` is the restricted run).
 - **Pending:** the owner's check of the free-text coder (`coding_check_sample.csv`, 20% sample).
 - **Scoring:** `PREREG.md`, `q5_score.py`, `free_score.py`.
 

@@ -3,7 +3,7 @@
 *Manuscript draft v2, updated 2026-10-19, for the Computers & Graphics special issue "Bridging Language and Vision: Recent Advancements in LLM and Visual Analytics". Supersedes v1 (`paper_en.md`, CG&A format).*
 
 *Status markers:*
-- *Q4 and Q5 are final runs. Their rewriting contrasts remain provisional until human check round 3 (package sent 2026-10-19) has validated the aspects on rewritten images.*
+- *Q4, Q5, Q6 and human check round 3 are final (2026-10-19).*
 - *[pending] marks results not yet available: Q6, the expert study, the closed models.*
 - *Elsevier format items (abstract ≤ 200 words, 3–5 highlights of ≤ 85 characters, graphical abstract) must be checked against the C&G guide for authors before submission.*
 - *Sources of all numbers are in `results/`.*
@@ -13,7 +13,7 @@
 ## Highlights
 - Separates where image defaults move from how much they narrow, per subject
 - Guidance and distillation narrow appearance far more than they move it
-- LLM prompt rewriting moves defaults; its extra variety comes only from text sampling
+- LLM rewriting adds no validated variety; its largest effect fails human checks
 - VLMs report differences even between image sets from the same model
 - A linked visual audit grounds each language-derived claim in image evidence
 
@@ -26,7 +26,7 @@ When a prompt leaves framing, palette or medium unspecified, a text-to-image mod
 
 Each role produces claims about images that can be wrong. We present a visual audit method that grounds such claims in image evidence. It places declared model configurations on language-defined, human-validated appearance axes, separates displacement from concentration under pre-registered margins, exposes per-subject structure and links every reading to the images.
 
-Auditing 12 open configurations on 24 everyday subjects, we find that guidance and distillation mainly concentrate appearance and displace only saturation, and that 61 of 140 pooled comparisons hide opposite shifts across subjects. FLUX.2's official prompt rewriter moves defaults rather than restoring variety, and what the rewritten text says about appearance only partly predicts what the images do. Two VLMs report a difference even between two image sets from the same model, so their descriptions cannot tell whether models differ. [Five experts …]
+Auditing 12 open configurations on 24 everyday subjects, we find that guidance and distillation mainly concentrate appearance and displace only saturation, and that 61 of 140 pooled comparisons hide opposite shifts across subjects. FLUX.2's official prompt rewriter adds no variety beyond our margins, and its largest apparent effect lies on an axis that people reject for rewritten images. Two VLMs report a difference even between two image sets from the same model, so their descriptions cannot tell whether models differ. [Five experts …]
 
 ---
 
@@ -162,7 +162,10 @@ A fourth annotator never used "can't tell", against the guide, and was excluded 
 
 The later configurations are much more alike, so pairs that count as "large-gap" within them differ far less. For medium, the median gap of these pairs is 1.8 scale units against 5.6 in round 1. Across both rounds, agreement rises with the gap: for saturation, from 0.42 below one scale unit to 0.84–0.86 at three units or more.
 
-**Round 3** [pending] checks the five aspects on the rewritten-prompt images of Q4, and the VLM-proposed axes of Q6.
+**Round 3** checked the five aspects on the rewritten-prompt images of Q4 (60 pairs) and the six VLM-proposed axes of Q6 (96 pairs), with the same annotators and rule.
+- On rewritten images, saturation (0.90) and tone (0.89) pass, and medium (0.77) passes, though not stably.
+- Shot (0.63) and background (0.38) fail. Background falls below 0.5: on these long, detailed scenes, CLIP's "busy background" reading is more often the opposite of people's than the same.
+- None of the VLM-proposed axes passes (Section 6.3).
 
 **Validity is stated per configuration set:**
 - all five aspects hold on the round-1 configurations;
@@ -173,12 +176,12 @@ The later configurations are much more alike, so pairs that count as "large-gap"
 
 | Aspect (left ↔ right pole) | Round 1: agreement | can't tell | κ | Round 2: agreement | can't tell | κ | Round 3 (rewrites) | Use |
 |---|---|---|---|---|---|---|---|---|
-| saturation (muted ↔ vivid) | 0.92 [0.78, 0.97] | 0.00 | 0.67 | 0.77 [0.59, 0.88] | 0.17 | 0.20 | [pending] | both sets |
-| medium (photo ↔ painting) | 0.90 [0.75, 0.97] | 0.14 | 0.50 | 0.77 [0.57, 0.90] | 0.39 | 0.42 | [pending] | both sets |
-| shot (close-up ↔ wide) | 0.90 [0.74, 0.96] | 0.19 | 0.55 | 0.96 [0.82, 0.99] | 0.25 | 0.75 | [pending] | both sets |
-| tone (modern ↔ vintage) | 0.94 [0.80, 0.98] | 0.11 | 0.29 | 0.64 [0.45, 0.80] | 0.31 | 0.36 | [pending] | round-1 set |
-| background (plain ↔ busy) | 0.81 [0.65, 0.91] | 0.11 | 0.33 | 0.70 [0.52, 0.84] | 0.25 | 0.23 | [pending] | round-1 set |
-| VLM-proposed axes (Q6) | | | | | | | [pending] | |
+| saturation (muted ↔ vivid) | 0.92 [0.78, 0.97] | 0.00 | 0.67 | 0.77 [0.59, 0.88] | 0.17 | 0.20 | 0.90 | all three sets |
+| medium (photo ↔ painting) | 0.90 [0.75, 0.97] | 0.14 | 0.50 | 0.77 [0.57, 0.90] | 0.39 | 0.42 | 0.77 | all three sets |
+| shot (close-up ↔ wide) | 0.90 [0.74, 0.96] | 0.19 | 0.55 | 0.96 [0.82, 0.99] | 0.25 | 0.75 | 0.63 ✗ | rounds 1–2 sets |
+| tone (modern ↔ vintage) | 0.94 [0.80, 0.98] | 0.11 | 0.29 | 0.64 [0.45, 0.80] | 0.31 | 0.36 | 0.89 | round-1 set, rewrites |
+| background (plain ↔ busy) | 0.81 [0.65, 0.91] | 0.11 | 0.33 | 0.70 [0.52, 0.84] | 0.25 | 0.23 | 0.38 ✗ | round-1 set |
+| VLM-proposed axes (Q6): lighting, sharpness, idealized, contrast, texture, detail | | | | | | | 0.70, 0.68, 0.68, 0.56, 0.47, 0.34 ✗ | dropped |
 | style, quality, depth of field, composition, lighting, viewpoint, clutter, time | fail | | | | | | | dropped |
 
 **A negative result.** We first tried to calibrate each axis with prompts that explicitly request each pole. Requests change more than the requested aspect: "warm light" also produced golden-hour scenes, and "wide shot" produced aerial views. Some requests change the subject itself: Qwen-Image turned "an extreme close-up of a kitchen" into a man's face, which CLIP scored as a perfect close-up. Request prompts are therefore not clean poles, and we use a fixed, data-derived scale instead. This is an early instance of the theme of this paper: what language asks for is not what the image shows.
@@ -308,11 +311,13 @@ This section reports the pre-registered LLM study (`experiments/llm_study/PREREG
 - **Tests:** 20 pre-registered tests, Holm-corrected.
 - **Deviation 1:** the diffusers implementation of the upsampler pads every input to 2,048 tokens. With our library versions this produced degenerate text, so the same model and messages were called without padding before any image was generated.
 
-**Rewriting moves defaults; it does not restore variety beyond the margin.**
-- **FLUX.2 dev with its own rewriter.** The official rewriter displaces FLUX.2 dev's backgrounds toward busy by +0.67 [+0.47, +0.91] (Holm-corrected p = .002). 17 of 24 subjects move that way and none the other way.
-- **Spread.** In neither generator does any aspect become more varied beyond the margin: spread ratios are ×1.03–1.49, none resolved as widened.
-- **klein 4B.** The same rewriter moves klein 4B toward painting/illustration (+0.53 [+0.20, +0.92]; 12 subjects up, 2 down) and toward busier backgrounds (+0.49). Neither survives the correction over 20 tests, so both are trends. In the images, photographic birds become detailed illustrations (Figure 6).
-- [Validity of the five aspects on rewritten images: round 3, pending.]
+**Rewriting adds no validated variety, and its largest effect fails validation.** Each contrast is read only on aspects validated on both its sides (Table 1): saturation, tone and medium for klein 4B; saturation and medium for FLUX.2 dev.
+- **Spread.** In neither generator does any validated aspect become more varied beyond the margin (ratios ×1.13–1.49, none resolved as widened).
+- **Location.** No validated aspect is displaced after correction for 20 tests. Medium moves toward painting/illustration in both generators: +0.53 [+0.20, +0.92] in klein 4B (12 subjects up, 2 down) and +0.37 [+0.14, +0.72] in FLUX.2 dev. Both intervals exclude zero, so this is a consistent trend. In the images, photographic birds become detailed illustrations (Figure 6).
+- **The largest effect is a measurement failure.**
+  - The strongest result of the whole test family is FLUX.2 dev's backgrounds moving toward busy: +0.67 [+0.47, +0.91], Holm-corrected p = .002, 17 of 24 subjects up, none down.
+  - It lies on an axis that people did not validate for FLUX.2 dev's images (round 2), and that they contradict on rewritten images (agreement 0.38, round 3).
+  - Read without the human check, it would have been the headline finding. It is the clearest instance of T3 in this study.
 
 **The choice of LLM changes the defaults.**
 - With Qwen3.5-4B as rewriter, saturation moves toward **muted** (−0.62; 15 subjects down).
@@ -325,13 +330,11 @@ This section reports the pre-registered LLM study (`experiments/llm_study/PREREG
 - Varying the rewrite across seeds widens it again (×1.25–1.80 against the fixed rewrite).
 - A single detailed rewrite thus narrows the output; diversity attributed to rewriting [19, 20] is the diversity of the rewriter's samples.
 
-**Text and image agree only in part.**
+**Text and image agree only in part** (validated aspects only).
 - Every rewrite of both LLMs specifies lighting, typically "soft, diffused" or "warm".
-- **Where they agree:** on the CLIP text side, the rewrites move toward busy backgrounds, and the images follow.
-- **Where they disagree:**
-  - the text moves toward "a photograph" while the images move toward illustration;
-  - the text moves toward "vivid" while the Qwen-rewritten images become muted.
-- **Per subject,** the text-side shift predicts the image-side shift for background (Spearman 0.58 on klein 4B, 0.41 on FLUX.2 dev) and saturation (0.42, 0.53) with the FLUX.2 rewriter. It predicts nothing for medium, shot or tone, or for the Qwen rewriter.
+- **The text moves toward "a photograph", while the images move toward illustration.**
+- **The text moves toward "vivid", while the Qwen-rewritten images become muted.** The Qwen-rewritten images were not sampled in round 3 and are read with the aspects validated for the FLUX.2 rewrites.
+- **Per subject,** with the FLUX.2 rewriter the text-side shift predicts the image-side shift for saturation (Spearman 0.42 on klein 4B, 0.53 on FLUX.2 dev). It predicts nothing for medium or tone, or for the Qwen rewriter.
 
 What a rewrite *says* about appearance is only partly what the generator *does* with it: auditing a rewriter requires its images, not only its text.
 
@@ -349,15 +352,15 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 - **Ground truth** is the audit on all 32 seeds, scored only on aspects validated for the configurations involved.
 - **Null control (deviation 2, added after the first answers were scored):** the same configuration on both sides (klein 4B; SDXL), with B using seeds shifted by 16. Here the truth is "no difference" by construction.
 
-**Table 2. VLM answers against the audit** (six contrasts and two null controls; rewriting contrasts provisional until round 3).
+**Table 2. VLM answers against the audit** (six contrasts and two null controls; each contrast scored on aspects validated on both its sides).
 
 | | Qwen3.5-4B | Mistral-24B | Audit |
 |---|---|---|---|
-| Per-subject shift accuracy (n = 369) | 0.47 | 0.47 | 22% "no difference" |
-| Per-subject variety accuracy (n = 251) | 0.63 | **0.78** | |
-| Pooled shift accuracy (n = 80) | 0.13 | 0.13 | 88% "no difference" |
-| Concentration reported as a shift | 13/14 | 14/14 | |
-| Pooled shift claimed where opposite per-subject shifts cancel | 59/60 | 60/60 | |
+| Per-subject shift accuracy (n = 320) | 0.49 | 0.48 | 22% "no difference" |
+| Per-subject variety accuracy (n = 235) | 0.63 | **0.79** | |
+| Pooled shift accuracy (n = 70) | 0.14 | 0.14 | 86% "no difference" |
+| Concentration reported as a shift | 12/13 | 13/13 | |
+| Pooled shift claimed where opposite per-subject shifts cancel | 49/50 | 50/50 | |
 | **Null control: shift reported** (subject / pooled) | 98% / 98% | **100% / 100%** | 0% |
 | **Null control: change in variety reported** | 99% / 100% | 100% / 100% | 0% |
 | **Null control: free text claims a difference** (units) | 90% | 93% | 0% |
@@ -367,7 +370,7 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
   - Between two sets from the same configuration, both VLMs report a shift and a change in variety in 98–100% of constrained answers.
   - In free text, 90–93% of their descriptions claim a difference on a measured aspect or in variety.
   - Their descriptions therefore carry no information about *whether* two configurations differ (T4).
-- **Given a real difference, the larger VLM often reads the direction of variety correctly.** Mistral-24B is right in 78% of per-subject cases, about 90% for distillation and SDXL → Turbo. Its free text mentions narrowing in 86% of the units where the audit finds it. It mentions narrowing almost as often where there is none, so the mention is not evidence.
+- **Given a real difference, the larger VLM often reads the direction of variety correctly.** Mistral-24B is right in 79% of per-subject cases, about 90% for distillation and SDXL → Turbo. Its free text mentions narrowing in 88% of the units where the audit finds it. It mentions narrowing almost as often where there is none, so the mention is not evidence.
 - **Narrowing becomes movement, and pooled claims fail where they matter.**
   - Every case the audit marks "same place, less varied" was answered with a shift (T1).
   - Every pooled "no change" that hides opposite per-subject shifts was described as a pooled shift (T2).
@@ -375,7 +378,7 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 
 **Reading.** A VLM's description of "how model B differs from model A" can suggest where to look, but it is not a finding. It asserts differences that do not exist, calls narrowing movement, and repeats pooled claims that are false for many subjects. The statement view (Section 4.4) therefore links each statement to the evidence that confirms or contradicts it.
 
-### 6.3 Q6: can a VLM propose new appearance axes? [pending]
+### 6.3 Q6: can a VLM propose new appearance axes?
 - **Proposals.** Asked to propose opposite-pole pairs that distinguish the sets, Mistral-24B mostly restates properties we already measure (dark ↔ bright, close-up ↔ wide, muted ↔ vivid, indoor ↔ outdoor).
 - **Candidates.** By the pre-registered rule (proposed for at least two contrasts, not among the round-1 candidates), six new properties qualify:
   - overall sharpness;
@@ -384,7 +387,10 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
   - contrast;
   - lighting character (flat vs. dramatic);
   - surface texture.
-- **Validation.** The pre-registered candidates go through human validation in round 3 with the same rule [pending]. This tests whether language can extend the measurement as well as describe it.
+- **Validation.** None of the six passes round 3:
+  - lighting 0.70, sharpness 0.68, natural vs. idealized 0.68, contrast 0.56, texture 0.47;
+  - level of detail 0.34, which CLIP mostly orders the opposite way from people.
+- **Reading.** People understood the proposed properties; the annotators used "can't tell" in only 11–25% of judgements. But CLIP does not order images along them as people do. A property stated in language becomes a measurement only after human validation, so the VLM can propose what to measure but cannot extend the measurement by itself.
 
 ---
 
@@ -396,8 +402,8 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 - **Cases** use only validated aspects:
   - T1: klein-base 4B saturation vs. medium;
   - T2: SDXL → Turbo saturation and a Q2 comparison that hides opposite shifts;
-  - T3: the reversed style axis and a package read as one setting;
-  - T4: one VLM statement the audit contradicts and one it confirms.
+  - T3: a reading on an aspect not validated for its configurations (Qwen-Image tone) and a package read as one setting (SDXL → Turbo);
+  - T4: one VLM statement the audit contradicts and one it confirms (`docs/EXPERT_SESSION.md`).
 - **Sessions** last about 55 minutes with think-aloud and a semi-structured interview, which includes the question: "Would you trust a VLM's description of how two models differ? What would you need to check?"
 - **Results** [per task: correct answers with system vs. baseline out of five, image evidence cited, confidence, themes and quotes; reported descriptively].
 
@@ -411,12 +417,14 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 
 **Language proposes; images decide.** In all three roles, the language attached to images was informative but not reliable:
 - **axis names** were reversed or failed to transfer between configuration sets;
-- **rewrites** described looks that the generator did not produce;
+- **rewrites** described looks that the generator did not produce, and the largest measured effect of rewriting lay on an axis that people reject for rewritten images;
 - **VLM descriptions** reported differences even between sets from the same model.
+
+- **VLM-proposed axes** were understood by people but not measured by CLIP as people see them.
 
 This suggests a division of labour for LLM-assisted visual analytics. LLMs are good at proposing what to look at: candidate axes, suspected differences, readable summaries. A visual audit with validated measurements, stated margins and a route to the images decides what is true. The statement view makes this division part of the interface.
 
-**Validate per configuration set and read differences with their size.** Two-thirds of the candidate axes failed human validation. Axes confirmed on varied models did not all hold among similar ones, and agreement rose with the size of the difference.
+**Validate per configuration set and read differences with their size.** Two-thirds of the candidate axes failed human validation, and so did all six VLM-proposed ones. Axes confirmed on varied models did not all hold among similar ones or on rewritten images, and agreement rose with the size of the difference.
 
 **Limitations.**
 - CLIP axes are proxies: five of fifteen candidates survived, and lighting and viewpoint are not among them. A second encoder [18] is used as a sensitivity check [pending].
@@ -433,8 +441,8 @@ Language now measures, changes and explains the appearance defaults of text-to-i
 Applied to 12 open configurations, two LLM rewriters and two VLM describers, it shows:
 - guidance and distillation mainly narrow appearance;
 - pooled comparisons are unreliable for almost half of all configuration pairs;
-- an official prompt rewriter moves defaults while its text says otherwise;
-- VLMs describe every narrowing as a shift.
+- an official prompt rewriter adds no validated variety, and its largest apparent effect is a measurement failure;
+- VLMs report differences even between image sets from the same model.
 
 The method and the system make these checks routine before a model, a setting or a rewriter is released.
 
