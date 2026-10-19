@@ -26,9 +26,9 @@ Run 2026-10-13 18:11 with `experiments/model_study/analysis/q1_primary.py`. The 
    - The other spreads narrow by 0.74–0.81 without reaching significance.
    - Every shift has the same sign as in klein. The smaller effects are consistent with Qwen-Image's guidance rescaling, so CFG 4 is not the same dose in both pipelines (`docs/PROVENANCE.md`, `RESEARCH_PROPOSAL.md` §3).
 3. **Robustness (exploratory).**
-   - Leaving out any one category keeps every conclusion. klein saturation shift ranges +0.60 to +0.77, klein concentration ratios 0.44 to 0.74, Qwen saturation shift +0.35 to +0.43.
-   - Per subject, the saturation shift goes in one direction only: 15 of 24 subjects (klein) and 10 of 24 (Qwen) move toward vivid, and none moves toward muted.
-   - Tone moves toward modern in 10 (klein) and 9 (Qwen) subjects, and toward vintage in at most 1.
+   - Leaving out any one category keeps every direction and the approximate size (point medians only; intervals and verdicts were not recomputed). klein saturation shift ranges +0.60 to +0.77, klein concentration ratios 0.44 to 0.74, Qwen saturation shift +0.35 to +0.43.
+   - Per subject, the saturation shift goes in one direction only: 15 of 24 subjects (klein) and 10 of 24 (Qwen) move toward vivid by at least the 0.5 margin (point estimates; 14 and 10 when each subject's 90% interval must also exclude zero), and none moves that far toward muted.
+   - Tone moves toward modern by at least the margin in 10 (klein) and 9 (Qwen) subjects (point estimates; 8 and 8 with the interval rule), and toward vintage in at most 1.
 
 ## Changes from the preliminary observations
 The preliminary statement "displaces saturation and tone in both families" does not hold as stated. Saturation is displaced beyond the margin in klein only; in Qwen-Image it shifts below the margin. Tone shifts consistently toward modern, but the shift reaches neither significance (klein) nor the margin (Qwen). The paper drafts are corrected accordingly.

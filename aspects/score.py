@@ -4,8 +4,8 @@ Usage: python score.py <group dir> [<group dir> ...] [--force]
 Each group dir holds <job>.png and meta.csv (as written by experiments/model_study/open/gen.py). Writes, per dir,
 clip_scores.csv (job + one column per aspect key) and clip_emb.npz (job ids and L2-normalised image embeddings).
 Score = cosine similarity to the right-pole text minus cosine similarity to the left-pole text (aspects.py).
-Every image is resized to 512x512 before the CLIP processor, so the native generation resolution (512-1328 px)
-does not change how the encoder sees it.
+Every image is resized to 512x512 before the CLIP processor. This equalizes the encoder input only; content differences
+that come with the native generation resolution (512-1328 px) remain and are part of each configuration.
 """
 import argparse, os, sys
 os.environ.setdefault("HF_HUB_OFFLINE", "1")

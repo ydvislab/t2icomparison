@@ -19,14 +19,14 @@
 
 ## Abstract
 
-When a prompt leaves framing, palette or medium unspecified, a text-to-image model decides them, nearly the same way every time. Language now shapes these appearance defaults in three ways:
+When a prompt leaves framing, palette or medium unspecified, a text-to-image model decides them, almost always alike. Language now shapes these appearance defaults in three ways:
 - **it defines the axes** on which images are measured;
 - **it intervenes**, when large language models (LLMs) rewrite prompts before generation;
 - **it explains**, when vision-language models (VLMs) describe how two models differ.
 
 Each role produces claims about images that can be wrong. We present a visual audit method that grounds such claims in image evidence. It places declared model configurations on language-defined, human-validated appearance axes, separates displacement from concentration under pre-registered margins, exposes per-subject structure and links every reading to the images.
 
-Auditing 12 open configurations on 24 everyday subjects, we find that guidance and distillation mainly concentrate appearance and displace only saturation, and that 61 of 140 pooled comparisons hide opposite shifts across subjects. FLUX.2's official prompt rewriter adds no variety beyond our margins, and its largest apparent effect lies on an axis that people reject for rewritten images. Two VLMs report a difference even between two image sets from the same model, so their descriptions cannot tell whether models differ. [Five experts …]
+Auditing 12 open configurations on 24 everyday subjects, we find that in FLUX.2 klein, guidance and distillation mainly concentrate appearance and displace only saturation, and that 38 of 60 pooled "no difference" comparisons on validated aspects hide opposite per-subject shifts. FLUX.2's official prompt rewriter adds no variety beyond our margins, and its largest apparent effect lies on an axis that people reject for rewritten images. Two VLMs report a difference even between two image sets from the same model, so their descriptions cannot tell whether models differ. [Five experts …]
 
 ---
 
@@ -50,7 +50,7 @@ Language thus measures defaults, changes them and explains them. In each role it
 
 Current practice summarizes changes in defaults with a diversity score [1, 3, 4, 5], and an audit of distilled replacement models has shown that distillation shifts attribute distributions [6]. A score, or a sentence, leaves three questions open for an evaluator.
 1. **Displacement or concentration?** "Less diverse" can mean that outputs moved to a different look, or that they collapsed onto the look they already had. These are different findings with different remedies.
-2. **Pooled or per subject?** A change averaged over prompts can hide opposite changes on different subjects. In our audit, almost half of the pooled "no difference" comparisons conceal subjects that move strongly in opposite directions.
+2. **Pooled or per subject?** A change averaged over prompts can hide opposite changes on different subjects. In our audit, 38 of the 60 pooled "no difference" comparisons on validated aspects conceal subjects that move strongly in opposite directions.
 3. **Is the claim right?** Whether a number from an encoder or a sentence from a VLM, a claim about images needs a route back to the images. Without one, an error looks exactly like a finding.
 
 We present a **visual audit method** for appearance defaults that answers these questions, and we use it to audit 12 open configurations of five model families together with two LLM rewriters and two VLM describers. The method serves four audit tasks:
@@ -145,7 +145,7 @@ An image's score on an aspect is its CLIP ViT-L/14 [17] similarity to a right-ha
 - saturation;
 - medium (photograph vs. painting);
 - shot (extreme close-up vs. wide view);
-- tone (modern vs. vintage);
+- tone (modern vs. vintage; read as a warm, yellowed photographic look, which also carries warm light);
 - background (plain vs. busy).
 
 Mood passed, but it is coupled with tone. Indoor/outdoor passed, but not stably. Several aspects failed:
@@ -153,7 +153,7 @@ Mood passed, but it is coupled with tone. Indoor/outdoor passed, but not stably.
 - **quality, depth of field, composition, clutter, lighting and viewpoint** were unreliable;
 - **time of day** could not be judged.
 
-A fourth annotator never used "can't tell", against the guide, and was excluded before the analysis; including them changes no verdict.
+A fourth annotator never used "can't tell", against the guide. We excluded these labels after labelling and before the aspects were frozen; the exclusion was not a rule fixed in advance. With all four annotators, the five retained aspects keep their verdicts, but lighting and viewpoint would pass instead of fail. Both analyses are in the supplementary material.
 
 **Round 2** checked the six later configurations with 120 pairs, the same rule and the same annotators. Two annotators had lost track of the criteria in their first pass and labelled the pairs again after a re-briefing on the guide; we report that labelling (the superseded first pass is in the supplementary material). Results:
 - shot passes (0.96);
@@ -199,7 +199,9 @@ For a change from configuration A to B, we compute two quantities per subject an
 **Uncertainty** comes from a hierarchical bootstrap with 10,000 replicates. It resamples subjects within categories and images within cells, with seeds paired when A and B share a checkpoint.
 
 **Pre-registration.** Aspects, margins, scale, analysis code and, for the LLM study, the rewriters, prompts to the VLMs and scoring rules were committed to version control before each analysis was run. Deviations are reported where they occur.
-- Q1 has 20 primary tests and Q4 has 20, each Holm-corrected. An effect is called a displacement or a change in spread when it is significant after correction and its estimate exceeds the margin.
+- Q1 has 20 primary tests and Q4 has 20, each Holm-corrected. An effect is called a displacement or a change in spread when it is significant after correction and its estimate exceeds the margin. This shows that the effect differs from zero and that its best estimate exceeds the margin, not that the true effect does: for klein saturation, the interval starts at +0.43.
+- "Same place" and "same spread" use unadjusted 90% intervals and are descriptive compatibility statements, not corrected tests.
+- The intervals refer to new subjects from these six categories and new seeds, for these configurations; they do not generalize to other prompts or models.
 - Q2 and Q3 were specified in advance but are not blind.
 
 ### 3.5 Validity conditions
@@ -234,9 +236,9 @@ The **subject × configuration matrix** has one row per subject, coloured by loc
 The **contrast scatters**, one per aspect, place each subject at (Δ, log IQR ratio) with the margins as bands and the pooled estimate as a diamond with its interval. When the pair differs in several settings, a warning replaces the attribution. Dots on both sides of the pooled diamond are the visual signature of a hidden reversal.
 
 ### 4.3 Evidence views
-- **Paired-seed trajectories** join each image of A to the image of B from the same seed. Displacement appears as lines leaning one way, concentration as lines converging.
+- **Paired-seed trajectories** join each image of A to the image of B from the same seed. Displacement appears as lines leaning one way, concentration as lines converging. The lines are trajectories only when A and B share the starting noise (same pipeline and resolution); otherwise images are matched by rank, which aligns quantiles and is drawn dashed.
 - **Distributions** show densities of A and B with every image as a tick.
-- **The appearance map** places all images of a subject from every configuration on a shared t-SNE of CLIP image embeddings, with A and B as density contours. It reveals defaults outside the five aspects.
+- **The appearance map** places all images of a subject from every configuration on a shared t-SNE of CLIP image embeddings. It is an index to images that reveals defaults outside the five aspects; because t-SNE preserves only local neighbourhoods, areas and distances on it are not read as spread (Section 4.5).
 - **Image strips** show all images sorted along the aspect, with the same seed highlighted across configurations.
 
 ### 4.4 Language views
@@ -261,13 +263,13 @@ Three earlier designs were abandoned:
 ### 5.1 Q1: guidance concentrates first and displaces only saturation
 In klein-base 4B, whose measurements are validated on all five aspects, raising guidance from 1 to 4 concentrates four aspects beyond the margin: saturation ×0.51 [0.43, 0.61], medium ×0.53, tone ×0.49 and background ×0.65. Shot narrows (×0.68) but stays inside the margin.
 
-Only saturation is also displaced, toward vivid colour, by +0.65 [+0.43, +0.93] scale units. Per subject, it moves toward vivid in 15 of 24 subjects and toward muted in none. Medium, shot and background stay in the same place, and tone's small shift toward modern is not significant.
+Only saturation is also displaced, toward vivid colour, by +0.65 [+0.43, +0.93] scale units. Per subject, it moves toward vivid by at least the margin in 15 of 24 subjects (14 when each subject's own 90% interval must also exclude zero), and by that much toward muted in none. Medium, shot and background stay in the same place, and tone's small shift toward modern is not significant.
 
 Qwen-Image-2512 shows the same direction with smaller effects on its validated aspects:
 - saturation concentrates (×0.64) and shifts toward vivid (+0.39, below the margin);
 - medium and shot stay in place.
 
-Its rescaled guidance means that guidance 4 is not the same dose in both pipelines. **Guidance removes alternatives rather than moving the typical output; the one exception is saturation.** [Figure 1: paired-seed trajectories at guidance 1 and 4. Figure 4: per-subject shift and spread ratio, both families.]
+Its rescaled guidance means that guidance 4 is not the same dose in both pipelines. **In klein-base 4B, raising guidance mainly removed alternatives rather than moving the typical output, saturation being the exception; Qwen-Image showed the same directions with smaller effects, significant only for saturation.** Two guidance values do not show a dose-response. [Figure 1: paired-seed trajectories at guidance 1 and 4. Figure 4: per-subject shift and spread ratio, both families.]
 
 ### 5.2 Q3: a distillation package repeats the guidance pattern, more strongly
 Replacing klein-base 4B (guidance 1) with the distilled klein 4B changes the checkpoint and reduces the steps from 50 to 4.
@@ -283,7 +285,7 @@ Among the eight configurations specified for Q2, only 5 to 8 of the 28 pairs per
 
 Spreads differ more than locations: SD 1.5 is the most varied, FLUX.2 dev and the klein models the most concentrated.
 
-**Pooled comparisons hide opposite shifts.** In **61 of 140** configuration-pair × aspect comparisons, the pooled difference lies within the margin, yet at least three subjects shift beyond +0.5 and three beyond −0.5. (Background and tone counts that involve the later configurations rest on aspects not validated there.)
+**Pooled comparisons hide opposite shifts.** In **61 of 140** configuration-pair × aspect comparisons, the pooled difference lies within the margin, yet at least three subjects shift beyond +0.5 and three beyond −0.5. (Background and tone counts that involve the later configurations rest on aspects not validated there; on validated aspects only, 38 of the 60 pooled comparisons within the margin hide opposite shifts.)
 
 The clearest case is SDXL → SDXL-Turbo, a package of five settings. Every pooled shift is "same place" or unresolved, yet four of five aspects hide opposite shifts. For saturation, 9 subjects become more vivid and 6 more muted, each with its own interval excluding zero. [Figure 5.]
 
@@ -349,7 +351,7 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 - **Questions:** each VLM gives a free-text description and answers constrained questions per aspect, with options in random order:
   - "closer to <right> / closer to <left> / no clear difference";
   - "more / less / about equally varied".
-- **Ground truth** is the audit on all 32 seeds, scored only on aspects validated for the configurations involved.
+- **Ground truth** is the audit on all 32 seeds, scored only on aspects validated for the configurations involved. It depends on our frozen margin: a VLM that reports a real shift smaller than 0.5 scale units counts as wrong. The null control below does not depend on the margin, because there the truth is "no difference" by construction.
 - **Null control (deviation 2, added after the first answers were scored):** the same configuration on both sides (klein 4B; SDXL), with B using seeds shifted by 16. Here the truth is "no difference" by construction.
 
 **Table 2. VLM answers against the audit** (six contrasts and two null controls; each contrast scored on aspects validated on both its sides).
@@ -413,7 +415,7 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 
 **Separate location from spread before reading "less diverse".** In every intervention we audited, narrowing was larger and more common than moving: guidance, distillation and even a single rewrite remove alternatives more than they move the typical output.
 
-**Never read a pooled shift without its per-subject structure.** Almost half of the pooled "no difference" comparisons concealed opposite shifts, and both VLMs turned all of them into pooled claims.
+**Never read a pooled shift without its per-subject structure.** On validated aspects, 38 of the 60 pooled "no difference" comparisons concealed opposite shifts, and both VLMs turned every such case they were asked about into a pooled claim.
 
 **Language proposes; images decide.** In all three roles, the language attached to images was informative but not reliable:
 - **axis names** were reversed or failed to transfer between configuration sets;
@@ -428,7 +430,8 @@ This suggests a division of labour for LLM-assisted visual analytics. LLMs are g
 
 **Limitations.**
 - CLIP axes are proxies: five of fifteen candidates survived, and lighting and viewpoint are not among them. A second encoder [18] is used as a sensitivity check [pending].
-- The scale is derived from the configurations themselves.
+- The scale is derived from the configurations themselves, so the 0.5 margin depends on which configurations were included; it is not a perceptual unit.
+- Configurations differ in native resolution (512–1328 px). Resizing to a common encoder input does not remove resolution effects on content, so cross-configuration contrasts (Q2, SDXL → Turbo) may include them; Q1 and Q4 hold resolution fixed.
 - 32 seeds × 24 subjects describe these samples.
 - The rewriters run with one official instruction and one temperature. The VLMs are two open models queried with one prompt format; larger proprietary VLMs may behave differently. The null control shows that, with this format, the VLMs report a difference regardless of the images.
 - Configurations are compared at recommended settings, so family and scale are not causal factors.
@@ -439,8 +442,8 @@ This suggests a division of labour for LLM-assisted visual analytics. LLMs are g
 Language now measures, changes and explains the appearance defaults of text-to-image models. We showed that in each role it produces claims that can be wrong in characteristic ways, and we presented a visual audit method that grounds every such claim in human-validated, per-subject image evidence with pre-registered margins.
 
 Applied to 12 open configurations, two LLM rewriters and two VLM describers, it shows:
-- guidance and distillation mainly narrow appearance;
-- pooled comparisons are unreliable for almost half of all configuration pairs;
+- in FLUX.2 klein, guidance and distillation mainly narrow appearance;
+- on validated aspects, 38 of 60 pooled "no difference" comparisons hide opposite shifts across subjects;
 - an official prompt rewriter adds no validated variety, and its largest apparent effect is a measurement failure;
 - VLMs report differences even between image sets from the same model.
 
