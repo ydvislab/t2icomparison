@@ -89,6 +89,9 @@ def settings(g):
     s["negative_prompt"] = repr(neg) if neg is not None else "none"
     if G.get("variant"):
         s["variant"] = G["variant"]
+    sc = os.path.join(DATA, "models", G["path"], "scheduler", "scheduler_config.json")
+    if os.path.exists(sc):
+        s["scheduler"] = json.load(open(sc, encoding="utf-8")).get("_class_name", "")
     s["prompt"] = REWRITES[rw][2] if rw else "minimal prompt"
     return s
 
@@ -271,8 +274,11 @@ def main():
         f.write("const TSNE = " + json.dumps(tsne, separators=(",", ":")) + ";\n")
         f.write("const REWRITE = " + json.dumps(rewrite_data(groups, subjects), ensure_ascii=False, separators=(",", ":")) + ";\n")
         f.write("const STATEMENTS = " + json.dumps(statements(groups), ensure_ascii=False, separators=(",", ":")) + ";\n")
-    shutil.copy(os.path.join(HERE, "index.html"), f"{OUT}/index.html")
-    shutil.copy(os.path.join(HERE, "baseline.html"), f"{OUT}/baseline.html")
+    # pages reference data.js with the build time, so a browser never shows a cached older build
+    stamp = pd.Timestamp.now().strftime("%Y%m%d%H%M%S")
+    for page in ("index.html", "baseline.html"):
+        html = open(os.path.join(HERE, page), encoding="utf-8").read().replace('src="data.js"', f'src="data.js?v={stamp}"')
+        open(f"{OUT}/{page}", "w", encoding="utf-8").write(html)
     shutil.copy(os.path.join(REPO, "system", "d3.min.js"), f"{OUT}/d3.min.js")
     print(f"{OUT}: {len(groups)} groups ({'complete' if complete else 'scale provisional'}), {len(D)} images;",
           "scale:", {a: round(v, 4) for a, v in scale.items()})

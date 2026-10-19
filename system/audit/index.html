@@ -171,6 +171,29 @@ g.axi.dim { opacity: .16; }
 #side .card.nv .body { opacity: .32; }
 .nvmark { color: var(--warn); font-weight: 700; margin-left: auto; cursor: help; }
 .seg button.nv { text-decoration: line-through; text-decoration-color: var(--warn); }
+/* main view: focus + context */
+.ctxA path, .ctxB path { stroke-linejoin: round; }
+.cfg.ctx circle.pt { opacity: .55; }
+.cfg.focus circle.pt { opacity: 1; }
+.arrow.dim path.shaft { opacity: .18; }
+.arrow.sel path.shaft { stroke: var(--ink); opacity: .9; stroke-width: 2.4; }
+.arrow.adhoc path.shaft { stroke: var(--ink); opacity: .9; stroke-width: 2.2; stroke-dasharray: 8 2 1 2; }
+/* aspect buttons carry the pair's verdict glyphs */
+#aspSeg button { display: inline-flex; align-items: center; gap: 5px; }
+#aspSeg svg.vg { width: 26px; height: 14px; overflow: visible; }
+/* findings board */
+#board { position: fixed; top: 58px; right: 16px; bottom: 14px; width: 320px; background: var(--panel); border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(16,24,40,.08), 0 12px 32px rgba(16,24,40,.16); display: none; flex-direction: column; z-index: 8; }
+#board.open { display: flex; }
+#board .bh { display: flex; align-items: center; gap: 6px; padding: 10px 12px 6px; font-weight: 600; font-size: 13px; color: var(--ink-2); }
+#board .bl { flex: 1; overflow: auto; padding: 4px 10px 10px; }
+.fcard { border: 1px solid var(--grid); border-radius: 8px; padding: 7px 9px; margin-bottom: 7px; cursor: pointer; }
+.fcard:hover { border-color: var(--hl); }
+.fcard .ft { font-size: 12px; color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
+.fcard .ft i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.fcard select, .fcard textarea { width: 100%; font: inherit; font-size: 12px; border: 1px solid var(--grid); border-radius: 6px; background: var(--page); color: var(--ink); margin-top: 5px; }
+.fcard textarea { height: 38px; resize: vertical; padding: 3px 6px; }
+#boardBtn { width: auto; padding: 0 10px; border-radius: 999px; font-size: 13px; }
 /* drag to compare */
 .dragline { fill: none; stroke: var(--hl); stroke-width: 2.2; stroke-dasharray: 5 4; pointer-events: none; }
 .cfg { cursor: grab; }
@@ -200,6 +223,7 @@ g.axi.dim { opacity: .16; }
   <div class="pill"><i style="background:var(--b)"></i><select id="selB"></select></div>
   <div class="diff" id="diff"></div>
   <div class="seg" id="aspSeg"></div>
+  <button class="iconbtn" id="boardBtn" title="Findings board: save the current view with your verdict and a note; click a card to return to it">☆ 0</button>
   <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
 </header>
 <main id="app">
@@ -210,6 +234,7 @@ g.axi.dim { opacity: .16; }
   <aside id="side"></aside>
 </main>
 <div class="tip" id="tip"></div>
+<aside id="board"><div class="bh">Findings <button class="mini" id="fAdd" title="Save the current view">+</button><button class="mini" id="fExp" title="Download the findings as CSV">⤓</button><button class="mini" id="fClose" style="margin-left:auto" title="Close">✕</button></div><div class="bl" id="fList"></div></aside>
 <script src="d3.min.js"></script>
 <script src="data.js"></script>
 <script>
@@ -292,10 +317,26 @@ function panelControls() {
     .on("click", (e, d) => { st.ev = d[0]; panelControls(); drawRidge(); });
   d3.select("#sortBtn").classed("on", st.sortRows === "delta").on("click", () => { st.sortRows = st.sortRows === "delta" ? "cat" : "delta"; panelControls(); drawMatrix(); overviewHL(); });
 }
+// each aspect button carries the selected pair's pooled verdict: an arrow for the shift (solid once it is a
+// displacement, dashed while unresolved, none when the typical output stays in place) and a disc against a ring for the
+// spread (smaller = narrower; solid ring once resolved); struck through when not validated for the pair
 function aspectSeg() {
-  d3.select("#aspSeg").selectAll("button").data(RET).join("button").text(a => aspName(a.key))
-    .classed("on", a => a.key === st.aspect).classed("nv", a => !valid(a.key)).attr("title", a => valid(a.key) ? null : nvTitle())
+  const b = d3.select("#aspSeg").selectAll("button").data(RET).join(en => { const bt = en.append("button"); bt.append("span"); bt.append("svg").attr("class", "vg"); return bt; })
+    .classed("on", a => a.key === st.aspect).classed("nv", a => !valid(a.key))
+    .attr("title", a => { if (!valid(a.key)) return nvTitle(); const p = R?.[a.key]?.pool; return p ? `${aspName(a.key)}: shift ${fd(p.d)} [${fd(p.dlo)}, ${fd(p.dhi)}], spread ${fr(p.lr)} [${fr(p.llo)}, ${fr(p.lhi)}]` : null; })
     .on("click", (e, a) => pick(st.subj, a.key));
+  b.select("span").text(a => aspName(a.key));
+  b.select("svg").each(function (a) {
+    const g = d3.select(this), p = R?.[a.key]?.pool; g.selectAll("*").remove(); if (!p) return;
+    const vl = verdict(p.dlo, p.dhi, M_LOC), vs = verdict(p.llo, p.lhi, M_LR), c = "currentColor";
+    g.append("circle").attr("cx", 19).attr("cy", 7).attr("r", 5.5).attr("fill", "none").attr("stroke", c).attr("stroke-opacity", .35).attr("stroke-dasharray", "1.5 1.5");
+    g.append("circle").attr("cx", 19).attr("cy", 7).attr("r", Math.max(1.5, Math.min(7, 5.5 * Math.exp(p.lr)))).attr("fill", c).attr("fill-opacity", vs === "moved" ? .85 : .3);
+    if (vl !== "same") {
+      const len = Math.max(3, Math.min(7, Math.abs(p.d) * 5)), dir = Math.sign(p.d) || 1;
+      g.append("path").attr("d", `M${6 - dir * len},7 L${6 + dir * len},7 M${6 + dir * len - dir * 3},4 L${6 + dir * len},7 L${6 + dir * len - dir * 3},10`)
+        .attr("fill", "none").attr("stroke", c).attr("stroke-width", 1.6).attr("stroke-linecap", "round").attr("stroke-dasharray", vl === "moved" ? null : "2 1.5");
+    } else g.append("line").attr("x1", 2).attr("x2", 10).attr("y1", 7).attr("y2", 7).attr("stroke", c).attr("stroke-opacity", .45).attr("stroke-width", 1.4);
+  });
 }
 function diffChips() {
   const a = G[st.A].settings, b = G[st.B].settings;
@@ -305,7 +346,11 @@ function diffChips() {
   const pr = g => g.rewrite ? { rwF: "FLUX.2 rewrite", rwQ: "Qwen rewrite", rw1: "one rewrite" }[g.rewrite] : "minimal prompt";
   const chips = keys.map(k => k === "prompt" ? { cls: "", title: `${a[k]} → ${b[k]}`, text: `${pr(G[st.A])} → ${pr(G[st.B])}` }
     : { cls: "", title: k, text: `${tail(a[k])} → ${tail(b[k])}` });
-  if (keys.length > 1) chips.unshift({ cls: "warn", title: `${keys.length} declared settings differ: the difference cannot be attributed to one of them`, text: `⚠ ${keys.length}` });
+  if (keys.length > 1) {
+    const all = chips.map(c => `${c.title}: ${c.text}`).join("\n");
+    chips.unshift({ cls: "warn", title: `${keys.length} declared settings differ, so the difference cannot be attributed to one of them:\n${all}`, text: `⚠ ${keys.length} settings` });
+    if (keys.length > 2) chips.splice(1);   // the full list is in the tooltip
+  }
   d3.select("#diff").selectAll("span").data(chips).join("span").attr("class", c => c.cls).attr("title", c => c.title).text(c => c.text);
 }
 
@@ -365,6 +410,7 @@ function buildMap() {
   svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", m.t - 6).text("wider");
   svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - m.b - 6).text("tighter");
   const plot = svg.append("g").attr("clip-path", "url(#mapclip)");
+  OVS.ctx = plot.append("g");          // per-subject spread of the selected A and B (density contours)
   OVS.detail = plot.append("g").attr("class", "detail");
   OVS.arrows = plot.append("g");
   OVS.pts = plot.append("g");
@@ -375,16 +421,32 @@ function drawMap(animate) {
   if (st.main === "contrasts") { drawContrastOverview(); drawMatrix(); overviewHL(); return; }
   if (st.main === "statements") { drawStatements(); drawMatrix(); overviewHL(); return; }
   const a = ASP[AIDX[st.aspect]], { x, y, m, W, H } = OVS, t = d3.transition().duration(animate ? DUR : 0).ease(d3.easeCubicInOut);
-  // domain: every configuration with room for its label, and most per-subject positions (80th percentile);
-  // the rest are drawn at the edge as triangles (overviewHL)
-  const allX = OV.flatMap(d => d.per.map(p => Math.abs(p.x))).sort(d3.ascending), allY = OV.flatMap(d => d.per.map(p => p.y)).sort(d3.ascending);
-  const xm = Math.max(.8, d3.max(OV, d => Math.abs(d.x)) * 1.35, d3.quantileSorted(allX, .8));
-  const ym = Math.max(.8, d3.max(OV, d => d.y) * 1.25, d3.quantileSorted(allY, .8));
-  x.domain([-xm, xm]); y.domain([0, ym]);
+  // domain fitted to the data: every configuration, and the central 90% of the selected pair's per-subject positions
+  // (the rest are drawn at the edge as triangles by overviewHL); asymmetric, always including 0
+  const sel = OV.filter(d => d.g.id === st.A || d.g.id === st.B).flatMap(d => d.per);
+  const xs = [...OV.map(d => d.x), ...sel.map(p => p.x)].sort(d3.ascending), ys = [...OV.map(d => d.y), ...sel.map(p => p.y)].sort(d3.ascending);
+  const lo = Math.min(0, d3.min(OV, d => d.x), d3.quantileSorted(xs, .05)), hi = Math.max(0, d3.max(OV, d => d.x), d3.quantileSorted(xs, .95));
+  const padx = (hi - lo) * .08 + .15, ylo = Math.min(d3.min(OV, d => d.y), d3.quantileSorted(ys, .05)), yhi = Math.max(d3.max(OV, d => d.y), d3.quantileSorted(ys, .95));
+  x.domain([lo - padx, hi + padx]); y.domain([Math.max(0, ylo - (yhi - ylo) * .1), yhi + (yhi - ylo) * .12]);
+  // context: where the selected pair puts each subject (density of the 24 per-subject positions)
+  // the same density levels for A and B (fractions of the larger peak), so a widely spread configuration shows a wide,
+  // faint region and a concentrated one a small, dense region; each subject is a faint dot
+  const per = gid => OV.find(d => d.g.id === gid)?.per || [];
+  const est = gid => d3.contourDensity().x(p => x(p.x)).y(p => y(p.y)).size([W, H]).bandwidth(Math.max(18, W / 32)).contours(per(gid));
+  const CA = est(st.A), CB = est(st.B), peak = Math.max(CA.max, CB.max);
+  [[st.A, CA, "var(--a)", "ctxA"], [st.B, CB, "var(--b)", "ctxB"]].forEach(([gid, C, c, cls]) => {
+    const g = OVS.ctx.selectAll("g." + cls).data([0]).join("g").attr("class", cls);
+    g.selectAll("path").data([.08, .25, .5].map(f => C(f * peak))).join("path").attr("d", d3.geoPath()).attr("fill", c).attr("fill-opacity", .06)
+      .attr("stroke", c).attr("stroke-opacity", .45).attr("stroke-width", 1.1);
+    g.selectAll("circle").data(per(gid)).join("circle").attr("r", 2.2).attr("fill", c).attr("opacity", .45)
+      .attr("cx", p => x(Math.max(x.domain()[0], Math.min(x.domain()[1], p.x)))).attr("cy", p => y(Math.max(y.domain()[0], Math.min(y.domain()[1], p.y))));
+  });
   OVS.zx.transition(t).attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.t).attr("y2", H - m.b);
   OVS.pl.text(poleWord(a.left)); OVS.pr.text(poleWord(a.right));
   const pos = Object.fromEntries(OV.map(d => [d.g.id, [x(d.x), y(d.y)]]));
   const arr = ARROWS.map(([f, to, kind]) => ({ f: byPrefix(f), to: byPrefix(to), kind })).filter(d => d.f && d.to);
+  // the selected pair is always drawn; when it is not a designed contrast it gets its own arrow
+  if (!arr.some(d => d.f.id === st.A && d.to.id === st.B)) arr.push({ f: G[st.A], to: G[st.B], kind: "adhoc" });
   const curve = d => {
     const [x1, y1] = pos[d.f.id], [x2, y2] = pos[d.to.id], dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
     const sx = x1 + dx / len * Math.min(10, len / 2 - 1), sy = y1 + dy / len * Math.min(10, len / 2 - 1), ex = x2 - dx / len * 11, ey = y2 - dy / len * 11;
@@ -392,16 +454,18 @@ function drawMap(animate) {
     return `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`;
   };
   OVS.arrows.selectAll("g.arrow").data(arr, d => d.f.id + d.to.id).join(en => {
-    const g = en.append("g").attr("class", d => "arrow " + d.kind);
+    const g = en.append("g");
     g.append("path").attr("class", "shaft").attr("marker-end", "url(#ah)"); g.append("path").attr("class", "hit");
-    g.on("mousemove", (e, d) => showTip(e, `<b>${G[d.f.id].label} → ${G[d.to.id].label}</b><br>${KIND[d.kind]}`))
+    g.on("mousemove", (e, d) => showTip(e, `<b>${G[d.f.id].label} → ${G[d.to.id].label}</b><br>${KIND[d.kind] || "selected pair"}`))
      .on("mouseleave", hideTip).on("click", (e, d) => setPair(d.f.id, d.to.id));
     return g;
-  }).each(function (d) { d3.select(this).selectAll("path").transition(t).attr("d", curve(d)); });
+  }).attr("class", d => { const on = d.f.id === st.A && d.to.id === st.B;
+      return `arrow ${d.kind}${on ? " sel" : st.A || st.B ? " dim" : ""}`; })
+    .each(function (d) { d3.select(this).selectAll("path").transition(t).attr("d", curve(d)); });
   OVS.pts.selectAll("g.cfg").data(OV, d => d.g.id).join(en => {
     const g = en.append("g").attr("class", d => "cfg" + (d.g.rewrite ? " rw" : "")).attr("transform", d => `translate(${x(d.x)},${y(d.y)})`);
     g.append("circle").attr("class", "ring").attr("r", 12);
-    g.append("circle").attr("class", "pt").attr("r", 8).attr("fill", d => famColor(d.g));
+    g.append("circle").attr("class", "pt").attr("r", 5).attr("fill", d => famColor(d.g));
     g.on("mouseenter", (e, d) => { st.hoverCfg = d.g.id; overviewHL(); })
      .on("mousemove", (e, d) => showTip(e, `<b>${d.g.label}</b><div class="bar"><span>location</span><span><b>${fd(d.x)}</b></span><span>spread</span><span><b>${f2(d.y)}</b></span></div><span style="color:var(--muted)">drag onto another configuration to compare</span>`))
      .on("mouseleave", () => { st.hoverCfg = null; hideTip(); overviewHL(); })
@@ -417,8 +481,9 @@ function drawMap(animate) {
 // has to move away from its point
 function placeLabels(t) {
   const { x, y, W, H, m } = OVS;
-  const nodes = OV.map(d => { const px = x(d.x), py = y(d.y), txt = sh(d.g);
-    return { d, px, py, txt, w: txt.length * 7.5 + 6, h: 17, x: px + 16, y: py - 14 }; });
+  const focus = new Set([st.A, st.B, st.hoverCfg].filter(Boolean));
+  const nodes = OV.filter(d => focus.has(d.g.id)).map(d => { const px = x(d.x), py = y(d.y), txt = d.g.label;
+    return { d, px, py, txt, w: txt.length * 6.8 + 8, h: 17, x: px + 16, y: py - 14 }; });
   const fixed = OV.map(d => ({ fx: x(d.x), fy: y(d.y), x: x(d.x), y: y(d.y), w: 20, h: 20, point: true }));
   const sim = d3.forceSimulation([...nodes, ...fixed]).stop()
     .force("x", d3.forceX(n => n.point ? n.fx : n.px + n.w / 2 + 8).strength(n => n.point ? 0 : .12))
@@ -432,7 +497,8 @@ function placeLabels(t) {
     g.append("text").attr("text-anchor", "middle").attr("dy", "0.35em");
     return g;
   });
-  lab.select("text").text(n => n.txt).transition(t).attr("x", n => n.x).attr("y", n => n.y);
+  lab.select("text").text(n => n.txt).style("fill", n => n.d.g.id === st.A ? "var(--a)" : n.d.g.id === st.B ? "var(--b)" : null)
+    .style("font-weight", n => n.d.g.id === st.A || n.d.g.id === st.B ? 600 : 500).transition(t).attr("x", n => n.x).attr("y", n => n.y);
   lab.select("path").transition(t).attr("d", n => Math.hypot(n.x - n.px, n.y - n.py) > n.w / 2 + 22
     ? `M${n.px},${n.py} Q${(n.px + n.x) / 2},${n.py} ${n.x - Math.sign(n.x - n.px) * n.w / 2},${n.y}` : "");
 }
@@ -522,6 +588,9 @@ function overviewHL() {
   if (st.main === "statements") { stmtHL(); matrixHL(hs, hc); return; }
   const { x, y } = OVS, [x0, x1] = x.domain(), [y0, y1] = y.domain();
   OVS.pts.selectAll("g.cfg").select(".ring").attr("stroke", d => d.g.id === st.A ? "var(--a)" : d.g.id === st.B ? "var(--b)" : "none");
+  const foc = d => d.g.id === st.A || d.g.id === st.B || d.g.id === hc;
+  OVS.pts.selectAll("g.cfg").classed("focus", foc).classed("ctx", d => !foc(d)).select(".pt").attr("r", d => foc(d) ? 8 : d.g.rewrite ? 4 : 5);
+  placeLabels(d3.transition().duration(0));
   let det = [];
   if (hs != null) det = OV.map(d => ({ d, p: d.per.find(p => p.si === hs) })).filter(o => o.p);
   else if (hc) { const d = OV.find(o => o.g.id === hc); det = d.per.map(p => ({ d, p })); }
@@ -570,11 +639,11 @@ function buildScatters() {
     s.brush = d3.brush().extent([[m.l, m.t], [W - m.r, H - m.b]]).on("end", e => scatterBrush(e, a.key));
     s.brushG = svg.append("g").attr("class", "sbrush").call(s.brush);
     // margin handles: drag to see how verdicts and reversal counts depend on the margins (exploration only)
-    s.hLoc = svg.append("g").selectAll("rect").data([-1, 1]).join("rect").attr("class", "mh").attr("width", 6).attr("height", 10).attr("rx", 2).style("cursor", "ew-resize")
+    s.hLoc = svg.append("g").selectAll("rect").data([-1, 1]).join("rect").attr("class", "mh").attr("width", 8).attr("height", 14).attr("rx", 3).style("cursor", "ew-resize")
       .call(d3.drag().on("start", function () { d3.select(this).classed("drag", true); }).on("end", function () { d3.select(this).classed("drag", false); })
         .on("drag", e => { M_LOC = Math.max(.1, Math.min(3, Math.abs(s.x.invert(e.x)))); marginsChanged(); }))
       .on("mousemove", e => showTip(e, `location margin <b>±${f2(M_LOC)}</b> (pre-registered ±${f2(PRE_LOC)})`)).on("mouseleave", hideTip);
-    s.hLr = svg.append("g").selectAll("rect").data([-1, 1]).join("rect").attr("class", "mh").attr("width", 10).attr("height", 6).attr("rx", 2).style("cursor", "ns-resize")
+    s.hLr = svg.append("g").selectAll("rect").data([-1, 1]).join("rect").attr("class", "mh").attr("width", 14).attr("height", 8).attr("rx", 3).style("cursor", "ns-resize")
       .call(d3.drag().on("start", function () { d3.select(this).classed("drag", true); }).on("end", function () { d3.select(this).classed("drag", false); })
         .on("drag", e => { M_LR = Math.max(.05, Math.min(1.5, Math.abs(s.y.invert(e.y)))); marginsChanged(); }))
       .on("mousemove", e => showTip(e, `spread margin <b>×${f2(Math.exp(M_LR))}</b> (pre-registered ×${f2(Math.exp(PRE_LR))})`)).on("mouseleave", hideTip);
@@ -616,8 +685,8 @@ function drawScatters(animate) {
     s.pool.select(".px").transition(t).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
     s.pool.select(".py").transition(t).attr("x1", x(p.d)).attr("x2", x(p.d)).attr("y1", y(p.llo)).attr("y2", y(p.lhi));
     s.pool.select("path").transition(t).attr("transform", `translate(${x(p.d)},${y(p.lr)})`);
-    s.hLoc.attr("x", d => x(d * M_LOC) - 3).attr("y", m.t);
-    s.hLr.attr("x", W - m.r - 10).attr("y", d => y(d * M_LR) - 3);
+    s.hLoc.attr("x", d => x(d * M_LOC) - 4).attr("y", m.t);
+    s.hLr.attr("x", W - m.r - 14).attr("y", d => y(d * M_LR) - 4);
     s.brushG.call(s.brush.move, null);
     const card = d3.select(`#side .card[data-a="${a.key}"]`).classed("nv", !valid(a.key));
     card.select("h2").selectAll(".nvmark").data(valid(a.key) ? [] : [1]).join("span").attr("class", "nvmark").text("⊘").attr("title", nvTitle());
@@ -989,6 +1058,54 @@ function drawStatements() {
       .on("click", (e, b) => { const V = userV(), k = vid(st.stSel); V[k] = V[k] === b[0] ? undefined : b[0]; saveV(V); drawStatements(); });
   }
 }
+// ---------------- findings board ----------------
+// Save the current view (pair, aspect, subject, main and evidence modes, selected seeds and subjects) with a verdict and
+// a note; clicking a card returns to that view. Kept in this browser; ⤓ exports CSV.
+const FVERD = ["", "moved", "narrowed", "moved and narrowed", "no change", "differs by subject", "not trustworthy", "other"];
+function loadF() { try { return JSON.parse(localStorage.getItem("auditFindings") || "[]"); } catch (e) { return []; } }
+function saveF(F) { try { localStorage.setItem("auditFindings", JSON.stringify(F)); } catch (e) { /* storage unavailable */ } }
+function addFinding() {
+  const F = loadF();
+  F.unshift({ id: Date.now(), A: st.A, B: st.B, aspect: st.aspect, subj: st.subj, main: st.main, ev: st.ev,
+    seeds: st.seedSel ? [...st.seedSel] : null, subjects: st.subjSel ? [...st.subjSel] : null, verdict: "", note: "", time: new Date().toISOString().slice(0, 16) });
+  saveF(F); drawBoard();
+}
+function restoreFinding(f) {
+  st.main = f.main; st.ev = f.ev; panelControls(); buildMap();
+  setPair(f.A, f.B); pick(f.subj, f.aspect);
+  st.subjSel = f.subjects ? new Set(f.subjects) : null; subjHL(); matrixHL(null, null);
+  st.seedSel = f.seeds ? new Set(f.seeds) : null; st.seedSubj = f.subj; seedHL();
+}
+function drawBoard() {
+  const F = loadF();
+  d3.select("#boardBtn").text(`☆ ${F.length}`);
+  const card = d3.select("#fList").selectAll("div.fcard").data(F, f => f.id).join(en => {
+    const c = en.append("div").attr("class", "fcard");
+    const t = c.append("div").attr("class", "ft"); t.append("i").style("background", "var(--a)"); t.append("span").attr("class", "pair");
+    t.append("button").attr("class", "mini").style("margin-left", "auto").text("✕").attr("title", "Delete")
+      .on("click", (e, f) => { e.stopPropagation(); saveF(loadF().filter(x => x.id !== f.id)); drawBoard(); });
+    c.append("select").on("click", e => e.stopPropagation()).on("change", (e, f) => { const G2 = loadF(); G2.find(x => x.id === f.id).verdict = e.target.value; saveF(G2); })
+      .selectAll("option").data(FVERD).join("option").attr("value", v => v).text(v => v || "verdict…");
+    c.append("textarea").attr("placeholder", "note / evidence").on("click", e => e.stopPropagation())
+      .on("input", (e, f) => { const G2 = loadF(); G2.find(x => x.id === f.id).note = e.target.value; saveF(G2); });
+    c.on("click", (e, f) => restoreFinding(f));
+    return c;
+  });
+  card.select(".pair").text(f => `${sh(G[f.A])} → ${sh(G[f.B])} · ${aspName(f.aspect)} · ${SUBJ[f.subj].name}${f.seeds ? ` · ${f.seeds.length} seeds` : ""}`);
+  card.select("select").property("value", f => f.verdict);
+  card.select("textarea").property("value", f => f.note);
+}
+function exportFindings() {
+  const rows = loadF().map(f => [f.time, f.A, f.B, f.aspect, SUBJ[f.subj].name, f.main, f.ev, (f.seeds || []).join(" "), (f.subjects || []).map(i => SUBJ[i].name).join("; "), f.verdict, f.note]);
+  const csv = [["time", "A", "B", "aspect", "subject", "main_view", "evidence_view", "seeds", "brushed_subjects", "verdict", "note"], ...rows]
+    .map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "findings.csv"; a.click();
+}
+d3.select("#boardBtn").on("click", () => { d3.select("#board").classed("open", !d3.select("#board").classed("open")); drawBoard(); });
+d3.select("#fAdd").on("click", addFinding);
+d3.select("#fExp").on("click", exportFindings);
+d3.select("#fClose").on("click", () => d3.select("#board").classed("open", false));
+
 const vid = s => [s.vlm, s.A, s.B, s.level, s.si, s.text].join("|");
 function userV() { try { return JSON.parse(localStorage.getItem("auditUserVerdicts") || "{}"); } catch (e) { return {}; } }
 function saveV(U) { try { localStorage.setItem("auditUserVerdicts", JSON.stringify(U)); } catch (e) { /* storage unavailable */ } }
@@ -1021,9 +1138,9 @@ function drawStrip() {
   const host = d3.select("#strip"); host.selectAll("*").remove();
   const { w: W, h: H } = box("#strip");
   const ra = SCORES[st.A][si], rb = SCORES[st.B][si], ma = mi(ra.map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;
-  const ext = Math.max(2, d3.max([...ra, ...rb], r => Math.abs(v(r))) * 1.06);
+  const vals = [...ra, ...rb].map(v), lo = Math.min(-M_LOC, d3.min(vals)), hi = Math.max(M_LOC, d3.max(vals)), pad = (hi - lo) * .04;
   const m = { l: 14, r: 14, t: 4, b: 20 }, mid = (H - m.b + m.t) / 2, track = 9, gap = track + 4;
-  const x = d3.scaleLinear([-ext, ext], [m.l + 24, W - m.r - 24]);
+  const x = d3.scaleLinear([lo - pad, hi + pad], [m.l + 24, W - m.r - 24]);
   // three rows per side and thumbnails as large as the rows allow; where images crowd, they overlap (a pile reads as
   // density) and hovering brings one to the front
   const ROWS = 3, sz = Math.max(22, Math.min(64, (mid - m.t - gap) / ROWS - 2));
@@ -1096,7 +1213,7 @@ function hideTip() { d3.select("#tip").style("display", "none"); }
 
 // ---------------- init and responsive layout ----------------
 let R = null;
-function update() { diffChips(); R = contrast(); drawScatters(true); drawMap(true); }
+function update() { diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
 header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
 [["#mapCard h2", "A"], ["#matrixCard h2", "B"], ["#ridgeCard h2", "D"], ["#stripCard", "C"]].forEach(([sel, l]) => {
