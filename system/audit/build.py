@@ -40,6 +40,25 @@ LLM = f"{DATA}/llm_study"
 REWRITES = {"mistral": ("FLUX.2 rewrite", "rwF", "FLUX.2 upsampler (Mistral-Small-3.2-24B), one rewrite per seed"),
             "mistral_fixed": ("one FLUX.2 rewrite", "rw1", "the k = 0 FLUX.2 rewrite reused for all seeds"),
             "qwen": ("Qwen rewrite", "rwQ", "Qwen3.5-4B with the FLUX.2 instruction, one rewrite per seed")}
+# aspects validated by people per configuration set (annotation/PROTOCOL.md section 7): round 1 validated all five on
+# the configurations generated first, round 2 only shot, saturation and medium on the later ones; the rewritten-prompt
+# images are checked in round 3 (until its result is in, they are marked pending)
+ROUND1 = {"G01_sd15", "G02_sdxl", "G03_sdxl_turbo", "G06_klein_base4b_cfg4", "G07_klein_base4b_cfg1", "G08_klein4b"}
+ROUND3_FILE = os.path.join(REPO, "results", "annotation_round3", "aspect_check.csv")
+
+
+def validity(g):
+    if "__" in g:
+        if os.path.exists(ROUND3_FILE):
+            r3 = pd.read_csv(ROUND3_FILE)
+            ok = set(r3[r3.reliable.astype(bool)].aspect)
+            return dict(set="round 3", aspects=[a for a in RETAINED if a in ok])
+        return dict(set="round 3 (pending)", aspects=list(RETAINED))
+    if g in ROUND1:
+        return dict(set="round 1", aspects=list(RETAINED))
+    return dict(set="round 2", aspects=["shot", "sat", "medium"])
+
+
 Q5_CONTRASTS = {"guid_klein": ("G07_klein_base4b_cfg1", "G06_klein_base4b_cfg4"), "guid_qwen": ("G10_qwen_image_cfg1", "G09_qwen_image_cfg4"),
                 "pkg_klein4b": ("G07_klein_base4b_cfg1", "G08_klein4b"), "sdxl_turbo": ("G02_sdxl", "G03_sdxl_turbo"),
                 "rw_klein": ("G08_klein4b", "G08_klein4b__mistral"), "rw_flux": ("G05_flux2_dev", "G05_flux2_dev__mistral")}
@@ -216,6 +235,7 @@ def main():
         subjects=[dict(name=s, category=cat[s], excluded=list(EXCLUDED.get(s, ()))) for s in subjects],
         aspects=[dict(key=a, retained=a in RETAINED, **asp[a]) for a in SHOWN],
         scale=scale, scale_provisional=not complete, scale_groups=opens,
+        validity={g: validity(g) for g in groups},
         margins=dict(location=FROZEN_M["location_effect"]["displacement_margin"], log_iqr=math.log(1.5)),
     )
     # scores: group -> subject index -> list of [k, seed, job, s_a1, s_a2, ...] in SHOWN order
@@ -252,6 +272,7 @@ def main():
         f.write("const REWRITE = " + json.dumps(rewrite_data(groups, subjects), ensure_ascii=False, separators=(",", ":")) + ";\n")
         f.write("const STATEMENTS = " + json.dumps(statements(groups), ensure_ascii=False, separators=(",", ":")) + ";\n")
     shutil.copy(os.path.join(HERE, "index.html"), f"{OUT}/index.html")
+    shutil.copy(os.path.join(HERE, "baseline.html"), f"{OUT}/baseline.html")
     shutil.copy(os.path.join(REPO, "system", "d3.min.js"), f"{OUT}/d3.min.js")
     print(f"{OUT}: {len(groups)} groups ({'complete' if complete else 'scale provisional'}), {len(D)} images;",
           "scale:", {a: round(v, 4) for a, v in scale.items()})

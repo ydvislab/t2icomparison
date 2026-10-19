@@ -167,6 +167,10 @@ g.axi.dim { opacity: .16; }
 .mh:hover, .mh.drag { opacity: 1; fill: var(--hl); }
 .mx .rl.pick { fill: var(--hl); font-weight: 600; text-decoration: underline; }
 #mstat { cursor: pointer; color: var(--hl); font-weight: 600; display: none; }
+/* aspects not validated by people on the configurations of the pair */
+#side .card.nv .body { opacity: .32; }
+.nvmark { color: var(--warn); font-weight: 700; margin-left: auto; cursor: help; }
+.seg button.nv { text-decoration: line-through; text-decoration-color: var(--warn); }
 /* drag to compare */
 .dragline { fill: none; stroke: var(--hl); stroke-width: 2.2; stroke-dasharray: 5 4; pointer-events: none; }
 .cfg { cursor: grab; }
@@ -219,6 +223,9 @@ const st = { A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCf
 const cur = () => st.hover ?? st.subj;
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
 const aspName = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
+// validated aspects of a configuration pair (META.validity: annotation rounds 1-3); unknown groups count as validated
+const valid = (k, A = st.A, B = st.B) => [A, B].every(g => (META.validity?.[g]?.aspects ?? [k]).includes(k));
+const nvTitle = (A = st.A, B = st.B) => `not validated by people on these configurations (${[...new Set([A, B].map(g => META.validity?.[g]?.set))].join(", ")})`;
 const box = sel => { const n = d3.select(sel).node(); return { w: n.clientWidth, h: n.clientHeight }; };
 const fd = d3.format("+.2f"), fr = v => "×" + d3.format(".2f")(Math.exp(v)), f2 = d3.format(".2f");
 
@@ -287,7 +294,8 @@ function panelControls() {
 }
 function aspectSeg() {
   d3.select("#aspSeg").selectAll("button").data(RET).join("button").text(a => aspName(a.key))
-    .classed("on", a => a.key === st.aspect).on("click", (e, a) => pick(st.subj, a.key));
+    .classed("on", a => a.key === st.aspect).classed("nv", a => !valid(a.key)).attr("title", a => valid(a.key) ? null : nvTitle())
+    .on("click", (e, a) => pick(st.subj, a.key));
 }
 function diffChips() {
   const a = G[st.A].settings, b = G[st.B].settings;
@@ -611,8 +619,10 @@ function drawScatters(animate) {
     s.hLoc.attr("x", d => x(d * M_LOC) - 3).attr("y", m.t);
     s.hLr.attr("x", W - m.r - 10).attr("y", d => y(d * M_LR) - 3);
     s.brushG.call(s.brush.move, null);
+    const card = d3.select(`#side .card[data-a="${a.key}"]`).classed("nv", !valid(a.key));
+    card.select("h2").selectAll(".nvmark").data(valid(a.key) ? [] : [1]).join("span").attr("class", "nvmark").text("⊘").attr("title", nvTitle());
   }
-  subjHL();
+  subjHL(); aspectSeg();
   linked();
 }
 function scatterBrush(e, key) {
@@ -794,6 +804,7 @@ function drawContrastOverview() {
     .on("mousemove", (e, c) => showTip(e, `<b>${c.r.f.label} → ${c.r.to.label}</b> · ${aspName(c.a.key)}<div class="bar"><span>shift</span><span><b>${fd(c.p.d)}</b> [${fd(c.p.dlo)}, ${fd(c.p.dhi)}]</span><span>spread</span><span><b>${fr(c.p.lr)}</b> [${fr(c.p.llo)}, ${fr(c.p.lhi)}]</span>${c.rev ? `<span>against</span><span style="color:var(--warn)"><b>${c.rev}</b> subjects</span>` : ""}</div>`))
     .on("mouseleave", hideTip)
     .on("click", (e, c) => { if (st.aspect !== c.a.key) { st.aspect = c.a.key; aspectSeg(); } setPair(c.r.f.id, c.r.to.id); });
+  g.style("opacity", c => valid(c.a.key, c.r.f.id, c.r.to.id) ? 1 : .28);
   g.append("rect").attr("x", -cw / 2 + 4).attr("y", -ch / 2 + 2).attr("width", cw - 8).attr("height", ch - 8).attr("fill", "transparent");
   g.append("circle").attr("r", r0).attr("fill", "none").attr("stroke", "var(--faint)").attr("stroke-dasharray", "3 3");
   g.append("circle").attr("r", c => r0 * Math.max(.2, Math.min(1.7, Math.exp(c.p.lr)))).attr("fill", "var(--band)")
@@ -1002,6 +1013,7 @@ function drawStrip() {
   const head = d3.select("#stripName"); head.selectAll("*").remove();
   head.append("span").attr("class", "pl").text("C");
   head.append("span").text(`${aspName(a.key)} · ${SUBJ[si].name}`);
+  if (!valid(a.key)) head.append("span").attr("class", "nvmark").style("margin-left", "0").text("⊘").attr("title", nvTitle());
   head.append("button").attr("class", "mini").attr("title", "Move every image of A to where its same-seed image lands in B, and back").text("▶").on("click", playMorph);
   head.append("span").attr("id", "selCount").style("margin-left", "auto");
   head.append("button").attr("class", "mini").attr("id", "selClear").attr("title", "Clear the selected seeds").text("✕")

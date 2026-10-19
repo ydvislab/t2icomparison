@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Score Table</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Baseline condition of the expert study (docs/EXPERT_STUDY.md): every number the audit tool uses, every image,
+   the rewrites and the VLM statements, but no alignment, margins, per-subject encoding, brushing or linking. */
+:root { color-scheme: light; --page: #f5f6f8; --panel: #fff; --ink: #1f2328; --ink-2: #4b5260; --muted: #8a909a; --line: #e4e7ec; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --line: #2a2f37; } }
+:root[data-theme="dark"] { color-scheme: dark; --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --line: #2a2f37; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 13px/1.45 Inter, system-ui, sans-serif; font-feature-settings: "tnum"; padding: 12px 16px; }
+header { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+header h1 { font-size: 17px; margin: 0 8px 0 0; }
+select { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); }
+.grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 12px; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+h2 { font-size: 13px; margin: 0 0 8px; color: var(--ink-2); }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+th, td { border-bottom: 1px solid var(--line); padding: 3px 6px; text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 500; position: sticky; top: 0; background: var(--panel); }
+.scroll { max-height: 42vh; overflow: auto; }
+.imgs { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; }
+.imgs img { width: 100%; aspect-ratio: 1; display: block; border-radius: 3px; }
+.lab { font-weight: 600; margin: 8px 0 4px; }
+.txt { font-size: 12px; color: var(--ink-2); max-height: 22vh; overflow: auto; }
+.txt p { margin: 0 0 6px; }
+dl { display: grid; grid-template-columns: auto 1fr 1fr; gap: 2px 10px; font-size: 12px; margin: 0; }
+dt { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Score table</h1>
+  A <select id="selA"></select> B <select id="selB"></select>
+  subject <select id="selS"></select>
+</header>
+<div class="grid">
+  <div>
+    <section><h2>Typical location and spread per configuration (median over subjects, scale units)</h2><div class="scroll" id="tblCfg"></div></section>
+    <section style="margin-top:12px"><h2>Per subject: A and B on every aspect (scale units; difference B − A; IQR ratio B / A)</h2><div class="scroll" id="tblSubj"></div></section>
+  </div>
+  <div>
+    <section><h2>Settings</h2><dl id="settings"></dl></section>
+    <section style="margin-top:12px"><h2>Human validation of the aspects (annotation rounds)</h2><div id="valid"></div></section>
+    <section style="margin-top:12px"><h2>Images of the selected subject (by seed)</h2><div id="grid"></div></section>
+    <section style="margin-top:12px"><h2>Rewritten prompts and VLM statements for this pair</h2><div class="txt" id="texts"></div></section>
+  </div>
+</div>
+<script src="d3.min.js"></script>
+<script src="data.js"></script>
+<script>
+"use strict";
+const ASP = META.aspects.filter(a => a.retained), AIDX = Object.fromEntries(META.aspects.map((a, i) => [a.key, i]));
+const SUBJ = META.subjects, G = Object.fromEntries(META.groups.map(g => [g.id, g]));
+const name = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
+const st = { A: "G07_klein_base4b_cfg1", B: "G06_klein_base4b_cfg4", s: 0 };
+const f2 = d3.format(".2f"), fs = d3.format("+.2f");
+const q = (v, p) => d3.quantile([...v].sort(d3.ascending), p);
+const med = v => q(v, .5), iqr = v => q(v, .75) - q(v, .25);
+// location of a configuration for a subject: its median minus the median of the 12 open configurations' medians
+function loc(g, si, k) {
+  const ai = 3 + AIDX[k], sc = META.scale[k];
+  const center = d3.median(META.groups.filter(x => !x.rewrite), x => med(SCORES[x.id][si].map(r => r[ai])));
+  return (med(SCORES[g][si].map(r => r[ai])) - center) / sc;
+}
+const spr = (g, si, k) => iqr(SCORES[g][si].map(r => r[3 + AIDX[k]])) / META.scale[k];
+function table(host, head, rows) {
+  const t = d3.select(host).html("").append("table");
+  t.append("tr").selectAll("th").data(head).join("th").text(d => d);
+  t.selectAll("tr.r").data(rows).join("tr").attr("class", "r").selectAll("td").data(d => d).join("td").text(d => d);
+}
+function draw() {
+  const okS = k => SUBJ.map((s, i) => i).filter(i => !SUBJ[i].excluded.includes(k));
+  table("#tblCfg", ["configuration", ...ASP.flatMap(a => [name(a.key) + " loc", "spread"])],
+    META.groups.map(g => [g.label, ...ASP.flatMap(a => { const ss = okS(a.key); return [fs(d3.median(ss, i => loc(g.id, i, a.key))), f2(d3.median(ss, i => spr(g.id, i, a.key)))]; })]));
+  table("#tblSubj", ["subject", ...ASP.flatMap(a => [name(a.key) + " A", "B", "B − A", "IQR B/A"])],
+    SUBJ.map((s, i) => [s.name, ...ASP.flatMap(a => {
+      if (s.excluded.includes(a.key)) return ["", "", "", ""];
+      const la = loc(st.A, i, a.key), lb = loc(st.B, i, a.key);
+      return [fs(la), fs(lb), fs(lb - la), f2(spr(st.B, i, a.key) / spr(st.A, i, a.key))];
+    })]));
+  const sa = G[st.A].settings, sb = G[st.B].settings, keys = [...new Set([...Object.keys(sa), ...Object.keys(sb)])];
+  d3.select("#settings").html("").selectAll("div").data(keys).join(en => { const f = en.append("div").style("display", "contents");
+    f.append("dt").text(k => k); f.append("dd").style("margin", 0).text(k => sa[k] ?? "–"); f.append("dd").style("margin", 0).text(k => sb[k] ?? "–"); return f; });
+  table("#valid", ["configuration", "validated in", ...ASP.map(a => name(a.key))],
+    [st.A, st.B].map(g => [G[g].label, META.validity?.[g]?.set ?? "", ...ASP.map(a => (META.validity?.[g]?.aspects ?? []).includes(a.key) ? "yes" : "no")]));
+  const gh = d3.select("#grid").html("");
+  [st.A, st.B].forEach(g => {
+    gh.append("div").attr("class", "lab").text(G[g].label);
+    gh.append("div").attr("class", "imgs").selectAll("img").data(SCORES[g][st.s]).join("img").attr("src", r => `thumbs/${g}/${r[2]}.jpg`).attr("alt", "")
+      .attr("title", r => "seed " + r[1]);
+  });
+  const tx = d3.select("#texts").html("");
+  [st.A, st.B].filter(g => typeof REWRITE !== "undefined" && REWRITE[g]).forEach(g => {
+    tx.append("div").attr("class", "lab").text(`Rewritten prompts · ${G[g].label} · ${SUBJ[st.s].name}`);
+    tx.selectAll(null).data(REWRITE[g][st.s].slice(0, 8)).join("p").text(r => `seed ${r[0]}: ${r[1]}`);
+  });
+  const S = (typeof STATEMENTS === "undefined" ? [] : STATEMENTS).filter(x => x.A === st.A && x.B === st.B && (x.level === "pooled" || x.si === st.s));
+  if (S.length) {
+    tx.append("div").attr("class", "lab").text("VLM statements (pooled, and for this subject)");
+    tx.selectAll(null).data(S).join("p").text(x => `${x.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"}, ${x.level}: ${x.text}`);
+  }
+}
+for (const [id, k] of [["#selA", "A"], ["#selB", "B"]]) {
+  d3.select(id).selectAll("option").data(META.groups).join("option").attr("value", g => g.id).text(g => g.label);
+  d3.select(id).property("value", st[k]).on("change", e => { st[k] = e.target.value; draw(); });
+}
+d3.select("#selS").selectAll("option").data(SUBJ).join("option").attr("value", (s, i) => i).text(s => s.name);
+d3.select("#selS").on("change", e => { st.s = +e.target.value; draw(); });
+draw();
+</script>
+</body>
+</html>
