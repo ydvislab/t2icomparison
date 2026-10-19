@@ -1,0 +1,42 @@
+[
+ {
+  "key": "sharp",
+  "left": "a soft, blurry image",
+  "right": "a crisp, sharp image",
+  "contrasts": 6,
+  "note": "whole-image sharpness; round-1 dof was background blur (bokeh)"
+ },
+ {
+  "key": "detail",
+  "left": "a simple image with little detail",
+  "right": "a highly detailed, intricate image",
+  "contrasts": 5,
+  "note": "whole image; round-1 bg was background busyness"
+ },
+ {
+  "key": "ideal",
+  "left": "a natural, unretouched look",
+  "right": "an idealized, retouched look",
+  "contrasts": 5,
+  "note": "proposals worded as natural/less edited vs idealized/enhanced/more edited; casual vs professional counted as round-1 quality"
+ },
+ {
+  "key": "contrast",
+  "left": "low contrast with flat tones",
+  "right": "high contrast with dramatic tones",
+  "contrasts": 4
+ },
+ {
+  "key": "lightdrama",
+  "left": "flat, even lighting",
+  "right": "dramatic, directional lighting",
+  "contrasts": 3,
+  "note": "lighting character; round-1 light was colour temperature (cool blue vs warm golden)"
+ },
+ {
+  "key": "texture",
+  "left": "grainy, textured surfaces",
+  "right": "smooth, clean surfaces",
+  "contrasts": 3
+ }
+]

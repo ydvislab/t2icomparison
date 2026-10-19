@@ -1,0 +1,28 @@
+{
+  "fixed": "2026-10-19, before any CLIP score of a candidate was computed (PREREG.md Q6 rule)",
+  "source": "Mistral-Small-3.2-24B proposals on the pooled grids of the six Q5 contrasts ($T2IC_DATA/llm_study/q5/mistral/proposals.csv); null-control proposals are not Q5 contrasts and were not used",
+  "rule": "properties proposed for at least two contrasts, not among the 15 round-1 candidates, at most 6, more frequent first; merged by meaning by the executor without looking at any score",
+  "excluded_as_round1": {
+    "mood": "dark/moody vs bright/vibrant",
+    "shot": "close-up vs wide",
+    "sat": "muted vs vivid colours",
+    "inout": "indoor vs outdoor",
+    "style/medium": "realistic vs stylized/illustrated/painterly",
+    "quality": "casual/amateur vs professional/polished",
+    "tone": "modern vs classic/vintage aesthetic",
+    "light": "warm vs cool tones"
+  },
+  "not_selected": {"posed vs candid": "proposed for 2 contrasts but ranked 7th"},
+  "candidates": [
+    {"key": "sharp", "left": "a soft, blurry image", "right": "a crisp, sharp image", "contrasts": 6,
+     "note": "whole-image sharpness; round-1 dof was background blur (bokeh)"},
+    {"key": "detail", "left": "a simple image with little detail", "right": "a highly detailed, intricate image", "contrasts": 5,
+     "note": "whole image; round-1 bg was background busyness"},
+    {"key": "ideal", "left": "a natural, unretouched look", "right": "an idealized, retouched look", "contrasts": 5,
+     "note": "proposals worded as natural/less edited vs idealized/enhanced/more edited; casual vs professional counted as round-1 quality"},
+    {"key": "contrast", "left": "low contrast with flat tones", "right": "high contrast with dramatic tones", "contrasts": 4},
+    {"key": "lightdrama", "left": "flat, even lighting", "right": "dramatic, directional lighting", "contrasts": 3,
+     "note": "lighting character; round-1 light was colour temperature (cool blue vs warm golden)"},
+    {"key": "texture", "left": "grainy, textured surfaces", "right": "smooth, clean surfaces", "contrasts": 3}
+  ]
+}
