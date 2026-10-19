@@ -48,6 +48,14 @@ for vlm in ("qwen", "mistral"):
         false_less += (not truth_less) and said_less
     rows.append(dict(vlm=vlm, measure="units where audit finds narrowing that the free text mentions", value=hit / tot if tot else float("nan"), n=tot))
     rows.append(dict(vlm=vlm, measure="units with variety statements 'less' / all units", value=len(less_units) / n_units, n=n_units))
+    # null controls (deviation 2): truth is "no difference"; a unit claims a difference if any statement is coded to an
+    # aspect with a direction, or to variety with a direction
+    Nn = C[C.contrast.str.startswith("null_")]
+    if len(Nn):
+        claim = (Nn.property.isin(q1.ASPECTS) & Nn.direction.isin(["right", "left"])) | ((Nn.property == "variety") & Nn.direction.isin(["less", "more"]))
+        per_unit = claim.groupby([Nn.contrast, Nn.level, Nn.unit]).any()
+        rows.append(dict(vlm=vlm, measure="null control: units whose free text claims a difference on a measured aspect or variety", value=per_unit.mean(), n=len(per_unit)))
+        rows.append(dict(vlm=vlm, measure="null control: statements claiming such a difference", value=claim.mean(), n=len(Nn)))
 S = pd.DataFrame(rows)
 S.to_csv(f"{OUT}/free_summary.csv", index=False, float_format="%.3f")
 print(S.to_string(index=False))

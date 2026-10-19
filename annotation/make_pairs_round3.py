@@ -82,7 +82,7 @@ def make(D, key, label, plan, used, rnd):
         left, right = (lo, hi) if rnd.random() < .5 else (hi, lo)
         pairs.append(dict(pid=f"{label}-r3-{i:02d}", aspect=label, kind=kind, prompt=s, left=left.id, right=right.id,
                           left_group=left.group, right_group=right.group, left_dir=left.dir, right_dir=right.dir,
-                          clip=("right" if right[key] > left[key] else "left"), gap=round(abs(right[key] - left[key]), 5)))
+                          clip=("right" if right[key] > left[key] else "left"), gap=round(float(abs(right[key] - left[key])), 5)))
     return pairs
 
 
