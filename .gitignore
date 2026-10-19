@@ -29,3 +29,4 @@ aspects_*.csv
 
 # Local annotation exports (contain annotator initials); never commit
 Pliot/
+*.zip
