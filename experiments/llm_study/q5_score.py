@@ -144,6 +144,17 @@ def main():
         m = g[g.misleading.astype(bool)]
         summ.append(dict(vlm=vlm, level="pooled", question="pooled shift claimed on misleading aspects",
                          n=len(m), rate=(m.answer != "none").mean() if len(m) else np.nan))
+    # null controls (deviation 2): the same configuration on both sides, so the truth is "no difference" and "about equally
+    # varied" by construction; the false-difference rate is the share of answers that report a shift or a change in variety
+    for vlm in ("qwen", "mistral"):
+        p = f"{q4.LLM}/q5/{vlm}/mc.csv"
+        if not os.path.exists(p):
+            continue
+        N = pd.read_csv(p)
+        N = N[N.contrast.str.startswith("null_")]
+        for (lev, q), g in N.groupby(["level", "question"]):
+            summ.append(dict(vlm=vlm, level=lev, question=f"null control: {q} reported", n=len(g),
+                             rate=(g.answer != ("none" if q == "shift" else "same")).mean()))
     U = pd.DataFrame(summ).assign(provisional_round3=provisional)
     U.to_csv(f"{OUT}/summary.csv", index=False, float_format="%.3f")
     print(U.to_string(index=False))
