@@ -1,27 +1,31 @@
 vlm,measure,value,n
-qwen,statements on bg,42.000,830
-qwen,statements on medium,67.000,830
-qwen,statements on other,161.000,830
-qwen,statements on sat,57.000,830
-qwen,statements on shot,15.000,830
-qwen,statements on tone,26.000,830
-qwen,statements on variety,462.000,830
-qwen,pooled: aspect statements with correct direction,0.625,16
-qwen,pooled: aspect statements where audit says no shift,0.375,16
-qwen,subject: aspect statements with correct direction,0.671,73
-qwen,subject: aspect statements where audit says no shift,0.164,73
-qwen,units where audit finds narrowing that the free text mentions,0.916,83
-qwen,units with variety statements 'less' / all units,0.705,166
-mistral,statements on bg,78.000,730
-mistral,statements on medium,48.000,730
-mistral,statements on other,136.000,730
-mistral,statements on sat,52.000,730
-mistral,statements on shot,37.000,730
-mistral,statements on tone,17.000,730
-mistral,statements on variety,362.000,730
-mistral,pooled: aspect statements with correct direction,0.325,40
-mistral,pooled: aspect statements where audit says no shift,0.600,40
-mistral,subject: aspect statements with correct direction,0.733,60
-mistral,subject: aspect statements where audit says no shift,0.133,60
-mistral,units where audit finds narrowing that the free text mentions,0.892,83
-mistral,units with variety statements 'less' / all units,0.678,146
+qwen,statements on bg,68.000,1160
+qwen,statements on medium,102.000,1160
+qwen,statements on other,263.000,1160
+qwen,statements on sat,86.000,1160
+qwen,statements on shot,24.000,1160
+qwen,statements on tone,35.000,1160
+qwen,statements on variety,582.000,1160
+qwen,pooled: aspect statements with correct direction,0.571,14
+qwen,pooled: aspect statements where audit says no shift,0.429,14
+qwen,subject: aspect statements with correct direction,0.691,81
+qwen,subject: aspect statements where audit says no shift,0.160,81
+qwen,units where audit finds narrowing that the free text mentions,0.920,87
+qwen,units with variety statements 'less' / all units,0.591,232
+qwen,null control: units whose free text claims a difference on a measured aspect or variety,0.897,58
+qwen,null control: statements claiming such a difference,0.586,290
+mistral,statements on bg,143.000,1160
+mistral,statements on medium,82.000,1160
+mistral,statements on other,245.000,1160
+mistral,statements on sat,88.000,1160
+mistral,statements on shot,60.000,1160
+mistral,statements on tone,25.000,1160
+mistral,statements on variety,517.000,1160
+mistral,pooled: aspect statements with correct direction,0.182,33
+mistral,pooled: aspect statements where audit says no shift,0.727,33
+mistral,subject: aspect statements with correct direction,0.738,65
+mistral,subject: aspect statements where audit says no shift,0.138,65
+mistral,units where audit finds narrowing that the free text mentions,0.862,87
+mistral,units with variety statements 'less' / all units,0.504,232
+mistral,null control: units whose free text claims a difference on a measured aspect or variety,0.931,58
+mistral,null control: statements claiming such a difference,0.614,290

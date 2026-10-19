@@ -4,6 +4,11 @@ mistral,P1 klein 4B: original -> FLUX.2 rewrite,medium,-3.528,0.529,0.109,0.613
 mistral,P1 klein 4B: original -> FLUX.2 rewrite,shot,-1.266,-0.012,0.205,0.336
 mistral,P1 klein 4B: original -> FLUX.2 rewrite,tone,5.049,-0.151,-0.123,0.568
 mistral,P1 klein 4B: original -> FLUX.2 rewrite,bg,4.950,0.495,0.577,0.003
+mistral,P2 FLUX.2 dev: original -> FLUX.2 rewrite,sat,1.971,0.276,0.525,0.008
+mistral,P2 FLUX.2 dev: original -> FLUX.2 rewrite,medium,-3.528,0.369,0.111,0.605
+mistral,P2 FLUX.2 dev: original -> FLUX.2 rewrite,shot,-1.266,0.115,0.004,0.984
+mistral,P2 FLUX.2 dev: original -> FLUX.2 rewrite,tone,5.049,-0.056,-0.046,0.831
+mistral,P2 FLUX.2 dev: original -> FLUX.2 rewrite,bg,4.950,0.666,0.410,0.047
 qwen,D1 klein 4B: original -> Qwen rewrite,sat,9.608,-0.620,0.005,0.981
 qwen,D1 klein 4B: original -> Qwen rewrite,medium,-4.789,0.560,-0.288,0.172
 qwen,D1 klein 4B: original -> Qwen rewrite,shot,-3.039,-0.127,-0.010,0.965

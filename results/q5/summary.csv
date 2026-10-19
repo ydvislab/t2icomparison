@@ -1,17 +1,25 @@
 vlm,level,question,n,accuracy,answer_none_or_same,truth_none_or_same,rate,provisional_round3
-mistral,pooled,shift,80,0.150,0.000,0.812,,True
-mistral,pooled,variety,70,0.357,0.000,0.286,,True
-mistral,subject,shift,321,0.489,0.000,0.218,,True
-mistral,subject,variety,235,0.809,0.000,0.000,,True
-qwen,pooled,shift,80,0.150,0.013,0.812,,True
-qwen,pooled,variety,70,0.386,0.000,0.286,,True
-qwen,subject,shift,321,0.495,0.031,0.218,,True
-qwen,subject,variety,235,0.638,0.000,0.000,,True
+mistral,pooled,shift,80,0.125,0.000,0.875,,True
+mistral,pooled,variety,75,0.333,0.000,0.333,,True
+mistral,subject,shift,369,0.469,0.000,0.217,,True
+mistral,subject,variety,251,0.781,0.000,0.000,,True
+qwen,pooled,shift,80,0.125,0.013,0.875,,True
+qwen,pooled,variety,75,0.360,0.000,0.333,,True
+qwen,subject,shift,369,0.474,0.038,0.217,,True
+qwen,subject,variety,251,0.633,0.004,0.000,,True
 mistral,subject,concentration reported as shift,14,,,,1.000,True
-mistral,subject,"missed concentration (truth less, answer same)",211,,,,0.000,True
-mistral,subject,"widening missed (truth more, answer same)",24,,,,0.000,True
+mistral,subject,"missed concentration (truth less, answer same)",215,,,,0.000,True
+mistral,subject,"widening missed (truth more, answer same)",36,,,,0.000,True
 qwen,subject,concentration reported as shift,14,,,,0.929,True
-qwen,subject,"missed concentration (truth less, answer same)",211,,,,0.000,True
-qwen,subject,"widening missed (truth more, answer same)",24,,,,0.000,True
-mistral,pooled,pooled shift claimed on misleading aspects,55,,,,1.000,True
-qwen,pooled,pooled shift claimed on misleading aspects,55,,,,0.982,True
+qwen,subject,"missed concentration (truth less, answer same)",215,,,,0.000,True
+qwen,subject,"widening missed (truth more, answer same)",36,,,,0.028,True
+mistral,pooled,pooled shift claimed on misleading aspects,60,,,,1.000,True
+qwen,pooled,pooled shift claimed on misleading aspects,60,,,,0.983,True
+qwen,pooled,null control: shift reported,50,,,,0.980,True
+qwen,pooled,null control: variety reported,50,,,,1.000,True
+qwen,subject,null control: shift reported,240,,,,0.979,True
+qwen,subject,null control: variety reported,240,,,,0.992,True
+mistral,pooled,null control: shift reported,50,,,,1.000,True
+mistral,pooled,null control: variety reported,50,,,,1.000,True
+mistral,subject,null control: shift reported,240,,,,1.000,True
+mistral,subject,null control: variety reported,240,,,,1.000,True
