@@ -6,11 +6,14 @@
 <title>Score Table</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Baseline condition of the expert study (docs/EXPERT_STUDY.md): every number the audit tool uses, every image,
-   the rewrites and the VLM statements, but no alignment, margins, per-subject encoding, brushing or linking. */
-:root { color-scheme: light; --page: #f5f6f8; --panel: #fff; --ink: #1f2328; --ink-2: #4b5260; --muted: #8a909a; --line: #e4e7ec; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --line: #2a2f37; } }
-:root[data-theme="dark"] { color-scheme: dark; --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --line: #2a2f37; }
+/* Baseline condition of the expert study (docs/EXPERT_STUDY.md). Strengthened 2026-10-22 after the external review
+   (docs/REVIEW_2026-10-22.md): besides every number the audit tool uses, every image, the rewrites and the VLM
+   statements, it now has the pooled estimates with the same 90% intervals as the tool, aligned per-subject box plots
+   on the chosen aspect, and an image grid that can be sorted by the aspect score. It still has no margin bands,
+   verdicts, location-vs-spread scatter, paired-seed links, brushing or linking between views. */
+:root { color-scheme: light; --page: #f5f6f8; --panel: #fff; --ink: #1f2328; --ink-2: #4b5260; --muted: #8a909a; --line: #e4e7ec; --a: #3d6fa5; --b: #d9822b; --grid: #eef0f3; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --line: #2a2f37; --a: #77a1d3; --b: #ec9c50; --grid: #23272e; } }
+:root[data-theme="dark"] { color-scheme: dark; --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --line: #2a2f37; --a: #77a1d3; --b: #ec9c50; --grid: #23272e; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--ink); font: 13px/1.45 Inter, system-ui, sans-serif; font-feature-settings: "tnum"; padding: 12px 16px; }
 header { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
@@ -31,6 +34,16 @@ th { color: var(--muted); font-weight: 500; position: sticky; top: 0; background
 .txt p { margin: 0 0 6px; }
 dl { display: grid; grid-template-columns: auto 1fr 1fr; gap: 2px 10px; font-size: 12px; margin: 0; }
 dt { color: var(--muted); }
+.note { color: var(--muted); font-size: 12px; }
+.boxes svg { display: block; width: 100%; }
+.boxes text { fill: var(--ink-2); font-size: 11px; }
+.boxes .ax text { fill: var(--muted); }
+.boxes .ax line, .boxes .ax path { stroke: var(--line); }
+.cap { font-size: 10px; color: var(--muted); text-align: center; }
+.cell { display: flex; flex-direction: column; gap: 1px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { font: inherit; font-size: 12px; border: 0; background: var(--panel); color: var(--ink-2); padding: 3px 8px; cursor: pointer; }
+.seg button.on { background: var(--ink); color: var(--panel); }
 </style>
 </head>
 <body>
@@ -38,16 +51,20 @@ dt { color: var(--muted); }
   <h1>Score table</h1>
   A <select id="selA"></select> B <select id="selB"></select>
   subject <select id="selS"></select>
+  aspect <select id="selK"></select>
+  <span class="note" id="mnote"></span>
 </header>
 <div class="grid">
   <div>
-    <section><h2>Typical location and spread per configuration (median over subjects, scale units)</h2><div class="scroll" id="tblCfg"></div></section>
+    <section><h2>Pooled contrast A → B: median over subjects, 90% bootstrap interval (scale units; spread as IQR ratio B / A)</h2><div id="tblPool"></div></section>
+    <section style="margin-top:12px"><h2 id="hBox"></h2><div class="boxes" id="boxes"></div></section>
+    <section style="margin-top:12px"><h2>Typical location and spread per configuration (median over subjects, scale units)</h2><div class="scroll" id="tblCfg"></div></section>
     <section style="margin-top:12px"><h2>Per subject: A and B on every aspect (scale units; difference B − A; IQR ratio B / A)</h2><div class="scroll" id="tblSubj"></div></section>
   </div>
   <div>
     <section><h2>Settings</h2><dl id="settings"></dl></section>
     <section style="margin-top:12px"><h2>Human validation of the aspects (annotation rounds)</h2><div id="valid"></div></section>
-    <section style="margin-top:12px"><h2>Images of the selected subject (by seed)</h2><div id="grid"></div></section>
+    <section style="margin-top:12px"><h2 style="display:flex;gap:8px;align-items:center">Images of the selected subject <span class="seg" id="sortSeg"><button data-k="seed" class="on">by seed</button><button data-k="score">by aspect score</button></span></h2><div id="grid"></div></section>
     <section style="margin-top:12px"><h2>Rewritten prompts and VLM statements for this pair</h2><div class="txt" id="texts"></div></section>
   </div>
 </div>
@@ -58,7 +75,8 @@ dt { color: var(--muted); }
 const ASP = META.aspects.filter(a => a.retained), AIDX = Object.fromEntries(META.aspects.map((a, i) => [a.key, i]));
 const SUBJ = META.subjects, G = Object.fromEntries(META.groups.map(g => [g.id, g]));
 const name = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
-const st = { A: "G07_klein_base4b_cfg1", B: "G06_klein_base4b_cfg4", s: 0 };
+const st = { A: "G07_klein_base4b_cfg1", B: "G06_klein_base4b_cfg4", s: 0, k: "sat", sort: "seed" };
+const NBOOT = 400;  // as in the audit tool, so both conditions show the same intervals
 const f2 = d3.format(".2f"), fs = d3.format("+.2f");
 const q = (v, p) => d3.quantile([...v].sort(d3.ascending), p);
 const med = v => q(v, .5), iqr = v => q(v, .75) - q(v, .25);
@@ -69,12 +87,86 @@ function loc(g, si, k) {
   return (med(SCORES[g][si].map(r => r[ai])) - center) / sc;
 }
 const spr = (g, si, k) => iqr(SCORES[g][si].map(r => r[3 + AIDX[k]])) / META.scale[k];
+// pooled estimates with the same hierarchical bootstrap as the audit tool (index.html, contrast())
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const qs = (s, p) => d3.quantileSorted(s, p);
+function mi(v) { const s = Float64Array.from(v).sort(); return { med: qs(s, .5), iqr: qs(s, .75) - qs(s, .25) }; }
+function pooled(A, B) {
+  const paired = G[A].settings.weights === G[B].settings.weights, R = {};
+  for (const a of ASP) {
+    const ai = 3 + AIDX[a.key], sc = META.scale[a.key], cells = [];
+    SUBJ.forEach((s, si) => {
+      if (s.excluded.includes(a.key)) return;
+      const ra = SCORES[A][si], rb = SCORES[B][si];
+      if (!ra?.length || !rb?.length) return;
+      const xa = ra.map(r => r[ai]), xb = rb.map(r => r[ai]), sa = mi(xa), sb = mi(xb);
+      const rand = rng(1009 * si + 7 * AIDX[a.key] + 1), bd = new Float64Array(NBOOT), bl = new Float64Array(NBOOT);
+      const byK = paired ? new Map(rb.map(r => [r[0], r[ai]])) : null;
+      for (let b = 0; b < NBOOT; b++) {
+        const pa = [], pb = [];
+        for (let i = 0; i < xa.length; i++) { const j = Math.floor(rand() * xa.length); pa.push(xa[j]); if (paired) pb.push(byK.get(ra[j][0])); }
+        if (!paired) for (let i = 0; i < xb.length; i++) pb.push(xb[Math.floor(rand() * xb.length)]);
+        const ba = mi(pa), bb = mi(pb); bd[b] = (bb.med - ba.med) / sc; bl[b] = Math.log(bb.iqr / ba.iqr);
+      }
+      cells.push({ si, d: (sb.med - sa.med) / sc, lr: Math.log(sb.iqr / sa.iqr), bd, bl });
+    });
+    const cats = d3.group(cells, c => SUBJ[c.si].category), rand = rng(31 + AIDX[a.key]), pd = [], pl = [];
+    for (let b = 0; b < NBOOT; b++) {
+      const vd = [], vl = [];
+      for (const cs of cats.values()) for (let i = 0; i < cs.length; i++) { const c = cs[Math.floor(rand() * cs.length)]; vd.push(c.bd[b]); vl.push(c.bl[b]); }
+      pd.push(d3.median(vd)); pl.push(d3.median(vl));
+    }
+    pd.sort((x, y) => x - y); pl.sort((x, y) => x - y);
+    R[a.key] = { d: d3.median(cells, c => c.d), lr: d3.median(cells, c => c.lr), dlo: qs(pd, .05), dhi: qs(pd, .95), llo: qs(pl, .05), lhi: qs(pl, .95) };
+  }
+  return R;
+}
+const fx = v => "×" + f2(Math.exp(v));
+// aligned box plots: one row per subject, A above B, on the chosen aspect (scale units from the subject's
+// cross-configuration centre); box = middle 50%, line = median, whiskers = 10th-90th percentile
+function boxes() {
+  const k = st.k, ai = 3 + AIDX[k], sc = META.scale[k];
+  d3.select("#hBox").text(`Per subject on ${name(k)}: A (upper) and B (lower), scale units from the subject's cross-configuration centre; box = middle 50%, line = median, whiskers = 10th–90th percentile`);
+  const center = SUBJ.map((s, si) => d3.median(META.groups.filter(x => !x.rewrite), x => med(SCORES[x.id][si].map(r => r[ai]))));
+  const rows = SUBJ.map((s, si) => ({ s, si, cat: s.category,
+    st: [st.A, st.B].map(g => { const v = SCORES[g][si].map(r => (r[ai] - center[si]) / sc).sort(d3.ascending);
+      return { g, p10: d3.quantileSorted(v, .1), q1: d3.quantileSorted(v, .25), m: d3.quantileSorted(v, .5), q3: d3.quantileSorted(v, .75), p90: d3.quantileSorted(v, .9) }; }) }))
+    .filter(r => !r.s.excluded.includes(k));
+  const host = d3.select("#boxes").html(""), W = host.node().clientWidth || 600, L = 160, R = 10, rh = 16, gap = 6;
+  let y = 4; const cats = [...new Set(rows.map(r => r.cat))];
+  rows.forEach((r, i) => { if (i && r.cat !== rows[i - 1].cat) y += gap; r.y = y; y += rh; });
+  const H = y + 40, lo = d3.min(rows, r => d3.min(r.st, s => s.p10)), hi = d3.max(rows, r => d3.max(r.st, s => s.p90));
+  const x = d3.scaleLinear().domain([Math.min(lo, -1), Math.max(hi, 1)]).nice().range([L, W - R]);
+  const svg = host.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("height", H);
+  svg.append("g").attr("class", "ax").attr("transform", `translate(0,${y + 2})`).call(d3.axisBottom(x).ticks(8));
+  svg.append("g").selectAll("line").data(x.ticks(8)).join("line").attr("x1", x).attr("x2", x).attr("y1", 0).attr("y2", y).attr("stroke", "var(--grid)");
+  const a = META.aspects.find(z => z.key === k);
+  svg.append("text").attr("x", L).attr("y", H - 2).attr("class", "note").style("font-size", "10px").text("← " + a.left);
+  svg.append("text").attr("x", W - R).attr("y", H - 2).attr("text-anchor", "end").style("font-size", "10px").text(a.right + " →");
+  const row = svg.append("g").selectAll("g").data(rows).join("g").attr("transform", r => `translate(0,${r.y})`);
+  row.append("title").text(r => `${r.s.name}\nA: median ${fs(r.st[0].m)}, IQR ${f2(r.st[0].q3 - r.st[0].q1)}\nB: median ${fs(r.st[1].m)}, IQR ${f2(r.st[1].q3 - r.st[1].q1)}`);
+  row.append("text").attr("x", L - 6).attr("y", rh / 2 + 4).attr("text-anchor", "end").text(r => r.s.name);
+  [0, 1].forEach(j => {
+    const col = j ? "var(--b)" : "var(--a)", yy = 2 + j * 7;
+    row.append("line").attr("x1", r => x(r.st[j].p10)).attr("x2", r => x(r.st[j].p90)).attr("y1", yy + 2.5).attr("y2", yy + 2.5).attr("stroke", col).attr("stroke-width", 1);
+    row.append("rect").attr("x", r => x(r.st[j].q1)).attr("width", r => Math.max(1, x(r.st[j].q3) - x(r.st[j].q1))).attr("y", yy).attr("height", 5).attr("rx", 1.5)
+      .attr("fill", col).attr("fill-opacity", .35).attr("stroke", col).attr("stroke-width", 1);
+    row.append("line").attr("x1", r => x(r.st[j].m)).attr("x2", r => x(r.st[j].m)).attr("y1", yy - 1).attr("y2", yy + 6).attr("stroke", col).attr("stroke-width", 2);
+  });
+}
 function table(host, head, rows) {
   const t = d3.select(host).html("").append("table");
   t.append("tr").selectAll("th").data(head).join("th").text(d => d);
   t.selectAll("tr.r").data(rows).join("tr").attr("class", "r").selectAll("td").data(d => d).join("td").text(d => d);
 }
 function draw() {
+  const P = pooled(st.A, st.B), valid = g => META.validity?.[g]?.aspects ?? [];
+  table("#tblPool", ["aspect", "shift B − A", "90% interval", "spread B / A", "90% interval", "validated for A and B"],
+    ASP.map(a => { const r = P[a.key]; return [name(a.key), fs(r.d), `[${fs(r.dlo)}, ${fs(r.dhi)}]`, fx(r.lr), `[${fx(r.llo)}, ${fx(r.lhi)}]`,
+      valid(st.A).includes(a.key) && valid(st.B).includes(a.key) ? "yes" : "no"]; }));
+  const nd = Object.keys({ ...G[st.A].settings, ...G[st.B].settings }).filter(k => G[st.A].settings[k] !== G[st.B].settings[k]).length;
+  d3.select("#mnote").text(`Practical margins (frozen): shift ±${META.margins.location} scale units; spread ratio between ×${f2(Math.exp(-META.margins.log_iqr))} and ×${f2(Math.exp(META.margins.log_iqr))} · ${nd} declared setting${nd === 1 ? "" : "s"} differ`);
+  boxes();
   const okS = k => SUBJ.map((s, i) => i).filter(i => !SUBJ[i].excluded.includes(k));
   table("#tblCfg", ["configuration", ...ASP.flatMap(a => [name(a.key) + " loc", "spread"])],
     META.groups.map(g => [g.label, ...ASP.flatMap(a => { const ss = okS(a.key); return [fs(d3.median(ss, i => loc(g.id, i, a.key))), f2(d3.median(ss, i => spr(g.id, i, a.key)))]; })]));
@@ -92,8 +184,11 @@ function draw() {
   const gh = d3.select("#grid").html("");
   [st.A, st.B].forEach(g => {
     gh.append("div").attr("class", "lab").text(G[g].label);
-    gh.append("div").attr("class", "imgs").selectAll("img").data(SCORES[g][st.s]).join("img").attr("src", r => `thumbs/${g}/${r[2]}.jpg`).attr("alt", "")
-      .attr("title", r => "seed " + r[1]);
+    const ai = 3 + AIDX[st.k], rows = [...SCORES[g][st.s]];
+    if (st.sort === "score") rows.sort((p, q2) => p[ai] - q2[ai]);
+    const cell = gh.append("div").attr("class", "imgs").selectAll("div").data(rows).join("div").attr("class", "cell");
+    cell.append("img").attr("src", r => `thumbs/${g}/${r[2]}.jpg`).attr("alt", "").attr("title", r => `seed ${r[1]} · ${name(st.k)} ${fs(r[ai] / META.scale[st.k])}`);
+    if (st.sort === "score") cell.append("div").attr("class", "cap").text(r => fs(r[ai] / META.scale[st.k]));
   });
   const tx = d3.select("#texts").html("");
   [st.A, st.B].filter(g => typeof REWRITE !== "undefined" && REWRITE[g]).forEach(g => {
@@ -112,6 +207,11 @@ for (const [id, k] of [["#selA", "A"], ["#selB", "B"]]) {
 }
 d3.select("#selS").selectAll("option").data(SUBJ).join("option").attr("value", (s, i) => i).text(s => s.name);
 d3.select("#selS").on("change", e => { st.s = +e.target.value; draw(); });
+d3.select("#selK").selectAll("option").data(ASP).join("option").attr("value", a => a.key).text(a => name(a.key));
+d3.select("#selK").property("value", st.k).on("change", e => { st.k = e.target.value; draw(); });
+d3.selectAll("#sortSeg button").on("click", e => { st.sort = e.currentTarget.dataset.k;
+  d3.selectAll("#sortSeg button").classed("on", function () { return this.dataset.k === st.sort; }); draw(); });
+window.addEventListener("resize", () => boxes());
 draw();
 </script>
 </body>
