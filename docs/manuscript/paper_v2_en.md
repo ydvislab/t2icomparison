@@ -1,10 +1,11 @@
 # Grounding Language in Images: Visual Auditing of Appearance Defaults and Their LLM-Driven Shifts in Text-to-Image Models
 
-*Manuscript draft v2, updated 2026-10-19, for the Computers & Graphics special issue "Bridging Language and Vision: Recent Advancements in LLM and Visual Analytics". Supersedes v1 (`paper_en.md`, CG&A format).*
+*Manuscript draft v2, updated 2026-10-22, for the Computers & Graphics special issue "Bridging Language and Vision: Recent Advancements in LLM and Visual Analytics". Supersedes v1 (`paper_en.md`, CG&A format).*
 
 *Status markers:*
 - *Q4, Q5, Q6 and human check round 3 are final (2026-10-19).*
-- *[pending] marks results not yet available: Q6, the expert study, the closed models.*
+- *[pending] marks results not yet available: the expert study, the second-encoder check, the free-text coder check, the closed models.*
+- *External review of this draft: `docs/REVIEW_2026-10-22.md`.*
 - *Elsevier format items (abstract ≤ 200 words, 3–5 highlights of ≤ 85 characters, graphical abstract) must be checked against the C&G guide for authors before submission.*
 - *Sources of all numbers are in `results/`.*
 
@@ -14,7 +15,7 @@
 - Separates where image defaults move from how much they narrow, per subject
 - Guidance and distillation narrow appearance far more than they move it
 - LLM rewriting adds no validated variety; its largest effect fails human checks
-- VLMs report differences even between image sets from the same model
+- Two tested VLMs report differences even between sets from one model
 - A linked visual audit grounds each language-derived claim in image evidence
 
 ## Abstract
@@ -26,7 +27,7 @@ When a prompt leaves framing, palette or medium unspecified, a text-to-image mod
 
 Each role produces claims about images that can be wrong. We present a visual audit method that grounds such claims in image evidence. It places declared model configurations on language-defined, human-validated appearance axes, separates displacement from concentration under pre-registered margins, exposes per-subject structure and links every reading to the images.
 
-Auditing 12 open configurations on 24 everyday subjects, we find that in FLUX.2 klein, guidance and distillation mainly concentrate appearance and displace only saturation, and that 38 of 60 pooled "no difference" comparisons on validated aspects hide opposite per-subject shifts. FLUX.2's official prompt rewriter adds no variety beyond our margins, and its largest apparent effect lies on an axis that people reject for rewritten images. Two VLMs report a difference even between two image sets from the same model, so their descriptions cannot tell whether models differ. [Five experts …]
+Auditing 12 open configurations on 24 everyday subjects, we find that in FLUX.2 klein, guidance and distillation mainly concentrate appearance and displace only saturation, and that 38 of 60 pooled "no difference" comparisons on validated aspects hide opposite per-subject shifts. FLUX.2's official prompt rewriter adds no variety beyond our margins, and its largest apparent effect lies on an axis that people reject for rewritten images. Two VLMs report a difference even between image sets from one model, so their difference claims say little. [Five experts …]
 
 ---
 
@@ -172,7 +173,7 @@ The later configurations are much more alike, so pairs that count as "large-gap"
 - shot, saturation and medium hold on the later configurations;
 - every finding that depends on an aspect not validated for its configuration set is labelled as such.
 
-**Table 1. Human validation of language-defined appearance aspects.** Agreement with CLIP on large-gap pairs (95% Wilson interval), share of "can't tell", and mean pairwise Cohen's κ; 36 judgements per aspect and round.
+**Table 1. Human validation of language-defined appearance aspects.** Agreement with CLIP on large-gap pairs (95% Wilson interval), share of "can't tell", and mean pairwise Cohen's κ. Rounds 1 and 2: 12 large-gap pairs × 3 annotators = 36 judgements per aspect; round 3: 12 pairs per aspect on rewritten images and 16 per VLM-proposed axis (`results/annotation_round3/`).
 
 | Aspect (left ↔ right pole) | Round 1: agreement | can't tell | κ | Round 2: agreement | can't tell | κ | Round 3 (rewrites) | Use |
 |---|---|---|---|---|---|---|---|---|
@@ -330,7 +331,7 @@ This section reports the pre-registered LLM study (`experiments/llm_study/PREREG
 **The extra variety comes from sampling text, not from releasing the generator's defaults.**
 - Reusing one rewrite for all 32 seeds **concentrates** every aspect relative to the original prompt (×0.71–0.79).
 - Varying the rewrite across seeds widens it again (×1.25–1.80 against the fixed rewrite).
-- A single detailed rewrite thus narrows the output; diversity attributed to rewriting [19, 20] is the diversity of the rewriter's samples.
+- In this design, a single detailed rewrite narrows the output, and the variety under per-seed rewriting comes mostly from sampling different texts. This is one fixed-rewrite comparison with one rewriter instruction; it does not show that the diversity gains reported for rewriting [19, 20] have the same source.
 
 **Text and image agree only in part** (validated aspects only).
 - Every rewrite of both LLMs specifies lighting, typically "soft, diffused" or "warm".
@@ -352,7 +353,7 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
   - "closer to <right> / closer to <left> / no clear difference";
   - "more / less / about equally varied".
 - **Ground truth** is the audit on all 32 seeds, scored only on aspects validated for the configurations involved. It depends on our frozen margin: a VLM that reports a real shift smaller than 0.5 scale units counts as wrong. The null control below does not depend on the margin, because there the truth is "no difference" by construction.
-- **Null control (deviation 2, added after the first answers were scored):** the same configuration on both sides (klein 4B; SDXL), with B using seeds shifted by 16. Here the truth is "no difference" by construction.
+- **Null control (deviation 2, added after the first answers were scored, so exploratory):** the same configuration on both sides (klein 4B; SDXL), with B using seeds shifted by 16. Here the truth is "no difference" by construction.
 
 **Table 2. VLM answers against the audit** (six contrasts and two null controls; each contrast scored on aspects validated on both its sides).
 
@@ -368,14 +369,15 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 | **Null control: free text claims a difference** (units) | 90% | 93% | 0% |
 
 **Findings:**
-- **A VLM asked how two sets differ always finds a difference.**
+- **Asked how two sets differ, both tested VLMs almost always report a difference** (with this prompt format and these grids).
   - Between two sets from the same configuration, both VLMs report a shift and a change in variety in 98–100% of constrained answers.
   - In free text, 90–93% of their descriptions claim a difference on a measured aspect or in variety.
-  - Their descriptions therefore carry no information about *whether* two configurations differ (T4).
+  - A claim of difference from these VLMs therefore says little about *whether* two configurations differ (T4). We measured false-positive rates, not discrimination over a balanced set of same and different pairs; the descriptions can still carry information about direction (below).
+  - The VLMs saw 8 vs. 8 images per subject (16 vs. 16 pooled), while the audit used 32 seeds; some answers scored as wrong may describe real differences between the two samples shown.
 - **Given a real difference, the larger VLM often reads the direction of variety correctly.** Mistral-24B is right in 79% of per-subject cases, about 90% for distillation and SDXL → Turbo. Its free text mentions narrowing in 88% of the units where the audit finds it. It mentions narrowing almost as often where there is none, so the mention is not evidence.
 - **Narrowing becomes movement, and pooled claims fail where they matter.**
-  - Every case the audit marks "same place, less varied" was answered with a shift (T1).
-  - Every pooled "no change" that hides opposite per-subject shifts was described as a pooled shift (T2).
+  - Of the cases the audit marks "same place, less varied", 12 of 13 (Qwen3.5-4B) and 13 of 13 (Mistral-24B) were answered with a shift (T1).
+  - Of the pooled "no change" cases that hide opposite per-subject shifts, 49 of 50 (Qwen3.5-4B) and 50 of 50 (Mistral-24B) were described as a pooled shift (T2).
 - **Free-text coding.** Statements are coded with a constrained LLM coder; the first author checks a 20% sample [pending].
 
 **Reading.** A VLM's description of "how model B differs from model A" can suggest where to look, but it is not a finding. It asserts differences that do not exist, calls narrowing movement, and repeats pooled claims that are false for many subjects. The statement view (Section 4.4) therefore links each statement to the evidence that confirms or contradicts it.
@@ -413,7 +415,7 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 
 ## 8. Discussion
 
-**Separate location from spread before reading "less diverse".** In every intervention we audited, narrowing was larger and more common than moving: guidance, distillation and even a single rewrite remove alternatives more than they move the typical output.
+**Separate location from spread before reading "less diverse".** In the guidance and distillation contrasts and the fixed-rewrite condition, narrowing was larger and more common than moving: they removed alternatives more than they moved the typical output. Per-seed rewriting was the exception: it neither narrowed nor widened beyond the margin.
 
 **Never read a pooled shift without its per-subject structure.** On validated aspects, 38 of the 60 pooled "no difference" comparisons concealed opposite shifts, and both VLMs turned every such case they were asked about into a pooled claim.
 
@@ -426,7 +428,7 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 
 This suggests a division of labour for LLM-assisted visual analytics. LLMs are good at proposing what to look at: candidate axes, suspected differences, readable summaries. A visual audit with validated measurements, stated margins and a route to the images decides what is true. The statement view makes this division part of the interface.
 
-**Validate per configuration set and read differences with their size.** Two-thirds of the candidate axes failed human validation, and so did all six VLM-proposed ones. Axes confirmed on varied models did not all hold among similar ones or on rewritten images, and agreement rose with the size of the difference.
+**Validate per configuration set and read differences with their size.** Eight of the 15 candidate axes failed human validation in round 1, and all six VLM-proposed ones failed in round 3. Axes confirmed on varied models did not all hold among similar ones or on rewritten images, and agreement rose with the size of the difference.
 
 **Limitations.**
 - CLIP axes are proxies: five of fifteen candidates survived, and lighting and viewpoint are not among them. A second encoder [18] is used as a sensitivity check [pending].
@@ -445,7 +447,7 @@ Applied to 12 open configurations, two LLM rewriters and two VLM describers, it 
 - in FLUX.2 klein, guidance and distillation mainly narrow appearance;
 - on validated aspects, 38 of 60 pooled "no difference" comparisons hide opposite shifts across subjects;
 - an official prompt rewriter adds no validated variety, and its largest apparent effect is a measurement failure;
-- VLMs report differences even between image sets from the same model.
+- both tested VLMs, with our question format, report differences even between image sets from the same model.
 
 The method and the system make these checks routine before a model, a setting or a rewriter is released.
 
