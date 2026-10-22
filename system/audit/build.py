@@ -189,6 +189,24 @@ def statements(groups):
     return out
 
 
+def official():
+    """Pooled intervals of the scripted analyses (10,000 bootstrap resamples) for the designed contrasts, so the tool
+    shows the same intervals as the paper instead of its own 400-resample estimate: '<A>|<B>' -> aspect -> intervals."""
+    out = {}
+    for f, src in [("q1/primary.csv", "the Q1 analysis"), ("q3/primary.csv", "the Q3 analysis"), ("q3/packages.csv", "the Q3 analysis"),
+                   ("q4/primary.csv", "the Q4 analysis"), ("q4/descriptive.csv", "the Q4 analysis")]:
+        path = os.path.join(REPO, "results", f)
+        if not os.path.exists(path):
+            continue
+        for r in pd.read_csv(path).itertuples():
+            d = out.setdefault(f"{r.A}|{r.B}", {}).setdefault(r.aspect, {"src": src})
+            if r.effect == "location":
+                d.update(dlo=round(float(r.lo90), 4), dhi=round(float(r.hi90), 4))
+            else:
+                d.update(llo=round(float(r.lo90), 4), lhi=round(float(r.hi90), 4))
+    return {k: {a: v for a, v in d.items() if {"dlo", "llo"} <= set(v)} for k, d in out.items()}
+
+
 def main():
     groups = [os.path.basename(d) for d in sorted(glob.glob(f"{SRC}/G*")) if os.path.exists(f"{d}/clip_scores.csv")]
     groups += [os.path.basename(d) for d in sorted(glob.glob(f"{LLM}/G*__*")) if os.path.exists(f"{d}/clip_scores.csv")
@@ -240,6 +258,7 @@ def main():
         scale=scale, scale_provisional=not complete, scale_groups=opens,
         validity={g: validity(g) for g in groups},
         margins=dict(location=FROZEN_M["location_effect"]["displacement_margin"], log_iqr=math.log(1.5)),
+        official=official(),
     )
     # scores: group -> subject index -> list of [k, seed, job, s_a1, s_a2, ...] in SHOWN order
     scores = {}

@@ -72,6 +72,11 @@ svg text { fill: var(--muted); font-size: 11px; font-family: inherit; }
 .band { fill: var(--band); }
 .zero { stroke: var(--faint); stroke-width: 1; }
 .pole { font-size: 10.5px; fill: var(--muted); }
+.figval { font-size: 11px; fill: var(--ink-2); font-weight: 500; }
+.figax text { font-size: 10px; fill: var(--muted); }
+.figax line, .figax path { stroke: var(--faint); }
+.card h2 .est { margin-left: auto; font-size: 11.5px; font-weight: 500; color: var(--ink-2); white-space: nowrap; }
+body:not(.fig) .figonly { display: none; }
 /* map */
 .cfg circle.pt { stroke: var(--panel); stroke-width: 2; cursor: pointer; }
 .cfg .ring { fill: none; stroke-width: 2.5; }
@@ -223,6 +228,7 @@ g.axi.dim { opacity: .16; }
   <div class="pill"><i style="background:var(--b)"></i><select id="selB"></select></div>
   <div class="diff" id="diff"></div>
   <div class="seg" id="aspSeg"></div>
+  <button class="iconbtn" id="figBtn" title="Figure mode: persistent scales, values and settings counts for screenshots in the paper">⎙</button>
   <button class="iconbtn" id="boardBtn" title="Findings board: save the current view with your verdict and a note; click a card to return to it">☆ 0</button>
   <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
 </header>
@@ -243,7 +249,7 @@ const ASP = META.aspects, RET = ASP.filter(a => a.retained), AIDX = Object.fromE
 const SUBJ = META.subjects, G = Object.fromEntries(META.groups.map(g => [g.id, g]));
 const PRE_LOC = META.margins.location, PRE_LR = META.margins.log_iqr, NBOOT = 400, DUR = 450;
 let M_LOC = PRE_LOC, M_LR = PRE_LR;   // the frozen margins; dragging a band edge changes them for exploration only
-const st = { A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat", main: "map",
+const st = { fig: false, A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat", main: "map",
   seedSel: null, seedSubj: null, subjSel: null, vFilter: null, fam: null };
 const cur = () => st.hover ?? st.subj;
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
@@ -285,7 +291,10 @@ function contrast(A = st.A, B = st.B) {
       pd.push(d3.median(vd)); pl.push(d3.median(vl));
     }
     pd.sort((x, y) => x - y); pl.sort((x, y) => x - y);
-    R[a.key] = { cells, pool: { d: d3.median(cells, c => c.d), lr: d3.median(cells, c => c.lr), dlo: q(pd, .05), dhi: q(pd, .95), llo: q(pl, .05), lhi: q(pl, .95) } };
+    R[a.key] = { cells, pool: { d: d3.median(cells, c => c.d), lr: d3.median(cells, c => c.lr), dlo: q(pd, .05), dhi: q(pd, .95), llo: q(pl, .05), lhi: q(pl, .95), src: "tool" } };
+    // for a designed contrast with a scripted analysis, show that analysis's intervals (10,000 resamples) instead
+    const off = META.official?.[A + "|" + B]?.[a.key];
+    if (off) Object.assign(R[a.key].pool, { dlo: off.dlo, dhi: off.dhi, llo: off.llo, lhi: off.lhi, src: off.src });
   }
   return R;
 }
@@ -312,7 +321,7 @@ function panelControls() {
   d3.select("#mainSeg").selectAll("button").data([["map", "◎", "Configuration map: where every configuration settles and how tightly"], ["contrasts", "▦", "Contrast overview: every designed contrast on every aspect"], ["statements", "❝", "VLM statements about the selected pair, each checked against the audit"]])
     .join("button").text(d => d[1]).attr("title", d => d[2]).classed("on", d => d[0] === st.main)
     .on("click", (e, d) => { st.main = d[0]; panelControls(); buildMap(); drawMap(false); });
-  d3.select("#evSeg").selectAll("button").data([["seeds", "⫽", "Paired seeds: each curve joins the image of A and the image of B made from the same seed"], ["dist", "∿", "Distributions of A and B on every aspect"], ["clusters", "⁘", "Appearance map: all images of this subject placed by CLIP image similarity; A and B as density contours"], ["rw", "✎", "Rewrites: what each rewritten prompt says (text side) against where its image lands"]])
+  d3.select("#evSeg").selectAll("button").data([["seeds", "⫽", "Paired seeds: each curve joins the image of A and the image of B made from the same seed"], ["dist", "∿", "Distributions of A and B on every aspect"], ["clusters", "⁘", "Appearance map: all images of this subject placed by CLIP image similarity (an index to images; areas and distances are not spread)"], ["rw", "✎", "Rewrites: what each rewritten prompt says (text side) against where its image lands"]])
     .join("button").text(d => d[1]).attr("title", d => d[2]).classed("on", d => d[0] === st.ev)
     .on("click", (e, d) => { st.ev = d[0]; panelControls(); drawRidge(); });
   d3.select("#sortBtn").classed("on", st.sortRows === "delta").on("click", () => { st.sortRows = st.sortRows === "delta" ? "cat" : "delta"; panelControls(); drawMatrix(); overviewHL(); });
@@ -438,10 +447,26 @@ function drawMap(animate) {
     const g = OVS.ctx.selectAll("g." + cls).data([0]).join("g").attr("class", cls);
     g.selectAll("path").data([.08, .25, .5].map(f => C(f * peak))).join("path").attr("d", d3.geoPath()).attr("fill", c).attr("fill-opacity", .06)
       .attr("stroke", c).attr("stroke-opacity", .45).attr("stroke-width", 1.1);
-    g.selectAll("circle").data(per(gid)).join("circle").attr("r", 2.2).attr("fill", c).attr("opacity", .45)
-      .attr("cx", p => x(Math.max(x.domain()[0], Math.min(x.domain()[1], p.x)))).attr("cy", p => y(Math.max(y.domain()[0], Math.min(y.domain()[1], p.y))));
+    // a subject beyond the fitted axes is drawn at the edge as a small triangle pointing outward (never silently clamped)
+    const [dx0, dx1] = x.domain(), [dy0, dy1] = y.domain();
+    g.selectAll("path.sp").data(per(gid)).join("path").attr("class", "sp").attr("fill", c).attr("opacity", .5)
+      .attr("d", p => { const off = p.x < dx0 || p.x > dx1 || p.y > dy1 || p.y < dy0; return d3.symbol(off ? d3.symbolTriangle : d3.symbolCircle, off ? 34 : 15)(); })
+      .attr("transform", p => `translate(${x(Math.max(dx0, Math.min(dx1, p.x)))},${y(Math.max(dy0, Math.min(dy1, p.y)))}) rotate(${p.x > dx1 ? 90 : p.x < dx0 ? -90 : p.y > dy1 ? 0 : p.y < dy0 ? 180 : 0})`);
+    g.selectAll("circle").remove();
   });
   OVS.zx.transition(t).attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.t).attr("y2", H - m.b);
+  // figure mode: numeric axes, axis meaning, and how many of the selected pair's subjects lie beyond the axes
+  OVS.svg.selectAll("g.figax").data(st.fig ? [0] : []).join("g").attr("class", "figax").call(g => {
+    g.selectAll("*").remove();
+    g.append("g").attr("transform", `translate(0,${H - m.b})`).call(d3.axisTop(x).ticks(6).tickSize(4).tickSizeOuter(0));
+    g.append("g").attr("transform", `translate(${m.l},0)`).call(d3.axisRight(y).ticks(4).tickSize(4).tickSizeOuter(0));
+    g.append("text").attr("x", (m.l + W - m.r) / 2).attr("y", m.t - 6).attr("text-anchor", "middle")
+      .text("x: typical location, scale units from each subject's cross-configuration centre · y: typical spread (median IQR)");
+    const [dx0, dx1] = x.domain(), [, dy1] = y.domain();
+    const offN = gid => per(gid).filter(p => p.x < dx0 || p.x > dx1 || p.y > dy1).length;
+    g.append("text").attr("x", W - m.r).attr("y", H - m.b - 18).attr("text-anchor", "end")
+      .text(`beyond the axes (edge triangles): A ${offN(st.A)}, B ${offN(st.B)} of ${per(st.A).length} subjects`);
+  });
   OVS.pl.text(poleWord(a.left)); OVS.pr.text(poleWord(a.right));
   const pos = Object.fromEntries(OV.map(d => [d.g.id, [x(d.x), y(d.y)]]));
   const arr = ARROWS.map(([f, to, kind]) => ({ f: byPrefix(f), to: byPrefix(to), kind })).filter(d => d.f && d.to);
@@ -474,6 +499,10 @@ function drawMap(animate) {
     return g;
   }).transition(t).attr("transform", d => `translate(${x(d.x)},${y(d.y)})`);
   placeLabels(t);
+  const nset = (A, B) => Object.keys({ ...G[A].settings, ...G[B].settings }).filter(k => k !== "pipeline" && String(G[A].settings[k]) !== String(G[B].settings[k])).length;
+  OVS.labs.selectAll("text.arrlab").data(st.fig ? arr.filter(d => d.f.id === st.A && d.to.id === st.B) : []).join("text").attr("class", "figval arrlab")
+    .attr("x", d => (pos[d.f.id][0] + pos[d.to.id][0]) / 2 + 8).attr("y", d => (pos[d.f.id][1] + pos[d.to.id][1]) / 2)
+    .text(d => { const n = nset(d.f.id, d.to.id); return n > 1 ? `${n} settings change: not attributable to one` : n === 1 ? "one setting changes" : ""; });
   drawMatrix();
   overviewHL();
 }
@@ -624,7 +653,7 @@ function buildScatters() {
   const side = d3.select("#side"); side.selectAll("*").remove();
   for (const a of RET) {
     const card = side.append("section").attr("class", "card").attr("data-a", a.key).on("click", e => { if (e.target.tagName !== "circle") pick(st.subj, a.key); });
-    card.append("h2").call(h => { if (a === RET[0]) h.append("span").attr("class", "pl").text("E"); h.append("span").text(aspName(a.key)); });
+    card.append("h2").call(h => { if (a === RET[0]) h.append("span").attr("class", "pl").text("E"); h.append("span").text(aspName(a.key)); h.append("span").attr("class", "est figonly"); });
     card.append("div").attr("class", "body");
   }
   side.selectAll(".card").each(function () {
@@ -649,6 +678,7 @@ function buildScatters() {
       .on("mousemove", e => showTip(e, `spread margin <b>×${f2(Math.exp(M_LR))}</b> (pre-registered ×${f2(Math.exp(PRE_LR))})`)).on("mouseleave", hideTip);
     svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", m.l).attr("y", H - 4).text(poleWord(a.left));
     svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text(poleWord(a.right));
+    s.mlab = svg.append("g").attr("class", "figonly");
     s.ci = svg.append("g"); s.dots = svg.append("g"); s.pool = svg.append("g").attr("class", "pool");
     s.pool.append("line").attr("class", "px"); s.pool.append("line").attr("class", "py");
     s.pool.append("path").attr("d", d3.symbol(d3.symbolDiamond, 110)());
@@ -687,6 +717,12 @@ function drawScatters(animate) {
     s.pool.select("path").transition(t).attr("transform", `translate(${x(p.d)},${y(p.lr)})`);
     s.hLoc.attr("x", d => x(d * M_LOC) - 4).attr("y", m.t);
     s.hLr.attr("x", W - m.r - 14).attr("y", d => y(d * M_LR) - 4);
+    // figure mode: margin values at the band edges and the pooled estimate in the card title
+    s.mlab.selectAll("text").data([[x(-M_LOC), m.t + 10, "end", fd(-M_LOC)], [x(M_LOC), m.t + 10, "start", fd(M_LOC)],
+      [m.l + 2, y(M_LR) - 3, "start", fr(M_LR)], [m.l + 2, y(-M_LR) + 11, "start", fr(-M_LR)]])
+      .join("text").attr("class", "pole").attr("x", d => d[0] + (d[2] === "end" ? -3 : d[2] === "start" && d[1] === m.t + 10 ? 3 : 0)).attr("y", d => d[1]).attr("text-anchor", d => d[2]).text(d => d[3]);
+    d3.select(`#side .card[data-a="${a.key}"] h2 .est`).text(`${fd(p.d)} · ${fr(p.lr)}${p.src === "tool" ? "" : " ★"}`)
+      .attr("title", `pooled shift ${fd(p.d)} [${fd(p.dlo)}, ${fd(p.dhi)}], spread ${fr(p.lr)} [${fr(p.llo)}, ${fr(p.lhi)}]; 90% interval from ${p.src === "tool" ? "the tool (400 resamples)" : p.src + " (10,000 resamples); ★ = scripted analysis"}`);
     s.brushG.call(s.brush.move, null);
     const card = d3.select(`#side .card[data-a="${a.key}"]`).classed("nv", !valid(a.key));
     card.select("h2").selectAll(".nvmark").data(valid(a.key) ? [] : [1]).join("span").attr("class", "nvmark").text("⊘").attr("title", nvTitle());
@@ -735,7 +771,8 @@ function cellTip(a, c) {
 }
 function poolTip(a) {
   const r = R[a.key], p = r.pool, up = r.cells.filter(c => c.dlo >= M_LOC).length, dn = r.cells.filter(c => c.dhi <= -M_LOC).length;
-  return `<b>All subjects</b> · ${aspName(a.key)}<div class="bar"><span>shift</span><span><b>${fd(p.d)}</b> [${fd(p.dlo)}, ${fd(p.dhi)}]</span><span>spread</span><span><b>${fr(p.lr)}</b> [${fr(p.llo)}, ${fr(p.lhi)}]</span><span>displaced</span><span>${dn} ← · → ${up}</span></div>`;
+  const srcLine = p.src === "tool" ? "90% interval from the tool (400 resamples)" : `90% interval from ${p.src} (10,000 resamples)`;
+  return `<b>All subjects</b> · ${aspName(a.key)}<div style="color:var(--muted)">${srcLine}</div><div class="bar"><span>shift</span><span><b>${fd(p.d)}</b> [${fd(p.dlo)}, ${fd(p.dhi)}]</span><span>spread</span><span><b>${fr(p.lr)}</b> [${fr(p.llo)}, ${fr(p.lhi)}]</span><span>displaced</span><span>${dn} ← · → ${up}</span></div>`;
 }
 
 // ---------------- linking ----------------
@@ -831,6 +868,9 @@ function drawSeeds(host, si) {
   svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 6).text(poleWord(a.left));
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 6).attr("text-anchor", "end").text(poleWord(a.right));
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", 14).attr("text-anchor", "end").text(aspName(a.key));
+  svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", 14)
+    .text(sameNoise ? "same seed → same starting noise" : "matched by rank (quantile alignment)")
+    .append("title").text(sameNoise ? "A and B share pipeline and resolution, so each curve follows one image from its seed" : "A and B differ in pipeline or resolution, so the same seed does not give the same starting noise; images are paired by rank, and the curves are not trajectories");
   markJob(); seedHL();
 }
 
@@ -894,8 +934,9 @@ function coHL() {
 
 // ---------------- auxiliary, third mode: appearance map of one subject ----------------
 // All images of the subject from every configuration, placed by a shared t-SNE of their CLIP image embeddings
-// (computed at build time). Grey dots are the other configurations; A and B are drawn with smooth density contours,
-// so a configuration that puts most of its images in one tight region shows a default that the five aspects may not name.
+// (computed at build time). Grey dots are the other configurations; A and B are coloured dots. It is an index to images
+// that can show a default the five aspects do not name. t-SNE keeps only local neighbourhoods, so no contours are drawn:
+// areas and distances on it must not be read as spread (external review 2026-10-22).
 function drawClusters(host, si) {
   const { w: W, h: H } = box("#ridge"), m = 18, svg = host.append("svg").attr("width", W).attr("height", H);
   if (typeof TSNE === "undefined") return;
@@ -906,12 +947,6 @@ function drawClusters(host, si) {
   svg.append("g").selectAll("circle").data(other).join("circle").attr("class", "cpt").attr("cx", d => x(d.p[0])).attr("cy", d => y(d.p[1]))
     .attr("r", 2.6).attr("fill", d => famColor(G[d.g])).attr("opacity", .28)
     .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r))).on("mouseleave", hideTip);
-  [[st.A, "var(--a)"], [st.B, "var(--b)"]].forEach(([gid, c]) => {
-    const ps = pts.filter(d => d.g === gid);
-    const dens = d3.contourDensity().x(d => x(d.p[0])).y(d => y(d.p[1])).size([W, H]).bandwidth(Math.max(10, side / 26)).thresholds(5)(ps);
-    svg.append("g").selectAll("path").data(dens.slice(1)).join("path").attr("d", d3.geoPath())
-      .attr("fill", c).attr("fill-opacity", .07).attr("stroke", c).attr("stroke-width", 1.4).attr("stroke-linejoin", "round").attr("opacity", .9);
-  });
   svg.append("g").selectAll("circle").data(pts.filter(d => d.g === st.A || d.g === st.B)).join("circle")
     .attr("class", "cpt ab").attr("data-j", d => d.r[2]).attr("data-g", d => d.g)
     .attr("cx", d => x(d.p[0])).attr("cy", d => y(d.p[1])).attr("r", 3.6).attr("fill", d => d.g === st.A ? "var(--a)" : "var(--b)")
@@ -1101,6 +1136,7 @@ function exportFindings() {
     .map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "findings.csv"; a.click();
 }
+d3.select("#figBtn").on("click", function () { st.fig = !st.fig; d3.select("body").classed("fig", st.fig); d3.select(this).classed("on", st.fig); update(); });
 d3.select("#boardBtn").on("click", () => { d3.select("#board").classed("open", !d3.select("#board").classed("open")); drawBoard(); });
 d3.select("#fAdd").on("click", addFinding);
 d3.select("#fExp").on("click", exportFindings);
