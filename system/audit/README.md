@@ -1,4 +1,6 @@
-# Audit tool (rev7)
+# Audit tool (rev10)
+
+The final interface and the rationale for every view, mode and control: `INTERFACE.md`.
 
 Panels are lettered for reference: A main view (configuration map / contrast overview / VLM statements), B subject × configuration matrix, C image axis, D evidence (trajectories, distributions, appearance map, rewrites), E contrast scatters. Palette: A blue, B orange, one violet accent for selections; families in low-saturation slate, sage and rose; one soft diverging scale for pole locations; verdicts in sage (confirmed), red (contradicted), violet (narrowed, did not move), amber (no shift), grey (other).
 
@@ -47,7 +49,7 @@ Rebuild whenever more groups have been generated and CLIP-scored. The pages load
 The page is written with D3 v7 (selections, data joins, scales, axes, areas, transitions); `build.py` (Python) only prepares the data. Numbers appear only in tooltips, except in figure mode (rev8, below). Intervals are 90% bootstrap intervals with 400 resamples, paired by seed when A and B share the same weights. The display labels ("displaced", "same place") follow the frozen margins; the primary analysis is done separately in a script, not in the tool.
 
 ## rev8 (2026-10-22): changes after the external review (`docs/REVIEW_2026-10-22.md`)
-- **Figure mode** (⎙ in the header) for screenshots in the paper; the interactive view stays as before. It adds numeric axes to the configuration map with their meaning (x: typical location in scale units from each subject's cross-configuration centre; y: typical spread, median IQR), the number of the selected pair's subjects beyond the axes, the margin values on the band edges of the contrast scatters, the pooled shift and spread ratio in each scatter's title, and, on the selected arrow, how many declared settings change ("not attributable to one" when more than one).
+- **Figure mode** for screenshots in the paper (since rev10 opened with `index.html?figure`, not a button); the interactive view stays as before. It adds numeric axes to the configuration map with their meaning (x: typical location in scale units from each subject's cross-configuration centre; y: typical spread, median IQR), the number of the selected pair's subjects beyond the axes, the margin values on the band edges of the contrast scatters, the pooled shift and spread ratio in each scatter's title, and, on the selected arrow, how many declared settings change ("not attributable to one" when more than one).
 - **Intervals from the scripted analyses.** `build.py` embeds the pooled 90% intervals of `results/q1`, `results/q3` and `results/q4` (10,000 resamples) as `META.official`; for those designed contrasts the tool shows them instead of its own 400-resample intervals (★ in figure mode; the tooltip names the source). Point estimates and per-subject intervals are still computed in the browser.
 - **No silent clamping on the map:** a subject of the selected pair beyond the fitted axes is drawn at the edge as a triangle pointing outward.
 - **Trajectories** state whether curves follow one image (same starting noise) or are a rank match (quantile alignment).
@@ -68,3 +70,6 @@ The external review asked for one interface that takes each kind of language cla
 - The analyst's verdict belongs to one chain (claim, pair, subject, seed) and is cleared when any of them changes.
 - **+ save trail** stores the chain with its view in the browser; a saved row shows its three link verdicts and restores the view, the statement and the verdict on click; ⤓ exports the saved trails as CSV (for the paper's end-to-end cases).
 - Tested on a synthetic build with VLM statements and a rewritten-prompt configuration (all three claim kinds, saving, restoring, verdict reset, the other three main modes); not yet rebuilt on the server.
+
+## rev10 (2026-10-22): final interface
+See `INTERFACE.md`. Cool, crisp palette (A blue, B orange as the only data hues; families as shapes; teal–ochre pole scale; status colours always with a symbol or shape); figure mode moved to the URL; verdict glyphs removed from the aspect buttons (duplicated the contrast scatters); the findings board removed (the audit trail's saved list is the one record of findings). Tested on a synthetic build with pilot images as thumbnails.

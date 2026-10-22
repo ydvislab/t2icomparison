@@ -7,26 +7,32 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* Palette (rev10, "cool and crisp"; checked with the dataviz validator):
+   identity  A #2563eb, B #f97316 (pass: CVD 32.8, normal 41.5); all other data marks are neutral
+   poles     teal #0d9488 <-> ochre #a16207 (pass against A and B in all pairs), grey midpoint
+   status    good #0ca30c, critical #d03b3b, warning #e0a100 (reference status steps; never colour alone: every status
+             mark carries a symbol or a shape), muted for "no shift"
+   selection ink (a dark ring), so no extra hue competes with A and B */
 :root {
   color-scheme: light;
-  --page: #f5f6f8; --panel: #ffffff; --ink: #1f2328; --ink-2: #4b5260; --muted: #8a909a; --faint: #c9cdd4;
-  --grid: #eef0f3; --band: rgba(31,35,40,.045); --dot: #b4b9c2;
-  --a: #3d6fa5; --b: #d9822b; --hl: #6e56cf; --warn: #b9862f; --ok: #4f9a86; --bad: #c0564b;
-  --shadow: 0 0 0 1px rgba(16,24,40,.06);
+  --page: #f3f6fa; --panel: #ffffff; --ink: #0b1220; --ink-2: #3d4a5c; --muted: #8792a6; --faint: #cfd6e2;
+  --grid: #e8edf4; --band: rgba(37,99,235,.055); --dot: #b3bdcc;
+  --a: #2563eb; --b: #f97316; --hl: #0b1220; --warn: #e0a100; --ok: #0ca30c; --bad: #d03b3b;
+  --shadow: 0 0 0 1px #e3e8f0;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --faint: #3a3f48;
-    --grid: #23272e; --band: rgba(255,255,255,.05); --dot: #5c626d; --a: #77a1d3; --b: #ec9c50; --hl: #9d8bff; --warn: #d8a64e; --ok: #6cbba5; --bad: #db7a70;
-    --shadow: 0 0 0 1px rgba(255,255,255,.06);
+    --page: #0a0e15; --panel: #111827; --ink: #e8edf5; --ink-2: #b4bfd0; --muted: #7d889c; --faint: #2b3445;
+    --grid: #1c2433; --band: rgba(96,165,250,.08); --dot: #4b5568; --a: #3b82f6; --b: #f97316; --hl: #e8edf5; --warn: #fab219; --ok: #22c55e; --bad: #ef4444;
+    --shadow: 0 0 0 1px #1f2937;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --faint: #3a3f48;
-  --grid: #23272e; --band: rgba(255,255,255,.05); --dot: #5c626d; --a: #77a1d3; --b: #ec9c50; --hl: #9d8bff; --warn: #d8a64e; --ok: #6cbba5; --bad: #db7a70;
-  --shadow: 0 0 0 1px rgba(255,255,255,.06);
+  --page: #0a0e15; --panel: #111827; --ink: #e8edf5; --ink-2: #b4bfd0; --muted: #7d889c; --faint: #2b3445;
+  --grid: #1c2433; --band: rgba(96,165,250,.08); --dot: #4b5568; --a: #3b82f6; --b: #f97316; --hl: #e8edf5; --warn: #fab219; --ok: #22c55e; --bad: #ef4444;
+  --shadow: 0 0 0 1px #1f2937;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
@@ -65,7 +71,7 @@ header h1 { font-size: 18px; font-weight: 650; margin: 0 8px 0 0; letter-spacing
 #mapCard { grid-area: map; } #matrixCard { grid-area: matrix; } #stripCard { grid-area: strip; } #ridgeCard { grid-area: ridge; }
 #side { grid-area: side; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
 #side .card { flex: 1; cursor: pointer; }
-#side .card.on { box-shadow: 0 0 0 2px var(--hl), var(--shadow); }
+#side .card.on { box-shadow: 0 0 0 1.5px var(--ink-2), var(--shadow); }
 #side .card h2 { padding-top: 7px; font-size: 13px; }
 svg { display: block; }
 svg text { fill: var(--muted); font-size: 11px; font-family: inherit; }
@@ -78,14 +84,14 @@ svg text { fill: var(--muted); font-size: 11px; font-family: inherit; }
 .card h2 .est { margin-left: auto; font-size: 11.5px; font-weight: 500; color: var(--ink-2); white-space: nowrap; }
 body:not(.fig) .figonly { display: none; }
 /* map */
-.cfg circle.pt { stroke: var(--panel); stroke-width: 2; cursor: pointer; }
+.cfg .pt { stroke: var(--panel); stroke-width: 1.5; cursor: pointer; }
 .cfg .ring { fill: none; stroke-width: 2.5; }
 .lab text { font-size: 13px; fill: var(--ink-2); font-weight: 500; paint-order: stroke; stroke: var(--panel); stroke-width: 3px; pointer-events: none; }
 .arrow path.shaft { fill: none; stroke: var(--ink-2); stroke-width: 1.8; stroke-linecap: round; opacity: .7; }
 .arrow path.hit { fill: none; stroke: transparent; stroke-width: 14; cursor: pointer; }
 .arrow.package path.shaft { stroke-dasharray: 5 4; }
 .arrow.prompt path.shaft { stroke-dasharray: 1.5 4; }
-.cfg.rw circle.pt { fill-opacity: .45; stroke-dasharray: 2 2; }
+.cfg.rw .pt { fill-opacity: .45; }
 .arrow:hover path.shaft { stroke: var(--hl); opacity: 1; stroke-width: 2.4; }
 .detail path.link { fill: none; stroke-width: 1.2; opacity: .55; }
 .detail path.mk { stroke: var(--panel); stroke-width: 1; }
@@ -123,10 +129,10 @@ button.mini { border: 0; background: var(--page); color: var(--ink-2); border-ra
 button.mini.on { background: var(--ink); color: var(--panel); }
 #matrixCard h2 button.mini { margin-left: 6px; }
 .revb { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent); border-radius: 999px; padding: 2px 9px; cursor: pointer; display: none; }
-.mx .rl.rev { fill: var(--warn); font-weight: 600; }
-.mx .dbar.rev { stroke: var(--warn); stroke-width: 1.6; }
+.mx .rl.rev { fill: var(--bad); font-weight: 600; }
+.mx .dbar.rev { stroke: var(--bad); stroke-width: 1.6; }
 .mx .dmark { stroke: var(--faint); stroke-dasharray: 2 2; }
-.subj.rev { stroke: var(--warn); stroke-width: 2; }
+.subj.rev { stroke: var(--bad); stroke-width: 2; }
 /* paired-seed trajectories */
 .seg.mini { box-shadow: none; background: var(--page); margin-left: 6px; padding: 2px; }
 .seg.mini button { padding: 1px 9px; font-size: 13px; }
@@ -139,7 +145,7 @@ button.mini.on { background: var(--ink); color: var(--panel); }
 #stmts { position: absolute; inset: 0; overflow: auto; padding: 6px 14px 12px; }
 /* audit trail: claim -> measure -> subject -> images */
 #trail { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 4px 12px 10px; gap: 8px; }
-#trail .chain { flex: 0 0 62%; min-height: 0; display: flex; align-items: stretch; gap: 0; }
+#trail .chain { flex: 1 1 auto; min-height: 0; display: flex; align-items: stretch; gap: 0; }
 #trail .stage.s1 { flex-grow: 1; } #trail .stage.s2 { flex-grow: 1.15; } #trail .stage.s3 { flex-grow: 1; } #trail .stage.s4 { flex-grow: .9; }
 #trail .stage { flex: 1 1 0; min-width: 0; border: 1px solid var(--grid); border-radius: 10px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; background: var(--panel); }
 #trail .stage h3 { margin: 0; font-size: 10.5px; font-weight: 600; color: var(--muted); letter-spacing: .03em; text-transform: uppercase; display: flex; gap: 6px; align-items: center; }
@@ -160,7 +166,7 @@ button.mini.on { background: var(--ink); color: var(--panel); }
 #trail .uv button.on.ok { background: var(--ok); color: #fff; border-color: var(--ok); }
 #trail .uv button.on.no { background: var(--bad); color: #fff; border-color: var(--bad); }
 #trail .tbar { flex: 0 0 auto; display: flex; gap: 6px; align-items: center; font-size: 11px; color: var(--muted); }
-#trail .saved { flex: 1 1 auto; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
+#trail .saved { flex: 0 1 auto; max-height: 32%; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
 #trail .tr { display: grid; grid-template-columns: 18px 1fr auto auto auto auto 16px; gap: 6px; align-items: center; font-size: 11.5px; padding: 2px 6px; border-radius: 6px; cursor: pointer; }
 #trail .tr:hover { background: var(--band); }
 #trail .tr .q { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); }
@@ -207,27 +213,15 @@ g.axi.dim { opacity: .16; }
 .seg button.nv { text-decoration: line-through; text-decoration-color: var(--warn); }
 /* main view: focus + context */
 .ctxA path, .ctxB path { stroke-linejoin: round; }
-.cfg.ctx circle.pt { opacity: .55; }
-.cfg.focus circle.pt { opacity: 1; }
+.cfg.ctx .pt { opacity: .5; }
+.cfg.focus .pt { opacity: 1; }
 .arrow.dim path.shaft { opacity: .18; }
 .arrow.sel path.shaft { stroke: var(--ink); opacity: .9; stroke-width: 2.4; }
 .arrow.adhoc path.shaft { stroke: var(--ink); opacity: .9; stroke-width: 2.2; stroke-dasharray: 8 2 1 2; }
 /* aspect buttons carry the pair's verdict glyphs */
 #aspSeg button { display: inline-flex; align-items: center; gap: 5px; }
 #aspSeg svg.vg { width: 26px; height: 14px; overflow: visible; }
-/* findings board */
-#board { position: fixed; top: 58px; right: 16px; bottom: 14px; width: 320px; background: var(--panel); border-radius: 10px;
   box-shadow: 0 0 0 1px rgba(16,24,40,.08), 0 12px 32px rgba(16,24,40,.16); display: none; flex-direction: column; z-index: 8; }
-#board.open { display: flex; }
-#board .bh { display: flex; align-items: center; gap: 6px; padding: 10px 12px 6px; font-weight: 600; font-size: 13px; color: var(--ink-2); }
-#board .bl { flex: 1; overflow: auto; padding: 4px 10px 10px; }
-.fcard { border: 1px solid var(--grid); border-radius: 8px; padding: 7px 9px; margin-bottom: 7px; cursor: pointer; }
-.fcard:hover { border-color: var(--hl); }
-.fcard .ft { font-size: 12px; color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
-.fcard .ft i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
-.fcard select, .fcard textarea { width: 100%; font: inherit; font-size: 12px; border: 1px solid var(--grid); border-radius: 6px; background: var(--page); color: var(--ink); margin-top: 5px; }
-.fcard textarea { height: 38px; resize: vertical; padding: 3px 6px; }
-#boardBtn { width: auto; padding: 0 10px; border-radius: 999px; font-size: 13px; }
 /* drag to compare */
 .dragline { fill: none; stroke: var(--hl); stroke-width: 2.2; stroke-dasharray: 5 4; pointer-events: none; }
 .cfg { cursor: grab; }
@@ -257,8 +251,6 @@ g.axi.dim { opacity: .16; }
   <div class="pill"><i style="background:var(--b)"></i><select id="selB"></select></div>
   <div class="diff" id="diff"></div>
   <div class="seg" id="aspSeg"></div>
-  <button class="iconbtn" id="figBtn" title="Figure mode: persistent scales, values and settings counts for screenshots in the paper">⎙</button>
-  <button class="iconbtn" id="boardBtn" title="Findings board: save the current view with your verdict and a note; click a card to return to it">☆ 0</button>
   <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
 </header>
 <main id="app">
@@ -269,7 +261,6 @@ g.axi.dim { opacity: .16; }
   <aside id="side"></aside>
 </main>
 <div class="tip" id="tip"></div>
-<aside id="board"><div class="bh">Findings <button class="mini" id="fAdd" title="Save the current view">+</button><button class="mini" id="fExp" title="Download the findings as CSV">⤓</button><button class="mini" id="fClose" style="margin-left:auto" title="Close">✕</button></div><div class="bl" id="fList"></div></aside>
 <script src="d3.min.js"></script>
 <script src="data.js"></script>
 <script>
@@ -278,7 +269,7 @@ const ASP = META.aspects, RET = ASP.filter(a => a.retained), AIDX = Object.fromE
 const SUBJ = META.subjects, G = Object.fromEntries(META.groups.map(g => [g.id, g]));
 const PRE_LOC = META.margins.location, PRE_LR = META.margins.log_iqr, NBOOT = 400, DUR = 450;
 let M_LOC = PRE_LOC, M_LR = PRE_LR;   // the frozen margins; dragging a band edge changes them for exploration only
-const st = { fig: false, A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat", main: "map",
+const st = { fig: new URLSearchParams(location.search).has("figure"), A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat", main: "map",
   seedSel: null, seedSubj: null, subjSel: null, vFilter: null, fam: null };
 const cur = () => st.hover ?? st.subj;
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
@@ -355,26 +346,12 @@ function panelControls() {
     .on("click", (e, d) => { st.ev = d[0]; panelControls(); drawRidge(); });
   d3.select("#sortBtn").classed("on", st.sortRows === "delta").on("click", () => { st.sortRows = st.sortRows === "delta" ? "cat" : "delta"; panelControls(); drawMatrix(); overviewHL(); });
 }
-// each aspect button carries the selected pair's pooled verdict: an arrow for the shift (solid once it is a
-// displacement, dashed while unresolved, none when the typical output stays in place) and a disc against a ring for the
-// spread (smaller = narrower; solid ring once resolved); struck through when not validated for the pair
+// aspect buttons choose the aspect for every view; struck through when people have not validated it for the pair
 function aspectSeg() {
-  const b = d3.select("#aspSeg").selectAll("button").data(RET).join(en => { const bt = en.append("button"); bt.append("span"); bt.append("svg").attr("class", "vg"); return bt; })
+  d3.select("#aspSeg").selectAll("button").data(RET).join("button").text(a => aspName(a.key))
     .classed("on", a => a.key === st.aspect).classed("nv", a => !valid(a.key))
-    .attr("title", a => { if (!valid(a.key)) return nvTitle(); const p = R?.[a.key]?.pool; return p ? `${aspName(a.key)}: shift ${fd(p.d)} [${fd(p.dlo)}, ${fd(p.dhi)}], spread ${fr(p.lr)} [${fr(p.llo)}, ${fr(p.lhi)}]` : null; })
+    .attr("title", a => valid(a.key) ? null : nvTitle())
     .on("click", (e, a) => pick(st.subj, a.key));
-  b.select("span").text(a => aspName(a.key));
-  b.select("svg").each(function (a) {
-    const g = d3.select(this), p = R?.[a.key]?.pool; g.selectAll("*").remove(); if (!p) return;
-    const vl = verdict(p.dlo, p.dhi, M_LOC), vs = verdict(p.llo, p.lhi, M_LR), c = "currentColor";
-    g.append("circle").attr("cx", 19).attr("cy", 7).attr("r", 5.5).attr("fill", "none").attr("stroke", c).attr("stroke-opacity", .35).attr("stroke-dasharray", "1.5 1.5");
-    g.append("circle").attr("cx", 19).attr("cy", 7).attr("r", Math.max(1.5, Math.min(7, 5.5 * Math.exp(p.lr)))).attr("fill", c).attr("fill-opacity", vs === "moved" ? .85 : .3);
-    if (vl !== "same") {
-      const len = Math.max(3, Math.min(7, Math.abs(p.d) * 5)), dir = Math.sign(p.d) || 1;
-      g.append("path").attr("d", `M${6 - dir * len},7 L${6 + dir * len},7 M${6 + dir * len - dir * 3},4 L${6 + dir * len},7 L${6 + dir * len - dir * 3},10`)
-        .attr("fill", "none").attr("stroke", c).attr("stroke-width", 1.6).attr("stroke-linecap", "round").attr("stroke-dasharray", vl === "moved" ? null : "2 1.5");
-    } else g.append("line").attr("x1", 2).attr("x2", 10).attr("y1", 7).attr("y2", 7).attr("stroke", c).attr("stroke-opacity", .45).attr("stroke-width", 1.4);
-  });
 }
 function diffChips() {
   const a = G[st.A].settings, b = G[st.B].settings;
@@ -393,8 +370,8 @@ function diffChips() {
 }
 
 // ---------------- main view: configuration map ----------------
-const FAMC = { "Stable Diffusion": "#8a93a6", "FLUX.2": "#4f9a86", "Qwen-Image": "#b07a93" };
-const DIV = d3.interpolateRgbBasis(["#2f6f73", "#8dbab3", "#f1eee7", "#d9b97f", "#9b6b2c"]);   // left pole ... right pole
+const FAMS = { "Stable Diffusion": d3.symbolCircle, "FLUX.2": d3.symbolSquare, "Qwen-Image": d3.symbolTriangle };   // family = shape; hue is reserved for A and B
+const DIV = d3.interpolateRgbBasis(["#0d9488", "#8fd0c8", "#eef2f6", "#dcc08a", "#a16207"]);   // left pole (teal) ... right pole (ochre)
 const SHORT = { G01: "SD1.5", G02: "SDXL", G03: "Turbo", G04: "SD3.5", G05: "dev", G06: "kb4·4", G07: "kb4·1", G08: "k4",
   G09: "Qw·4", G10: "Qw·1", G11: "kb9", G12: "k9" };
 const ORDER = ["G01", "G02", "G03", "G04", "G05", "G11", "G12", "G06", "G07", "G08", "G09", "G10"];
@@ -405,7 +382,8 @@ const EXTRA = META.groups.filter(g => g.rewrite), MAPG = [...CFGS, ...EXTRA];
 const byPrefix = p => G[p] || CFGS.find(g => g.id.startsWith(p));
 const sh = g => (SHORT[g.id.slice(0, 3)] || g.label) + (g.rewrite ? "·" + g.rewrite : "");
 const KIND = { guidance: "guidance only", package: "package: several settings change", prompt: "prompt only: rewritten by an LLM before generation" };
-const famColor = g => FAMC[g.family] || "var(--dot)";
+const famColor = g => "var(--dot)";
+const famShape = g => FAMS[g.family] || d3.symbolCircle;
 let OV = null;
 const OVS = {};
 const cfgDrag = d3.drag().clickDistance(5).subject(e => ({ x: e.x, y: e.y }))
@@ -520,7 +498,7 @@ function drawMap(animate) {
   OVS.pts.selectAll("g.cfg").data(OV, d => d.g.id).join(en => {
     const g = en.append("g").attr("class", d => "cfg" + (d.g.rewrite ? " rw" : "")).attr("transform", d => `translate(${x(d.x)},${y(d.y)})`);
     g.append("circle").attr("class", "ring").attr("r", 12);
-    g.append("circle").attr("class", "pt").attr("r", 5).attr("fill", d => famColor(d.g));
+    g.append("path").attr("class", "pt").attr("d", d => d3.symbol(famShape(d.g), 80)()).attr("fill", "var(--ink-2)");
     g.on("mouseenter", (e, d) => { st.hoverCfg = d.g.id; overviewHL(); })
      .on("mousemove", (e, d) => showTip(e, `<b>${d.g.label}</b><div class="bar"><span>location</span><span><b>${fd(d.x)}</b></span><span>spread</span><span><b>${f2(d.y)}</b></span></div><span style="color:var(--muted)">drag onto another configuration to compare</span>`))
      .on("mouseleave", () => { st.hoverCfg = null; hideTip(); overviewHL(); })
@@ -594,7 +572,7 @@ function drawMatrix() {
   mx.append("g").selectAll("rect").data(CFGS).join("rect").attr("class", "colhl")
     .attr("x", (g, i) => cx(i) - 1).attr("width", cw).attr("y", top - 4).attr("height", yy - top + 2).attr("rx", 4).attr("fill", "none");
   mx.append("g").selectAll("g").data(CFGS).join("g").attr("transform", (g, i) => `translate(${cx(i) + cw / 2 - 1},${top - 8})`)
-    .call(g => g.append("circle").attr("r", 3.5).attr("cy", 2).attr("fill", famColor))
+    .call(g => g.append("path").attr("d", c => d3.symbol(famShape(c), 30)()).attr("transform", "translate(0,2)").attr("fill", "var(--ink-2)"))
     .call(g => g.append("text").attr("class", "cl").attr("text-anchor", rotate ? "start" : "middle")
       .attr("transform", rotate ? "translate(-2,-6) rotate(-45)" : "translate(0,-8)").text(d => SHORT[d.id.slice(0, 3)]));
   mx.append("g").selectAll("text").data(subs).join("text").attr("class", s => "rl" + (rev.has(s.si) ? " rev" : "")).style("font-size", fs + "px")
@@ -649,7 +627,9 @@ function overviewHL() {
   const { x, y } = OVS, [x0, x1] = x.domain(), [y0, y1] = y.domain();
   OVS.pts.selectAll("g.cfg").select(".ring").attr("stroke", d => d.g.id === st.A ? "var(--a)" : d.g.id === st.B ? "var(--b)" : "none");
   const foc = d => d.g.id === st.A || d.g.id === st.B || d.g.id === hc;
-  OVS.pts.selectAll("g.cfg").classed("focus", foc).classed("ctx", d => !foc(d)).select(".pt").attr("r", d => foc(d) ? 8 : d.g.rewrite ? 4 : 5);
+  OVS.pts.selectAll("g.cfg").classed("focus", foc).classed("ctx", d => !foc(d)).select(".pt")
+    .attr("d", d => d3.symbol(famShape(d.g), foc(d) ? 170 : d.g.rewrite ? 45 : 80)())
+    .attr("fill", d => d.g.id === st.A ? "var(--a)" : d.g.id === st.B ? "var(--b)" : "var(--ink-2)");
   placeLabels(d3.transition().duration(0));
   let det = [];
   if (hs != null) det = OV.map(d => ({ d, p: d.per.find(p => p.si === hs) })).filter(o => o.p);
@@ -1051,8 +1031,8 @@ function drawRewrites(host, si) {
 // Each free-text statement a VLM made about the selected pair, coded to an aspect and direction, with the audit's
 // verdict for the same contrast, level and subject. The bar summarises the verdicts; clicking a statement selects its
 // aspect and subject so the other views show the evidence.
-const VCOL = v => v.startsWith("confirmed") ? "var(--ok)" : v === "contradicted" ? "var(--bad)" : v.startsWith("narrowed") ? "var(--hl)"
-  : v === "audit: no shift" ? "var(--warn)" : "var(--faint)";
+const VCOL = v => v.startsWith("confirmed") ? "var(--ok)" : v === "contradicted" ? "var(--bad)" : v.startsWith("narrowed") ? "var(--warn)"
+  : v === "audit: no shift" ? "var(--muted)" : "var(--faint)";
 const VORDER = ["confirmed", "narrowed, did not move", "audit: no shift", "contradicted", "other"];
 const vkey = v => v.startsWith("confirmed") ? "confirmed" : VORDER.includes(v) ? v : "other";
 st.vlm = "all"; st.stLevel = "subject";
@@ -1109,8 +1089,9 @@ function drawStatements() {
   const U = userV();
   svg.append("g").selectAll("path").data(glyphs).join("path").attr("class", "sg")
     .attr("d", d => d3.symbol(d.s.vlm === "qwen" ? d3.symbolCircle : d3.symbolSquare, gsz * gsz * (d.s.vlm === "qwen" ? .85 : .7))())
-    .attr("transform", d => `translate(${d.x},${d.y})`).attr("fill", d => VCOL(d.s.verdict))
-    .attr("stroke", d => d.s === st.stSel ? "var(--ink)" : U[vid(d.s)] ? "var(--ink-2)" : "var(--panel)").attr("stroke-width", d => d.s === st.stSel ? 2 : 1)
+    .attr("transform", d => `translate(${d.x},${d.y})`).attr("fill", d => d.s.verdict === "contradicted" ? "var(--panel)" : VCOL(d.s.verdict))
+    .attr("stroke", d => d.s === st.stSel ? "var(--ink)" : d.s.verdict === "contradicted" ? "var(--bad)" : U[vid(d.s)] ? "var(--ink-2)" : "var(--panel)")
+    .attr("stroke-width", d => d.s === st.stSel ? 2 : d.s.verdict === "contradicted" ? 1.8 : 1)
     .style("cursor", "pointer")
     .on("mousemove", (e, d) => showTip(e, `<b style="color:${VCOL(d.s.verdict)}">${d.s.verdict}</b><br>${esc(d.s.text)}<br><span style="color:var(--muted)">${d.s.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"}</span>`))
     .on("mouseleave", hideTip)
@@ -1135,8 +1116,8 @@ function drawStatements() {
 // analyst's own, given after looking at the images. The trail follows the current selection; saved trails restore
 // their view and are exported for the paper's end-to-end cases.
 const LV = {  // link verdicts: symbol, colour, label
-  ok: ["✓", "var(--ok)", "supported"], bad: ["✗", "var(--bad)", "contradicted"], narrow: ["≈", "var(--hl)", "narrowed, did not move"],
-  still: ["○", "var(--warn)", "did not move"], nv: ["⊘", "var(--faint)", "not validated"], hidden: ["⇄", "var(--warn)", "pooling hides it"],
+  ok: ["✓", "var(--ok)", "supported"], bad: ["✗", "var(--bad)", "contradicted"], narrow: ["≈", "var(--warn)", "narrowed, did not move"],
+  still: ["○", "var(--muted)", "did not move"], nv: ["⊘", "var(--faint)", "not validated"], hidden: ["⇄", "var(--warn)", "pooling hides it"],
   rev: ["✗", "var(--bad)", "reversed here"], none: ["?", "var(--faint)", "undecided"], silent: ["–", "var(--faint)", "claim says nothing here"],
 };
 st.trailK = 0; st.trailUV = null;
@@ -1208,7 +1189,7 @@ function drawTrail() {
   } else {
     const y0 = ch / 2, x0 = 10, x1 = cw - 10;
     g1.append("line").attr("x1", x0).attr("x2", x1).attr("y1", y0).attr("y2", y0).attr("stroke", "var(--grid)").attr("stroke-width", 6).attr("stroke-linecap", "round");
-    if (C.dir === "right" || C.dir === "left") {
+    if ((C.dir === "right" || C.dir === "left") && C.l1 !== "silent") {
       const d = C.dir === "right" ? 1 : -1, xm = (x0 + x1) / 2;
       g1.append("path").attr("d", `M${xm},${y0} L${xm + d * (x1 - x0) * .38},${y0}`).attr("stroke", "var(--ink)").attr("stroke-width", 2.2).attr("marker-end", "url(#tah)");
     }
@@ -1307,54 +1288,6 @@ function exportTrails() {
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "audit_trails.csv"; a.click();
 }
 
-// ---------------- findings board ----------------
-// Save the current view (pair, aspect, subject, main and evidence modes, selected seeds and subjects) with a verdict and
-// a note; clicking a card returns to that view. Kept in this browser; ⤓ exports CSV.
-const FVERD = ["", "moved", "narrowed", "moved and narrowed", "no change", "differs by subject", "not trustworthy", "other"];
-function loadF() { try { return JSON.parse(localStorage.getItem("auditFindings") || "[]"); } catch (e) { return []; } }
-function saveF(F) { try { localStorage.setItem("auditFindings", JSON.stringify(F)); } catch (e) { /* storage unavailable */ } }
-function addFinding() {
-  const F = loadF();
-  F.unshift({ id: Date.now(), A: st.A, B: st.B, aspect: st.aspect, subj: st.subj, main: st.main, ev: st.ev,
-    seeds: st.seedSel ? [...st.seedSel] : null, subjects: st.subjSel ? [...st.subjSel] : null, verdict: "", note: "", time: new Date().toISOString().slice(0, 16) });
-  saveF(F); drawBoard();
-}
-function restoreFinding(f) {
-  st.main = f.main; st.ev = f.ev; panelControls(); buildMap();
-  setPair(f.A, f.B); pick(f.subj, f.aspect);
-  st.subjSel = f.subjects ? new Set(f.subjects) : null; subjHL(); matrixHL(null, null);
-  st.seedSel = f.seeds ? new Set(f.seeds) : null; st.seedSubj = f.subj; seedHL();
-}
-function drawBoard() {
-  const F = loadF();
-  d3.select("#boardBtn").text(`☆ ${F.length}`);
-  const card = d3.select("#fList").selectAll("div.fcard").data(F, f => f.id).join(en => {
-    const c = en.append("div").attr("class", "fcard");
-    const t = c.append("div").attr("class", "ft"); t.append("i").style("background", "var(--a)"); t.append("span").attr("class", "pair");
-    t.append("button").attr("class", "mini").style("margin-left", "auto").text("✕").attr("title", "Delete")
-      .on("click", (e, f) => { e.stopPropagation(); saveF(loadF().filter(x => x.id !== f.id)); drawBoard(); });
-    c.append("select").on("click", e => e.stopPropagation()).on("change", (e, f) => { const G2 = loadF(); G2.find(x => x.id === f.id).verdict = e.target.value; saveF(G2); })
-      .selectAll("option").data(FVERD).join("option").attr("value", v => v).text(v => v || "verdict…");
-    c.append("textarea").attr("placeholder", "note / evidence").on("click", e => e.stopPropagation())
-      .on("input", (e, f) => { const G2 = loadF(); G2.find(x => x.id === f.id).note = e.target.value; saveF(G2); });
-    c.on("click", (e, f) => restoreFinding(f));
-    return c;
-  });
-  card.select(".pair").text(f => `${sh(G[f.A])} → ${sh(G[f.B])} · ${aspName(f.aspect)} · ${SUBJ[f.subj].name}${f.seeds ? ` · ${f.seeds.length} seeds` : ""}`);
-  card.select("select").property("value", f => f.verdict);
-  card.select("textarea").property("value", f => f.note);
-}
-function exportFindings() {
-  const rows = loadF().map(f => [f.time, f.A, f.B, f.aspect, SUBJ[f.subj].name, f.main, f.ev, (f.seeds || []).join(" "), (f.subjects || []).map(i => SUBJ[i].name).join("; "), f.verdict, f.note]);
-  const csv = [["time", "A", "B", "aspect", "subject", "main_view", "evidence_view", "seeds", "brushed_subjects", "verdict", "note"], ...rows]
-    .map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "findings.csv"; a.click();
-}
-d3.select("#figBtn").on("click", function () { st.fig = !st.fig; d3.select("body").classed("fig", st.fig); d3.select(this).classed("on", st.fig); update(); });
-d3.select("#boardBtn").on("click", () => { d3.select("#board").classed("open", !d3.select("#board").classed("open")); drawBoard(); });
-d3.select("#fAdd").on("click", addFinding);
-d3.select("#fExp").on("click", exportFindings);
-d3.select("#fClose").on("click", () => d3.select("#board").classed("open", false));
 
 const vid = s => [s.vlm, s.A, s.B, s.level, s.si, s.text].join("|");
 function userV() { try { return JSON.parse(localStorage.getItem("auditUserVerdicts") || "{}"); } catch (e) { return {}; } }
@@ -1465,6 +1398,7 @@ function hideTip() { d3.select("#tip").style("display", "none"); }
 let R = null;
 function update() { diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
+d3.select("body").classed("fig", st.fig);
 header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
 [["#mapCard h2", "A"], ["#matrixCard h2", "B"], ["#ridgeCard h2", "D"], ["#stripCard", "C"]].forEach(([sel, l]) => {
   const h = sel === "#stripCard" ? d3.select("#stripName") : d3.select(sel);
