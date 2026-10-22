@@ -53,3 +53,18 @@ The page is written with D3 v7 (selections, data joins, scales, axes, areas, tra
 - **Trajectories** state whether curves follow one image (same starting noise) or are a rank match (quantile alignment).
 - **Appearance map** without density contours.
 - Tested on a synthetic build with the same data layout (12 configurations × 24 subjects × 32 seeds); not yet rebuilt on the server.
+
+## rev9 (2026-10-22): audit trail (main view, fourth mode ⛓)
+The external review asked for one interface that takes each kind of language claim to the images (`docs/REVIEW_2026-10-22.md`). The audit trail is that route, as a fixed chain of four stages, the same for all three roles of language:
+
+| Stage | Shows | Link to the next stage (audit verdict) |
+|---|---|---|
+| 1 Claim | the source (● Qwen-4B, ■ Mistral-24B statement; ✎ rewritten prompt; ≡ axis defined in words), the claim in one line, and the claimed direction on the aspect (or the claimed change in variety) | ✓ supported, ✗ contradicted, ≈ narrowed but did not move, ○ did not move, ⊘ not validated, – the claim says nothing on this aspect. For a statement: the Q5 verdict. For a rewrite: the sign of what the rewrite says (text side) against where its image lands (image side, beyond the margin). For an axis: whether people validated it for this pair |
+| 2 Measurement | the per-subject contrast scatter of the aspect with the margins, the selected subject and the pooled estimate | for a pooled claim, whether the pooled shift is beyond the margin; for a subject, ✓ same direction as the pool, ✗ reversed, ⇄ moved although the pool did not (pooling hides it), ≈ narrowed only |
+| 3 Subject | A and B of that subject on the aspect (dots, medians, margin band), the chosen seed ringed | the analyst's own verdict after looking at the images (✓ / ✗) |
+| 4 Images | A and B from the same seed (or matched by rank when pipeline or resolution differ), stepping through seeds | — |
+
+- The trail follows the current selection: a selected VLM statement (❝, and the ⛓ button in its detail), otherwise the rewritten prompt of the shown seed when the pair has a rewritten side (dotted arrow), otherwise the aspect's axis.
+- The analyst's verdict belongs to one chain (claim, pair, subject, seed) and is cleared when any of them changes.
+- **+ save trail** stores the chain with its view in the browser; a saved row shows its three link verdicts and restores the view, the statement and the verdict on click; ⤓ exports the saved trails as CSV (for the paper's end-to-end cases).
+- Tested on a synthetic build with VLM statements and a rewritten-prompt configuration (all three claim kinds, saving, restoring, verdict reset, the other three main modes); not yet rebuilt on the server.

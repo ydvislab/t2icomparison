@@ -137,6 +137,35 @@ button.mini.on { background: var(--ink); color: var(--panel); }
 .cpt.ab.hl { stroke: var(--hl); stroke-width: 3; }
 /* statement view */
 #stmts { position: absolute; inset: 0; overflow: auto; padding: 6px 14px 12px; }
+/* audit trail: claim -> measure -> subject -> images */
+#trail { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 4px 12px 10px; gap: 8px; }
+#trail .chain { flex: 0 0 62%; min-height: 0; display: flex; align-items: stretch; gap: 0; }
+#trail .stage.s1 { flex-grow: 1; } #trail .stage.s2 { flex-grow: 1.15; } #trail .stage.s3 { flex-grow: 1; } #trail .stage.s4 { flex-grow: .9; }
+#trail .stage { flex: 1 1 0; min-width: 0; border: 1px solid var(--grid); border-radius: 10px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; background: var(--panel); }
+#trail .stage h3 { margin: 0; font-size: 10.5px; font-weight: 600; color: var(--muted); letter-spacing: .03em; text-transform: uppercase; display: flex; gap: 6px; align-items: center; }
+#trail .stage .viz { flex: 1 1 auto; min-height: 0; position: relative; }
+#trail .stage .viz svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#trail .lnk { flex: 0 0 34px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+#trail .lnk b { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 13px; }
+#trail .lnk span { font-size: 9.5px; color: var(--muted); text-align: center; line-height: 1.15; }
+#trail .quote { font-size: 12.5px; line-height: 1.35; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+#trail .src { font-size: 16px; }
+#trail .imgs { display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; gap: 4px; flex: 1 1 auto; min-height: 0; }
+#trail .imgs div { position: relative; min-height: 0; }
+#trail .imgs img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; display: block; }
+#trail .imgs i { position: absolute; left: 4px; top: 4px; width: 10px; height: 10px; border-radius: 50%; }
+#trail .step { display: flex; gap: 4px; align-items: center; justify-content: center; font-size: 11px; color: var(--muted); }
+#trail .step button, #trail .uv button, #trail .tbar button { font: inherit; font-size: 12px; border: 1px solid var(--grid); background: var(--panel); color: var(--ink-2); border-radius: 6px; padding: 1px 7px; cursor: pointer; }
+#trail .uv { display: flex; gap: 6px; justify-content: center; }
+#trail .uv button.on.ok { background: var(--ok); color: #fff; border-color: var(--ok); }
+#trail .uv button.on.no { background: var(--bad); color: #fff; border-color: var(--bad); }
+#trail .tbar { flex: 0 0 auto; display: flex; gap: 6px; align-items: center; font-size: 11px; color: var(--muted); }
+#trail .saved { flex: 1 1 auto; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
+#trail .tr { display: grid; grid-template-columns: 18px 1fr auto auto auto auto 16px; gap: 6px; align-items: center; font-size: 11.5px; padding: 2px 6px; border-radius: 6px; cursor: pointer; }
+#trail .tr:hover { background: var(--band); }
+#trail .tr .q { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); }
+#trail .tr .s { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 10px; }
+#trail .tr .x { color: var(--muted); }
 .stbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin: 6px 0 10px; }
 .stbar div { height: 100%; }
 .stctl { display: flex; gap: 6px; align-items: center; margin: 2px 0 4px; }
@@ -318,7 +347,7 @@ function header() {
   }
 }
 function panelControls() {
-  d3.select("#mainSeg").selectAll("button").data([["map", "◎", "Configuration map: where every configuration settles and how tightly"], ["contrasts", "▦", "Contrast overview: every designed contrast on every aspect"], ["statements", "❝", "VLM statements about the selected pair, each checked against the audit"]])
+  d3.select("#mainSeg").selectAll("button").data([["map", "◎", "Configuration map: where every configuration settles and how tightly"], ["contrasts", "▦", "Contrast overview: every designed contrast on every aspect"], ["statements", "❝", "VLM statements about the selected pair, each checked against the audit"], ["trail", "⛓", "Audit trail: one claim stated in language (a VLM statement, a rewritten prompt or an axis name) linked to the measurement, a subject and the images that decide it"]])
     .join("button").text(d => d[1]).attr("title", d => d[2]).classed("on", d => d[0] === st.main)
     .on("click", (e, d) => { st.main = d[0]; panelControls(); buildMap(); drawMap(false); });
   d3.select("#evSeg").selectAll("button").data([["seeds", "⫽", "Paired seeds: each curve joins the image of A and the image of B made from the same seed"], ["dist", "∿", "Distributions of A and B on every aspect"], ["clusters", "⁘", "Appearance map: all images of this subject placed by CLIP image similarity (an index to images; areas and distances are not spread)"], ["rw", "✎", "Rewrites: what each rewritten prompt says (text side) against where its image lands"]])
@@ -403,9 +432,9 @@ function overview(aspect) {
 }
 function buildMap() {
   const host = d3.select("#map"); host.selectAll("*").remove();
-  d3.select("#mainTitle").text(st.main === "contrasts" ? "Designed contrasts" : st.main === "statements" ? "VLM statements" : "Configurations");
+  d3.select("#mainTitle").text(st.main === "contrasts" ? "Designed contrasts" : st.main === "statements" ? "VLM statements" : st.main === "trail" ? "Audit trail" : "Configurations");
   if (st.main === "contrasts") { OVS.pts = null; OVS.co = host.append("svg"); return; }
-  if (st.main === "statements") { OVS.pts = null; OVS.co = null; OVS.coRow = null; return; }
+  if (st.main === "statements" || st.main === "trail") { OVS.pts = null; OVS.co = null; OVS.coRow = null; return; }
   const { w: W, h: H } = box("#map"), m = { l: 22, r: 22, t: 22, b: 30 };
   const svg = host.append("svg").attr("width", W).attr("height", H);
   const defs = svg.append("defs");
@@ -429,6 +458,7 @@ function drawMap(animate) {
   OV = overview(st.aspect);
   if (st.main === "contrasts") { drawContrastOverview(); drawMatrix(); overviewHL(); return; }
   if (st.main === "statements") { drawStatements(); drawMatrix(); overviewHL(); return; }
+  if (st.main === "trail") { drawTrail(); drawMatrix(); overviewHL(); return; }
   const a = ASP[AIDX[st.aspect]], { x, y, m, W, H } = OVS, t = d3.transition().duration(animate ? DUR : 0).ease(d3.easeCubicInOut);
   // domain fitted to the data: every configuration, and the central 90% of the selected pair's per-subject positions
   // (the rest are drawn at the edge as triangles by overviewHL); asymmetric, always including 0
@@ -615,6 +645,7 @@ function overviewHL() {
   const hs = st.hover, hc = st.hoverCfg;
   if (st.main === "contrasts") { coHL(); matrixHL(hs, hc); return; }
   if (st.main === "statements") { stmtHL(); matrixHL(hs, hc); return; }
+  if (st.main === "trail") { matrixHL(hs, hc); return; }
   const { x, y } = OVS, [x0, x1] = x.domain(), [y0, y1] = y.domain();
   OVS.pts.selectAll("g.cfg").select(".ring").attr("stroke", d => d.g.id === st.A ? "var(--a)" : d.g.id === st.B ? "var(--b)" : "none");
   const foc = d => d.g.id === st.A || d.g.id === st.B || d.g.id === hc;
@@ -788,6 +819,7 @@ function pick(si, aspect) {
   st.subj = si; st.aspect = aspect; st.job = null; st.hover = null; d3.select("#selS").property("value", si);
   if (changed) { aspectSeg(); drawMap(true); }
   else if (st.main === "statements") drawStatements();
+  else if (st.main === "trail") drawTrail();
   linked();
 }
 
@@ -1091,8 +1123,190 @@ function drawStatements() {
     d.append("div").attr("class", "uv").selectAll("button").data([["ok", "✓"], ["no", "✗"]]).join("button").attr("class", b => b[0])
       .classed("on", b => U[vid(st.stSel)] === b[0]).text(b => b[1])
       .on("click", (e, b) => { const V = userV(), k = vid(st.stSel); V[k] = V[k] === b[0] ? undefined : b[0]; saveV(V); drawStatements(); });
+    d.select(".uv").append("button").attr("title", "Follow this statement in the audit trail: measurement, subject, images").text("⛓")
+      .on("click", () => { st.main = "trail"; st.trailK = 0; panelControls(); buildMap(); drawMap(false); });
   }
 }
+// ---------------- main view, fourth mode: audit trail ----------------
+// One claim stated in language, followed to the evidence that decides it, in four fixed stages: the claim (a VLM
+// statement, a rewritten prompt, or the name of a language-defined axis), the measurement (validity of the axis for the
+// pair, the per-subject contrast scatter and its pooled estimate), one subject (A and B on the axis), and the images
+// (A and B from the same seed, or matched by rank). Each link carries the audit's verdict; the last link is the
+// analyst's own, given after looking at the images. The trail follows the current selection; saved trails restore
+// their view and are exported for the paper's end-to-end cases.
+const LV = {  // link verdicts: symbol, colour, label
+  ok: ["✓", "var(--ok)", "supported"], bad: ["✗", "var(--bad)", "contradicted"], narrow: ["≈", "var(--hl)", "narrowed, did not move"],
+  still: ["○", "var(--warn)", "did not move"], nv: ["⊘", "var(--faint)", "not validated"], hidden: ["⇄", "var(--warn)", "pooling hides it"],
+  rev: ["✗", "var(--bad)", "reversed here"], none: ["?", "var(--faint)", "undecided"], silent: ["–", "var(--faint)", "claim says nothing here"],
+};
+st.trailK = 0; st.trailUV = null;
+function loadT() { try { return JSON.parse(localStorage.getItem("auditTrails") || "[]"); } catch (e) { return []; } }
+function saveT(T) { try { localStorage.setItem("auditTrails", JSON.stringify(T)); } catch (e) { /* storage unavailable */ } }
+function rwGroup() { return G[st.B].rewrite ? st.B : G[st.A].rewrite ? st.A : null; }
+function trailClaim() {
+  const a = ASP[AIDX[st.aspect]], si = st.subj, ai = 3 + AIDX[a.key], sc = META.scale[a.key];
+  const stmt = st.stSel && st.stSel.A === st.A && st.stSel.B === st.B ? st.stSel : null;
+  if (stmt) {
+    const v = stmt.verdict, l1 = v.startsWith("confirmed") ? "ok" : v === "contradicted" ? "bad" : v.startsWith("narrowed") ? "narrow"
+      : v === "audit: no shift" ? "still" : v === "aspect not validated here" ? "nv" : "none";
+    return { src: stmt.vlm === "qwen" ? "●" : "■", srcName: stmt.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B", kind: "vlm", text: stmt.text,
+      level: stmt.level, dir: stmt.dir, prop: stmt.prop, aspect: stmt.aspect || st.aspect, l1, vid: vid(stmt) };
+  }
+  const gid = rwGroup();
+  if (gid && typeof REWRITE !== "undefined" && REWRITE[gid]?.[si]?.length) {
+    const rws = REWRITE[gid][si], k = ((st.trailK % rws.length) + rws.length) % rws.length, [kk, txt, ts] = rws[k];
+    const other = gid === st.B ? st.A : st.B, r = SCORES[gid][si].find(x => x[0] === kk), ma = mi(SCORES[other][si].map(x => x[ai])).med;
+    const tx = ts[AIDX[a.key]], iy = r ? (r[ai] - ma) / sc : 0;
+    const l1 = Math.abs(tx) < .5 ? "silent" : Math.abs(iy) < M_LOC ? "still" : Math.sign(tx) === Math.sign(iy) ? "ok" : "bad";
+    return { src: "✎", srcName: "rewritten prompt", kind: "rewrite", text: txt, level: "image", dir: tx > 0 ? "right" : "left", prop: a.key,
+      aspect: a.key, l1, k: kk, tx, iy };
+  }
+  const ok = valid(a.key);
+  return { src: "≡", srcName: "axis defined in words", kind: "axis", text: `“${a.left}” ↔ “${a.right}”`, level: "axis", dir: "", prop: a.key,
+    aspect: a.key, l1: ok ? "ok" : "nv" };
+}
+function trailSubject(c, pool) {
+  if (!c) return "none";
+  const moved = c.dlo >= M_LOC || c.dhi <= -M_LOC, pmoved = verdict(pool.dlo, pool.dhi, M_LOC) === "moved";
+  if (!moved) return verdict(c.llo, c.lhi, M_LR) === "moved" && c.lr < 0 ? "narrow" : verdict(c.dlo, c.dhi, M_LOC) === "same" ? "still" : "none";
+  if (!pmoved) return "hidden";
+  return Math.sign(c.d) === Math.sign(pool.d) ? "ok" : "rev";
+}
+function drawTrail() {
+  const host = d3.select("#map"); host.selectAll("*").remove();
+  const C = trailClaim();
+  // the analyst's verdict belongs to one claim, pair, subject and seed: a new chain starts without it
+  const tkey = [C.kind, C.text, st.A, st.B, C.aspect, st.subj, st.trailK].join("|");
+  if (st.trailKey !== tkey) { st.trailKey = tkey; st.trailUV = null; }
+  if (C.aspect !== st.aspect && RET.some(a => a.key === C.aspect)) { st.aspect = C.aspect; aspectSeg(); drawScatters(false); }
+  const a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key], si = st.subj, r = R[a.key];
+  const cell = r?.cells.find(c => c.si === si), pool = r?.pool, nvA = !valid(a.key);
+  const l2 = nvA ? "nv" : C.level === "pooled" ? (pool ? (verdict(pool.dlo, pool.dhi, M_LOC) === "moved" ? "ok" : "still") : "none") : trailSubject(cell, pool);
+  const ra = SCORES[st.A][si], rb = SCORES[st.B][si], ma = mi(ra.map(x => x[ai])).med, val = x => (x[ai] - ma) / sc;
+  const sameNoise = G[st.A].settings.pipeline === G[st.B].settings.pipeline && G[st.A].settings.resolution === G[st.B].settings.resolution;
+  const seeds = ra.map(x => x[0]), kSel = C.kind === "rewrite" ? C.k : seeds[((st.trailK % seeds.length) + seeds.length) % seeds.length];
+  const imA = ra.find(x => x[0] === kSel) || ra[0];
+  let imB = rb.find(x => x[0] === kSel) || rb[0];
+  if (!sameNoise) { const sa = [...ra].sort((p, q2) => p[ai] - q2[ai]), sb = [...rb].sort((p, q2) => p[ai] - q2[ai]); imB = sb[Math.round(sa.indexOf(imA) * (sb.length - 1) / Math.max(1, sa.length - 1))]; }
+  const later = [];   // the small plots are drawn after all four stages are laid out, so each measures its final size
+  const wrap = host.append("div").attr("id", "trail"), chain = wrap.append("div").attr("class", "chain");
+  let nst = 0;
+  const stage = (title, icon) => { const s = chain.append("div").attr("class", `stage s${++nst}`); s.append("h3").html(`${icon ? `<span class="src">${icon}</span>` : ""}${title}`); return s; };
+  const link = (key, extra) => { const v = LV[key] || LV.none, l = chain.append("div").attr("class", "lnk");
+    l.append("b").style("background", v[1]).text(v[0]).attr("title", v[2]); l.append("span").text(extra || v[2]); };
+  // 1 claim
+  const s1 = stage(C.srcName, C.src);
+  s1.append("div").attr("class", "quote").text(C.text).attr("title", C.text);
+  const v1 = s1.append("div").attr("class", "viz");
+  later.push(() => {
+  const cw = v1.node().clientWidth || 160, ch = Math.min(90, v1.node().clientHeight || 60);
+  const g1 = v1.append("svg").attr("viewBox", `0 0 ${cw} ${ch}`).style("height", ch + "px").style("bottom", "auto");
+  if (C.kind === "vlm" && C.prop === "variety") {
+    g1.append("circle").attr("cx", cw / 2 - 22).attr("cy", ch / 2).attr("r", 14).attr("fill", "none").attr("stroke", "var(--muted)").attr("stroke-dasharray", "2 2");
+    g1.append("circle").attr("cx", cw / 2 + 22).attr("cy", ch / 2).attr("r", C.dir === "less" ? 7 : 18).attr("fill", "var(--b)").attr("opacity", .55);
+    g1.append("text").attr("class", "pole").attr("x", cw / 2).attr("y", ch - 2).attr("text-anchor", "middle").text(C.dir === "less" ? "B less varied" : "B more varied");
+  } else {
+    const y0 = ch / 2, x0 = 10, x1 = cw - 10;
+    g1.append("line").attr("x1", x0).attr("x2", x1).attr("y1", y0).attr("y2", y0).attr("stroke", "var(--grid)").attr("stroke-width", 6).attr("stroke-linecap", "round");
+    if (C.dir === "right" || C.dir === "left") {
+      const d = C.dir === "right" ? 1 : -1, xm = (x0 + x1) / 2;
+      g1.append("path").attr("d", `M${xm},${y0} L${xm + d * (x1 - x0) * .38},${y0}`).attr("stroke", "var(--ink)").attr("stroke-width", 2.2).attr("marker-end", "url(#tah)");
+    }
+    g1.append("defs").append("marker").attr("id", "tah").attr("viewBox", "0 0 10 10").attr("refX", 8).attr("refY", 5).attr("markerWidth", 6).attr("markerHeight", 6)
+      .attr("orient", "auto").append("path").attr("d", "M0,1 L9,5 L0,9 z").attr("fill", "var(--ink)");
+    g1.append("text").attr("class", "pole").attr("x", x0).attr("y", y0 + 16).text("← " + poleWord(a.left));
+    g1.append("text").attr("class", "pole").attr("x", x1).attr("y", y0 + 29).attr("text-anchor", "end").text(poleWord(a.right) + " →");
+    g1.append("text").attr("class", "pole").attr("x", x0).attr("y", y0 - 10).text(C.level === "pooled" ? "all subjects" : C.level === "axis" ? aspName(a.key) : SUBJ[si].name);
+  }
+  });
+  link(C.l1, C.kind === "axis" ? (nvA ? "not validated" : "validated by people") : null);
+  // 2 measurement: per-subject contrast scatter of this aspect, with margins and the pooled estimate
+  const s2 = stage(`${aspName(a.key)} · ${sh(G[st.A])} → ${sh(G[st.B])}`, "");
+  const v2 = s2.append("div").attr("class", "viz");
+  later.push(() => {
+  const W2 = v2.node().clientWidth || 160, H2 = v2.node().clientHeight || 120;
+  const g2 = v2.append("svg").attr("viewBox", `0 0 ${W2} ${H2}`), m2 = 8;
+  if (r) {
+    const xm = Math.max(1.6, d3.max(r.cells, c => Math.abs(c.d)) * 1.15), ym = Math.max(.9, d3.max(r.cells, c => Math.abs(c.lr)) * 1.15);
+    const x = d3.scaleLinear([-xm, xm], [m2, W2 - m2]), y = d3.scaleLinear([-ym, ym], [H2 - 14, m2]);
+    g2.append("rect").attr("x", x(-M_LOC)).attr("width", x(M_LOC) - x(-M_LOC)).attr("y", m2).attr("height", H2 - 14 - m2).attr("fill", "var(--band)");
+    g2.append("rect").attr("y", y(M_LR)).attr("height", y(-M_LR) - y(M_LR)).attr("x", m2).attr("width", W2 - 2 * m2).attr("fill", "var(--band)");
+    g2.append("g").selectAll("circle").data(r.cells).join("circle").attr("cx", c => x(c.d)).attr("cy", c => y(c.lr)).attr("r", c => c.si === si ? 5 : 3)
+      .attr("fill", c => c.si === si ? "var(--hl)" : "var(--dot)").attr("opacity", nvA ? .35 : 1).style("cursor", "pointer").on("click", (e, c) => pick(c.si, a.key))
+      .append("title").text(c => `${SUBJ[c.si].name}: ${fd(c.d)}, ${fr(c.lr)}`);
+    g2.append("line").attr("x1", x(pool.dlo)).attr("x2", x(pool.dhi)).attr("y1", y(pool.lr)).attr("y2", y(pool.lr)).attr("stroke", "var(--ink)").attr("stroke-width", 1.4);
+    g2.append("line").attr("x1", x(pool.d)).attr("x2", x(pool.d)).attr("y1", y(pool.llo)).attr("y2", y(pool.lhi)).attr("stroke", "var(--ink)").attr("stroke-width", 1.4);
+    g2.append("path").attr("d", d3.symbol(d3.symbolDiamond, 70)()).attr("transform", `translate(${x(pool.d)},${y(pool.lr)})`).attr("fill", "var(--panel)").attr("stroke", "var(--ink)").attr("stroke-width", 1.4);
+    g2.append("text").attr("class", "pole").attr("x", m2).attr("y", H2 - 2).text(`pooled ${fd(pool.d)} · ${fr(pool.lr)}${nvA ? " · not validated" : ""}`);
+  }
+  });
+  link(l2, C.level === "pooled" ? "pooled claim" : null);
+  // 3 subject: A and B on the axis
+  const s3 = stage(SUBJ[si].name, "");
+  const v3 = s3.append("div").attr("class", "viz");
+  later.push(() => {
+  const W3 = v3.node().clientWidth || 160, H3 = v3.node().clientHeight || 120;
+  const g3 = v3.append("svg").attr("viewBox", `0 0 ${W3} ${H3}`);
+  const ext = Math.max(1.5, d3.max([...ra, ...rb], x => Math.abs(val(x))) * 1.1), x3 = d3.scaleLinear([-ext, ext], [8, W3 - 8]);
+  g3.append("rect").attr("x", x3(-M_LOC)).attr("width", x3(M_LOC) - x3(-M_LOC)).attr("y", 6).attr("height", H3 - 34).attr("fill", "var(--band)");
+  [[ra, (H3 - 30) * .3, "var(--a)", imA], [rb, (H3 - 30) * .72, "var(--b)", imB]].forEach(([rows, yy, c, sel]) => {
+    g3.append("g").selectAll("circle").data(rows).join("circle").attr("cx", x => x3(val(x))).attr("cy", yy).attr("r", x => x === sel ? 5 : 3)
+      .attr("fill", c).attr("opacity", x => x === sel ? 1 : .55).attr("stroke", x => x === sel ? "var(--ink)" : "none");
+    const md = d3.median(rows, val);
+    g3.append("line").attr("x1", x3(md)).attr("x2", x3(md)).attr("y1", yy - 10).attr("y2", yy + 10).attr("stroke", c).attr("stroke-width", 2);
+  });
+  g3.append("text").attr("class", "pole").attr("x", 8).attr("y", H3 - 15).text("← " + poleWord(a.left));
+  g3.append("text").attr("class", "pole").attr("x", W3 - 8).attr("y", H3 - 2).attr("text-anchor", "end").text(poleWord(a.right) + " →");
+  });
+  link(st.trailUV === "ok" ? "ok" : st.trailUV === "no" ? "bad" : "none", st.trailUV ? "your verdict" : "look, then judge");
+  // 4 images
+  const s4 = stage(sameNoise ? "same seed" : "matched by rank", "");
+  const im = s4.append("div").attr("class", "imgs");
+  [[st.A, imA, "var(--a)"], [st.B, imB, "var(--b)"]].forEach(([g, rr, c]) => {
+    const d = im.append("div"); d.append("img").attr("src", `thumbs/${g}/${rr[2]}.jpg`).attr("alt", "").attr("title", `${G[g].label} · seed ${rr[1]} · ${fd(val(rr))}`);
+    d.append("i").style("background", c);
+  });
+  const stp = s4.append("div").attr("class", "step");
+  stp.append("button").text("‹").attr("title", "previous seed").on("click", () => { st.trailK--; drawTrail(); });
+  stp.append("span").text(`seed ${imA[1]}`);
+  stp.append("button").text("›").attr("title", "next seed").on("click", () => { st.trailK++; drawTrail(); });
+  s4.append("div").attr("class", "uv").selectAll("button").data([["ok", "✓"], ["no", "✗"]]).join("button")
+    .attr("class", b => b[0]).classed("on", b => st.trailUV === b[0]).text(b => b[1]).attr("title", b => b[0] === "ok" ? "the images support the reading" : "the images do not support it").on("click", (e, b) => { st.trailUV = st.trailUV === b[0] ? null : b[0]; drawTrail(); });
+  // saved trails
+  const bar = wrap.append("div").attr("class", "tbar");
+  bar.append("button").text("+ save trail").attr("title", "Save this trail with its view").on("click", () => {
+    const T = loadT();
+    T.unshift({ id: Date.now(), time: new Date().toISOString().slice(0, 16), A: st.A, B: st.B, aspect: st.aspect, subj: si, kind: C.kind, src: C.src,
+      text: C.text, level: C.level, vid: C.vid || null, trailK: st.trailK, seed: imA[1], l1: C.l1, l2, l3: st.trailUV || "" });
+    saveT(T); drawTrail();
+  });
+  bar.append("button").text("⤓").attr("title", "Download saved trails as CSV").on("click", exportTrails);
+  bar.append("span").text(`${loadT().length} saved`).attr("title", "The trail follows the current selection: a VLM statement (❝), a rewritten-prompt pair (dotted arrow), otherwise the aspect's axis");
+  const list = wrap.append("div").attr("class", "saved");
+  const sym = k => (LV[k] || LV.none);
+  const rows = list.selectAll("div.tr").data(loadT()).join("div").attr("class", "tr").on("click", (e, t) => { if (!e.target.classList.contains("x")) restoreTrail(t); });
+  rows.append("span").text(t => t.src);
+  rows.append("span").attr("class", "q").text(t => `${t.text}  ·  ${sh(G[t.A] || { id: t.A, label: t.A })} → ${sh(G[t.B] || { id: t.B, label: t.B })} · ${aspName(t.aspect)} · ${SUBJ[t.subj]?.name || ""}`).attr("title", t => t.text);
+  ["l1", "l2", "l3"].forEach(k => rows.append("span").attr("class", "s").style("background", t => sym(t[k] === "no" ? "bad" : t[k] || "none")[1]).text(t => sym(t[k] === "no" ? "bad" : t[k] || "none")[0]));
+  rows.append("span").style("color", "var(--muted)").text(t => t.time.slice(5).replace("T", " "));
+  rows.append("span").attr("class", "x").text("✕").attr("title", "delete").on("click", (e, t) => { saveT(loadT().filter(x => x.id !== t.id)); drawTrail(); });
+  later.forEach(f => f());
+}
+function restoreTrail(t) {
+  st.main = "trail"; panelControls(); buildMap();
+  st.stSel = t.vid ? (STATEMENTS || []).find(s => vid(s) === t.vid) || null : null;
+  st.trailK = t.trailK;
+  setPair(t.A, t.B); pick(t.subj, t.aspect);
+  st.trailUV = t.l3 || null; drawTrail();
+}
+function exportTrails() {
+  const T = loadT(), cols = ["time", "kind", "text", "A", "B", "aspect", "subject", "level", "seed", "claim_to_measure", "measure_to_subject", "analyst"];
+  const csv = [cols.join(",")].concat(T.map(t => [t.time, t.kind, t.text, t.A, t.B, t.aspect, SUBJ[t.subj]?.name, t.level, t.seed,
+    (LV[t.l1] || LV.none)[2], (LV[t.l2] || LV.none)[2], t.l3 === "ok" ? "supported" : t.l3 === "no" ? "not supported" : ""]
+    .map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "audit_trails.csv"; a.click();
+}
+
 // ---------------- findings board ----------------
 // Save the current view (pair, aspect, subject, main and evidence modes, selected seeds and subjects) with a verdict and
 // a note; clicking a card returns to that view. Kept in this browser; ⤓ exports CSV.
