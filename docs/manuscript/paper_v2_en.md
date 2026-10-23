@@ -380,7 +380,9 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
   - Between two sets from the same configuration, both VLMs report a shift and a change in variety in 98–100% of constrained answers.
   - In free text, 90–93% of their descriptions claim a difference on a measured aspect or in variety.
   - A claim of difference from these VLMs therefore says little about *whether* two configurations differ (T4). We measured false-positive rates, not discrimination over a balanced set of same and different pairs; the descriptions can still carry information about direction (below).
-  - The VLMs saw 8 vs. 8 images per subject (16 vs. 16 pooled), while the audit used 32 seeds; some answers scored as wrong may describe real differences between the two samples shown.
+  - **The errors are not due to the small samples shown** (deviation 3, exploratory). The VLMs saw 8 vs. 8 images per subject, while the audit used 32 seeds. Where the 8 shown seeds decide, they agree with the 32-seed truth in 98–100% of cases and accuracy hardly changes. A second, disjoint draw of grids gives the same answer in 88–93% of cases.
+  - **People reading the same grids do much better on null pairs** (deviation 4, exploratory; three annotators, 48 grid pairs). On 12 null pairs, the people's majority reports a difference in a third, both VLMs in all. The inability to answer "no difference" belongs to the VLMs, not to the grids.
+  - **Eight images are hard for people too.** On real shifts, the people's majority is right in 3 of 10 cases and Mistral-24B in 8 of 10. Agreement among people is moderate (Fleiss' κ 0.41 for shift, 0.54 for variety). Neither a VLM's description nor a quick look at a few images settles whether configurations differ.
 - **Given a real difference, the larger VLM often reads the direction of variety correctly.** Mistral-24B is right in 79% of per-subject cases, about 90% for distillation and SDXL → Turbo. Its free text mentions narrowing in 88% of the units where the audit finds it. It mentions narrowing almost as often where there is none, so the mention is not evidence.
 - **Narrowing becomes movement, and pooled claims fail where they matter.**
   - Of the cases the audit marks "same place, less varied", 12 of 13 (Qwen3.5-4B) and 13 of 13 (Mistral-24B) were answered with a shift (T1).
@@ -442,7 +444,7 @@ This suggests a division of labour for LLM-assisted visual analytics. LLMs are g
 - The scale is derived from the configurations themselves, so the 0.5 margin depends on which configurations were included; it is not a perceptual unit.
 - Configurations differ in native resolution (512–1328 px). Resizing to a common encoder input does not remove resolution effects on content, so cross-configuration contrasts (Q2, SDXL → Turbo) may include them; Q1 and Q4 hold resolution fixed.
 - 32 seeds × 24 subjects describe these samples.
-- The rewriters run with one official instruction and one temperature. The VLMs are two open models queried with one prompt format; larger proprietary VLMs may behave differently. The null control shows that, with this format, the VLMs report a difference regardless of the images.
+- The rewriters run with one official instruction and one temperature. The VLMs are two open models queried with one prompt format; larger proprietary VLMs may behave differently. The null control shows that, with this format, the VLMs report a difference regardless of the images. The grid-reading check with people has three annotators and 48 items, and its variety items outside the null control all have a real difference.
 - Configurations are compared at recommended settings, so family and scale are not causal factors.
 - Demographic attributes are out of scope, although VLM free text occasionally reported them ("exclusively male").
 - The expert study is small and drawn from the authors' network.

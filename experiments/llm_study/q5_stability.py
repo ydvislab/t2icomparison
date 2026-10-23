@@ -39,7 +39,8 @@ def stability():
     return pd.DataFrame(rows)
 
 
-def shown_truth():
+def truth8():
+    """Subject-level shift and variety verdicts from seeds k = 0..7 only (the seeds shown in the first-draw grids)."""
     D = q5.load_all()
     sc, _ = q1.scale(D, False)
     r3p = os.path.join(q1.REPO, "results", "annotation_round3", "aspect_check.csv")
@@ -63,7 +64,11 @@ def shown_truth():
                 va = ("more" if lr[i, j] > 0 else "less") if abs(lr[i, j]) >= q1.M_LR and (llo > 0 or lhi < 0) else \
                      ("same" if llo > -q1.M_LR and lhi < q1.M_LR else "")
                 truth.append(dict(contrast=c, level="subject", unit=f"s{i:02d}", aspect=asp, validated=asp in ok, shift8=sh, variety8=va))
-    T8 = pd.DataFrame(truth)
+    return pd.DataFrame(truth)
+
+
+def shown_truth():
+    T8 = truth8()
     T32 = pd.read_csv(os.path.join(OUT, "truth.csv"), keep_default_na=False)
     rows = []
     for vlm in ("qwen", "mistral"):

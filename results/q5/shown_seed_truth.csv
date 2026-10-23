@@ -1,0 +1,5 @@
+vlm,question,n_both,acc_vs_32,acc_vs_8,n_decided_8,acc_vs_8_all,truth8_none_or_same,truths_agree
+qwen,shift,171,0.596,0.614,202,0.584,0.084,0.977
+qwen,variety,48,0.625,0.625,58,0.638,0.000,1.000
+mistral,shift,171,0.561,0.579,202,0.559,0.084,0.977
+mistral,variety,48,0.729,0.729,58,0.724,0.000,1.000

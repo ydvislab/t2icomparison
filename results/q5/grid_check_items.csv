@@ -1,0 +1,49 @@
+id,contrast,unit,subject,aspect,question,truth32,truth8,H1,H2,H3,people,qwen,mistral
+g00,rw_klein,s23,a picnic,tone,shift,none,,left,none,left,left,left,left
+g01,pkg_klein4b,s10,a bicycle,shot,variety,less,,less,less,less,less,less,less
+g02,null_klein4b,s18,a mountain,medium,variety,same,same,same,same,same,same,less,less
+g03,null_klein4b,s23,a picnic,tone,variety,same,same,same,same,same,same,less,less
+g04,rw_flux,s02,a musician,sat,variety,more,,less,less,less,less,more,more
+g05,guid_qwen,s17,a city street,medium,shift,left,left,none,left,none,none,left,left
+g06,sdxl_turbo,s22,a birthday party,tone,variety,less,,less,less,less,less,less,less
+g07,null_sdxl,s22,a birthday party,shot,shift,none,none,none,none,none,none,right,right
+g08,null_sdxl,s08,a car,bg,variety,same,same,same,less,same,same,more,more
+g09,pkg_klein4b,s11,a bowl of fruit,bg,shift,left,left,none,none,right,none,left,left
+g10,rw_flux,s13,a living room,sat,shift,right,,right,right,right,right,right,left
+g11,null_sdxl,s15,a restaurant,tone,shift,none,none,none,left,left,left,right,left
+g12,pkg_klein4b,s05,a bird on a branch,shot,variety,less,,less,less,same,less,more,less
+g13,sdxl_turbo,s18,a mountain,medium,variety,less,less,less,less,less,less,more,less
+g14,null_sdxl,s03,a traveler,bg,shift,none,none,none,right,right,right,right,right
+g15,rw_flux,s00,a doctor,medium,shift,none,,none,right,none,none,left,left
+g16,rw_klein,s06,a cat,tone,variety,more,,same,more,same,same,more,more
+g17,guid_qwen,s06,a cat,sat,shift,none,none,right,right,none,right,right,left
+g18,guid_klein,s19,a beach,sat,shift,right,right,right,right,right,right,right,right
+g19,rw_flux,s17,a city street,sat,variety,more,more,more,more,more,more,less,more
+g20,guid_klein,s15,a restaurant,medium,variety,less,,same,less,same,same,less,less
+g21,guid_qwen,s09,a cup of coffee,shot,variety,less,,same,less,same,same,less,less
+g22,rw_flux,s13,a living room,medium,shift,left,,none,none,none,none,right,left
+g23,rw_klein,s15,a restaurant,medium,variety,more,more,more,more,more,more,more,less
+g24,rw_klein,s18,a mountain,tone,shift,right,right,none,right,none,none,left,left
+g25,sdxl_turbo,s21,a train station,bg,shift,none,none,left,left,left,left,left,left
+g26,null_sdxl,s23,a picnic,shot,variety,same,same,more,more,more,more,less,more
+g27,rw_klein,s09,a cup of coffee,sat,shift,none,,none,right,right,right,left,right
+g28,sdxl_turbo,s10,a bicycle,medium,variety,less,,less,less,less,less,less,less
+g29,sdxl_turbo,s10,a bicycle,shot,shift,left,,none,left,none,none,right,left
+g30,guid_qwen,s07,a horse,sat,variety,less,,same,less,less,less,less,less
+g31,guid_qwen,s13,a living room,shot,variety,less,,same,less,same,same,less,less
+g32,null_klein4b,s05,a bird on a branch,shot,shift,none,none,none,none,none,none,left,right
+g33,sdxl_turbo,s08,a car,tone,shift,right,right,none,right,right,right,right,right
+g34,null_sdxl,s12,a kitchen,bg,variety,same,same,less,less,same,less,less,more
+g35,guid_klein,s06,a cat,tone,variety,less,,less,less,less,less,less,less
+g36,pkg_klein4b,s12,a kitchen,bg,shift,left,left,right,right,right,right,left,left
+g37,null_klein4b,s12,a kitchen,medium,shift,none,none,none,none,none,none,left,left
+g38,null_klein4b,s16,a house,sat,shift,none,none,none,left,none,none,right,left
+g39,guid_klein,s19,a beach,bg,shift,none,,left,left,left,left,left,left
+g40,pkg_klein4b,s09,a cup of coffee,shot,shift,none,,none,right,right,right,left,left
+g41,guid_qwen,s09,a cup of coffee,sat,shift,right,,none,none,none,none,left,right
+g42,null_klein4b,s10,a bicycle,shot,variety,same,same,same,same,same,same,less,more
+g43,guid_klein,s03,a traveler,sat,variety,less,,less,less,more,less,more,more
+g44,rw_flux,s23,a picnic,medium,variety,more,,more,more,more,more,more,less
+g45,guid_klein,s18,a mountain,medium,shift,none,none,none,none,none,none,left,left
+g46,rw_klein,s05,a bird on a branch,sat,variety,more,,same,more,less,,less,more
+g47,pkg_klein4b,s08,a car,sat,variety,less,,less,less,less,less,less,less
