@@ -254,7 +254,7 @@ g.axi.dim { opacity: .16; }
   <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
 </header>
 <main id="app">
-  <section class="card" id="mapCard"><h2><span id="mainTitle">Configurations</span><div class="seg mini" id="mainSeg"></div></h2><div class="body" id="map"></div></section>
+  <section class="card" id="mapCard"><h2><button class="mini" id="zoomReset" title="Reset zoom (or double-click the map)" style="display:none;order:9">⟲</button><span id="mainTitle">Configurations</span><div class="seg mini" id="mainSeg"></div></h2><div class="body" id="map"></div></section>
   <section class="card" id="matrixCard"><h2>Subjects <small>× configurations</small><span class="revb" id="revBadge"></span><button class="mini" id="sortBtn" title="Order rows by category or by the shift of the selected pair">⇅</button></h2><div class="body" id="matrix"></div></section>
   <section class="card" id="stripCard"><h2 id="stripName"></h2><div class="body" id="strip"></div></section>
   <section class="card" id="ridgeCard"><h2><span id="subjName"></span><div class="seg mini" id="evSeg"></div><select id="selS"></select></h2><div class="body" id="ridge"></div></section>
@@ -385,7 +385,7 @@ const KIND = { guidance: "guidance only", package: "package: several settings ch
 const famColor = g => "var(--dot)";
 const famShape = g => FAMS[g.family] || d3.symbolCircle;
 let OV = null;
-const OVS = {};
+const OVS = { zt: d3.zoomIdentity };
 const cfgDrag = d3.drag().clickDistance(5).subject(e => ({ x: e.x, y: e.y }))
   .on("start", () => { OVS.tmp = OVS.svg.append("path").attr("class", "dragline"); })
   .on("drag", (e, d) => OVS.tmp.attr("d", `M${OVS.x(d.x)},${OVS.y(d.y)} L${e.x},${e.y}`))
@@ -425,6 +425,15 @@ function buildMap() {
   OVS.pr = svg.append("text").attr("class", "pole").attr("y", H - 8).attr("x", W - m.r).attr("text-anchor", "end");
   svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", m.t - 6).text("wider");
   svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - m.b - 6).text("tighter");
+  // semantic zoom and pan: wheel zooms, dragging empty space pans, double-click resets; the axes are rescaled and
+  // everything is redrawn at its own size (symbols, labels and lines stay crisp); dragging a configuration still
+  // compares it with another (d3.drag stops the event before it reaches the zoom)
+  svg.append("rect").attr("class", "zoomcatch").attr("x", m.l).attr("y", m.t).attr("width", W - m.l - m.r).attr("height", H - m.t - m.b)
+    .attr("fill", "transparent").style("cursor", "grab");
+  OVS.zoom = d3.zoom().scaleExtent([.5, 16]).extent([[m.l, m.t], [W - m.r, H - m.b]])
+    .on("zoom", e => { OVS.zt = e.transform; drawMap(false, true); });
+  svg.call(OVS.zoom).on("dblclick.zoom", null).on("dblclick", resetZoom);
+  svg.property("__zoom", OVS.zt);
   const plot = svg.append("g").attr("clip-path", "url(#mapclip)");
   OVS.ctx = plot.append("g");          // per-subject spread of the selected A and B (density contours)
   OVS.detail = plot.append("g").attr("class", "detail");
@@ -432,7 +441,13 @@ function buildMap() {
   OVS.pts = plot.append("g");
   OVS.labs = svg.append("g");
 }
-function drawMap(animate) {
+// a new pair or aspect starts from the fitted view (the old zoom would refer to other axes)
+function clearZoom() { OVS.zt = d3.zoomIdentity; OVS.svg?.property("__zoom", d3.zoomIdentity); }
+function resetZoom() {
+  if (!OVS.svg) return;
+  OVS.svg.transition().duration(350).call(OVS.zoom.transform, d3.zoomIdentity);
+}
+function drawMap(animate, zoomOnly) {
   OV = overview(st.aspect);
   if (st.main === "contrasts") { drawContrastOverview(); drawMatrix(); overviewHL(); return; }
   if (st.main === "statements") { drawStatements(); drawMatrix(); overviewHL(); return; }
@@ -445,6 +460,11 @@ function drawMap(animate) {
   const lo = Math.min(0, d3.min(OV, d => d.x), d3.quantileSorted(xs, .05)), hi = Math.max(0, d3.max(OV, d => d.x), d3.quantileSorted(xs, .95));
   const padx = (hi - lo) * .08 + .15, ylo = Math.min(d3.min(OV, d => d.y), d3.quantileSorted(ys, .05)), yhi = Math.max(d3.max(OV, d => d.y), d3.quantileSorted(ys, .95));
   x.domain([lo - padx, hi + padx]); y.domain([Math.max(0, ylo - (yhi - ylo) * .1), yhi + (yhi - ylo) * .12]);
+  // the fitted axes are the zoom's identity; the current zoom rescales them
+  const zt = OVS.zt || d3.zoomIdentity;
+  if (zt.k !== 1 || zt.x || zt.y) { const bx = x.copy(), by = y.copy(); x.domain(zt.rescaleX(bx).domain()); y.domain(zt.rescaleY(by).domain()); }
+  if (zoomOnly) t.duration(0);
+  d3.select("#zoomReset").style("display", zt.k !== 1 || zt.x || zt.y ? null : "none");
   // context: where the selected pair puts each subject (density of the 24 per-subject positions)
   // the same density levels for A and B (fractions of the larger peak), so a widely spread configuration shows a wide,
   // faint region and a concentrated one a small, dense region; each subject is a faint dot
@@ -511,7 +531,7 @@ function drawMap(animate) {
   OVS.labs.selectAll("text.arrlab").data(st.fig ? arr.filter(d => d.f.id === st.A && d.to.id === st.B) : []).join("text").attr("class", "figval arrlab")
     .attr("x", d => (pos[d.f.id][0] + pos[d.to.id][0]) / 2 + 8).attr("y", d => (pos[d.f.id][1] + pos[d.to.id][1]) / 2)
     .text(d => { const n = nset(d.f.id, d.to.id); return n > 1 ? `${n} settings change: not attributable to one` : n === 1 ? "one setting changes" : ""; });
-  drawMatrix();
+  if (!zoomOnly) drawMatrix();
   overviewHL();
 }
 // labels: a small collision-avoiding layout (labels repel each other and the points); a thin leader line when a label
@@ -797,7 +817,7 @@ function linked() {
 function pick(si, aspect) {
   const changed = aspect !== st.aspect;
   st.subj = si; st.aspect = aspect; st.job = null; st.hover = null; d3.select("#selS").property("value", si);
-  if (changed) { aspectSeg(); drawMap(true); }
+  if (changed) { clearZoom(); aspectSeg(); drawMap(true); }
   else if (st.main === "statements") drawStatements();
   else if (st.main === "trail") drawTrail();
   linked();
@@ -1396,10 +1416,11 @@ function hideTip() { d3.select("#tip").style("display", "none"); }
 
 // ---------------- init and responsive layout ----------------
 let R = null;
-function update() { diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
+function update() { clearZoom(); diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
 d3.select("body").classed("fig", st.fig);
 header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
+d3.select("#zoomReset").on("click", resetZoom);
 [["#mapCard h2", "A"], ["#matrixCard h2", "B"], ["#ridgeCard h2", "D"], ["#stripCard", "C"]].forEach(([sel, l]) => {
   const h = sel === "#stripCard" ? d3.select("#stripName") : d3.select(sel);
   if (sel !== "#stripCard") { const sp = document.createElement("span"); sp.className = "pl"; sp.textContent = l; h.node().prepend(sp); }

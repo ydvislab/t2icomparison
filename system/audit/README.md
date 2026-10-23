@@ -73,3 +73,10 @@ The external review asked for one interface that takes each kind of language cla
 
 ## rev10 (2026-10-22): final interface
 See `INTERFACE.md`. Cool, crisp palette (A blue, B orange as the only data hues; families as shapes; teal–ochre pole scale; status colours always with a symbol or shape); figure mode moved to the URL; verdict glyphs removed from the aspect buttons (duplicated the contrast scatters); the findings board removed (the audit trail's saved list is the one record of findings). Tested on a synthetic build with pilot images as thumbnails.
+
+**Zoom and pan on the configuration map (2026-10-23):**
+- **Controls:** the mouse wheel zooms and dragging empty space pans. Double-click or ⟲ in the panel title resets.
+- **Semantic zoom:** the axes are rescaled and every mark is redrawn at its own size. Configurations and subjects outside the zoomed view appear as edge triangles.
+- **Dragging a configuration** onto another still sets the pair.
+- **Reset on change:** a new pair or aspect returns to the fitted view.
+
