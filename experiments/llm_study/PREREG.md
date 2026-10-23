@@ -116,3 +116,17 @@ Only aspects validated on the configuration set involved are scored.
 - **Truth:** "no difference" and "about equally varied" by construction.
 - **Measure:** the share of null answers that report a shift or a change in variety (false-difference rate).
 - **Status:** reported as an added control, outside the pre-registered measures.
+
+## Deviation 3 (2026-10-23, after the external review of 2026-10-22; exploratory)
+- **Reason:** the reviewer noted two things.
+  - The VLMs saw 8 (pooled: 16) images per set, while the audit's truth uses all 32 seeds, so some "wrong" answers may describe real sample fluctuation.
+  - Answer stability across grids was not measured.
+- **Two exploratory analyses are added, specified before running:**
+  1. **Second draw.** Both VLMs answer the same constrained questions for the six Q5 contrasts on a disjoint draw of grids:
+     - subject level: seeds k = 8–15;
+     - pooled: five new draws with numpy seeds 20261115 + d;
+     - script: `vlm_describe.py --draw2`, written to `q5/<vlm>_draw2/`.
+     - **Measure:** agreement between the two draws per contrast, level and question (share of identical answers).
+     - **Reference:** the agreement expected if each VLM answered at random with its own answer frequencies.
+  2. **Truth from the shown images.** Constrained answers of the first draw are also scored against a truth computed from the 8 seeds the VLM saw, k = 0–7, with the same margins and a per-subject bootstrap over those 8 seeds. Per subject only, because pooled grids mix subjects.
+- **Reporting:** both are reported as exploratory and change none of the pre-registered measures.

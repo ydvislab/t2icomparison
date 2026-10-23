@@ -49,9 +49,11 @@ ap.add_argument("--contrasts", default=",".join(CONTRASTS))
 ap.add_argument("--levels", default="subject,pooled")
 ap.add_argument("--limit", type=int, default=0)
 ap.add_argument("--gpu", type=int, default=0)
+ap.add_argument("--draw2", action="store_true", help="deviation 3: a second, disjoint draw of grids (subject level seeds "
+                "8-15; pooled draws with seeds 20261115 + d) to measure answer stability; written to q5/<vlm>_draw2/")
 a = ap.parse_args()
 dev = f"cuda:{a.gpu}"
-OUT = f"{LLM}/q5/{a.vlm}"
+OUT = f"{LLM}/q5/{a.vlm}" + ("_draw2" if a.draw2 else "")
 os.makedirs(OUT, exist_ok=True)
 
 if a.vlm == "qwen":
@@ -108,10 +110,10 @@ def intro(level, subject):
 def units(level):
     if level == "subject":
         for i, (_, s) in enumerate(MAIN):
-            yield f"s{i:02d}", s, [f"m{i:02d}_{k:02d}" for k in range(8)], 4
+            yield f"s{i:02d}", s, [f"m{i:02d}_{k:02d}" for k in (range(8, 16) if a.draw2 else range(8))], 4
     else:
         for d in range(NDRAW):
-            r = np.random.default_rng(20261015 + d)
+            r = np.random.default_rng((20261115 if a.draw2 else 20261015) + d)
             subj = r.choice(len(MAIN), 16, replace=False)
             yield f"d{d}", None, [f"m{i:02d}_{int(r.integers(32)):02d}" for i in subj], 4
 
@@ -166,7 +168,7 @@ for c in a.contrasts.split(","):
                 txt = generate(imgs, head + "List up to five ways in which the images of set B differ in appearance "
                                             "from the images of set A. One short statement per line.")
                 free.append(dict(vlm=a.vlm, contrast=c, level=level, unit=unit, subject=subject or "", text=txt))
-            if level == "pooled" and a.vlm == "mistral" and (c, unit) not in done_prop:
+            if level == "pooled" and a.vlm == "mistral" and not a.draw2 and (c, unit) not in done_prop:
                 txt = generate(imgs, head + "Propose up to five pairs of opposite short descriptions (left pole, right "
                                             "pole) of appearance properties that distinguish these two sets. One pair "
                                             "per line, formatted as: left pole | right pole")
