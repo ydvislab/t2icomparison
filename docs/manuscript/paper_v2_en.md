@@ -13,7 +13,7 @@
 
 ## Highlights
 - Separates where image defaults move from how much they narrow, per subject
-- Guidance and distillation narrow appearance far more than they move it
+- Guidance and distillation narrow appearance under two independent encoders
 - LLM rewriting adds no validated variety; its largest effect fails human checks
 - Two tested VLMs report differences even between sets from one model
 - A linked visual audit grounds each language-derived claim in image evidence
@@ -27,7 +27,7 @@ When a prompt leaves framing, palette or medium unspecified, a text-to-image mod
 
 Each role produces claims about images that can be wrong. We present a visual audit method that grounds such claims in image evidence. It places declared model configurations on language-defined, human-validated appearance axes, separates displacement from concentration under pre-registered margins, exposes per-subject structure and links every reading to the images.
 
-Auditing 12 open configurations on 24 everyday subjects, we find that in FLUX.2 klein, guidance and distillation mainly concentrate appearance and displace only saturation, and that 38 of 60 pooled "no difference" comparisons on validated aspects hide opposite per-subject shifts. FLUX.2's official prompt rewriter adds no variety beyond our margins, and its largest apparent effect lies on an axis that people reject for rewritten images. Two VLMs report a difference even between image sets from one model, so their difference claims say little. [Five experts …]
+Auditing 12 open configurations on 24 everyday subjects, we find that in FLUX.2 klein, guidance and distillation concentrate appearance under two encoders, though which aspects move depends on the encoder, and that 38 of 60 pooled "no difference" comparisons on validated aspects hide opposite per-subject shifts. FLUX.2's official prompt rewriter adds no variety beyond our margins, and its largest apparent effect lies on an axis that people reject for rewritten images. Two VLMs report differences even between image sets from one model. [Five experts …]
 
 ---
 
@@ -261,7 +261,7 @@ Three earlier designs were abandoned:
 
 ## 5. Auditing 12 Configurations
 
-### 5.1 Q1: guidance concentrates first and displaces only saturation
+### 5.1 Q1: guidance concentrates appearance; what it displaces depends on the encoder
 In klein-base 4B, whose measurements are validated on all five aspects, raising guidance from 1 to 4 concentrates four aspects beyond the margin: saturation ×0.51 [0.43, 0.61], medium ×0.53, tone ×0.49 and background ×0.65. Shot narrows (×0.68) but stays inside the margin.
 
 Only saturation is also displaced, toward vivid colour, by +0.65 [+0.43, +0.93] scale units. Per subject, it moves toward vivid by at least the margin in 15 of 24 subjects (14 when each subject's own 90% interval must also exclude zero), and by that much toward muted in none. Medium, shot and background stay in the same place, and tone's small shift toward modern is not significant.
@@ -270,14 +270,21 @@ Qwen-Image-2512 shows the same direction with smaller effects on its validated a
 - saturation concentrates (×0.64) and shifts toward vivid (+0.39, below the margin);
 - medium and shot stay in place.
 
-Its rescaled guidance means that guidance 4 is not the same dose in both pipelines. **In klein-base 4B, raising guidance mainly removed alternatives rather than moving the typical output, saturation being the exception; Qwen-Image showed the same directions with smaller effects, significant only for saturation.** Two guidance values do not show a dose-response. [Figure 1: paired-seed trajectories at guidance 1 and 4. Figure 4: per-subject shift and spread ratio, both families.]
+Its rescaled guidance means that guidance 4 is not the same dose in both pipelines.
 
-### 5.2 Q3: a distillation package repeats the guidance pattern, more strongly
+**Second encoder.** We reran all primary tests with SigLIP 2 [18] (`results/encoder_check/`), using the same poles, margins and inference. Its directions agree with people on the human-check pairs about as often as CLIP's (round 1: 0.84–0.94 vs. 0.81–0.94).
+- **Concentration is robust.** In klein-base 4B, medium, tone and background concentrate under both encoders (SigLIP ×0.52, ×0.53, ×0.62). Saturation narrows less with SigLIP (×0.70, below the margin), and shot more (×0.58).
+- **The displacements are not robust.** With SigLIP the saturation shift falls below the margin (+0.44), while medium (+1.08), shot (−0.86) and tone (−1.59) are displaced.
+- **Per-subject shifts agree only moderately** between the encoders (median Spearman 0.36).
+
+**Answer to Q1.** In klein-base 4B, raising guidance removes alternatives on every aspect we can validate, under two independent encoders. Which aspects it also moves is a property of the encoder as much as of the images: CLIP sees only saturation move, SigLIP 2 sees medium, shot and tone move. Qwen-Image showed the same narrowing with smaller effects. Two guidance values do not show a dose-response. [Figure 1: paired-seed trajectories at guidance 1 and 4. Figure 4: per-subject shift and spread ratio, both families.]
+
+### 5.2 Q3: a distillation package narrows like guidance, more strongly
 Replacing klein-base 4B (guidance 1) with the distilled klein 4B changes the checkpoint and reduces the steps from 50 to 4.
 - **All five aspects concentrate** (×0.41 to ×0.63).
 - **Only saturation is displaced** (+0.95 [+0.67, +1.19]).
 
-This is the guidance pattern, as strong or stronger, and it supports DefaultShift's observation [6] against a measured guidance intervention in the same family. The package is not attributed to either of its parts. The klein 9B package changes defaults much less (spreads ×0.77–0.88, no resolved shift).
+This is the guidance pattern, as strong or stronger, and it supports DefaultShift's observation [6] against a measured guidance intervention in the same family. Under SigLIP 2, all five aspects again concentrate (×0.48–0.58) and saturation is again displaced (+1.03), so this result is robust to the encoder; SigLIP additionally finds tone displaced (−1.22). The package is not attributed to either of its parts. The klein 9B package changes defaults much less (spreads ×0.77–0.88, no resolved shift).
 
 ### 5.3 Q2: shared defaults, two signatures, and pooled numbers that mislead
 Among the eight configurations specified for Q2, only 5 to 8 of the 28 pairs per aspect differ beyond the margin. Two configurations have strong signatures:
@@ -415,7 +422,7 @@ What a rewrite *says* about appearance is only partly what the generator *does* 
 
 ## 8. Discussion
 
-**Separate location from spread before reading "less diverse".** In the guidance and distillation contrasts and the fixed-rewrite condition, narrowing was larger and more common than moving: they removed alternatives more than they moved the typical output. Per-seed rewriting was the exception: it neither narrowed nor widened beyond the margin.
+**Separate location from spread before reading "less diverse".** In the guidance and distillation contrasts and the fixed-rewrite condition, narrowing was the finding that survived a second encoder; which aspects moved did not. Per-seed rewriting was the exception: it neither narrowed nor widened beyond the margin.
 
 **Never read a pooled shift without its per-subject structure.** On validated aspects, 38 of the 60 pooled "no difference" comparisons concealed opposite shifts, and both VLMs turned every such case they were asked about into a pooled claim.
 
@@ -431,7 +438,7 @@ This suggests a division of labour for LLM-assisted visual analytics. LLMs are g
 **Validate per configuration set and read differences with their size.** Eight of the 15 candidate axes failed human validation in round 1, and all six VLM-proposed ones failed in round 3. Axes confirmed on varied models did not all hold among similar ones or on rewritten images, and agreement rose with the size of the difference.
 
 **Limitations.**
-- CLIP axes are proxies: five of fifteen candidates survived, and lighting and viewpoint are not among them. A second encoder [18] is used as a sensitivity check [pending].
+- CLIP axes are proxies: five of fifteen candidates survived, and lighting and viewpoint are not among them. A second encoder (SigLIP 2 [18]) confirms the concentration findings and the absence of widening under rewriting, but not the displacement findings, and per-subject readings agree only moderately between the encoders (median Spearman 0.33–0.67). Displacements are therefore reported as encoder-specific.
 - The scale is derived from the configurations themselves, so the 0.5 margin depends on which configurations were included; it is not a perceptual unit.
 - Configurations differ in native resolution (512–1328 px). Resizing to a common encoder input does not remove resolution effects on content, so cross-configuration contrasts (Q2, SDXL → Turbo) may include them; Q1 and Q4 hold resolution fixed.
 - 32 seeds × 24 subjects describe these samples.
