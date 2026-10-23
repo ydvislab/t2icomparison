@@ -91,3 +91,12 @@ diffusers 0.41.0 from PyPI includes `Flux2KleinPipeline`, `Flux2Pipeline` and `Q
 **Calibration anchors:** `python experiments/model_study/open/gen.py <group> --jobset anchor_pilot` writes `$T2IC_DATA/model_study/anchors_pilot/<group>/`; scoring with `aspects/score.py` and analysis with `experiments/model_study/anchors/analyze_pilot.py`. Steps and decision rules: `experiments/model_study/anchors/README.md`.
 
 **Closed models:** run locally; see `experiments/model_study/closed/README.md`. Copy the results to `$T2IC_DATA/model_study/closed/` on the server.
+
+## Expert-session offline package (2026-10-23)
+After `system/audit/build.py` has built `$T2IC_DATA/audit_tool/`:
+```
+D=$T2IC_DATA; rm -rf $D/expert_offline && mkdir -p $D/expert_offline && cp -r $D/audit_tool $D/expert_offline/audit
+# add README.txt (unzip fully; Chrome or Edge; open audit/index.html or audit/baseline.html as told), then:
+cd $D/expert_offline && zip -qr -0 ../expert_offline_package.zip .
+```
+Moderator sheets: `python experiments/expert_study/make_sheets.py`.
