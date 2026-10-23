@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>两组图对比</title>
+<style>
+:root { color-scheme: light; --page: #f3f2ee; --panel: #fff; --ink: #1f2328; --muted: #8a909a; --line: #dcdfe4; --acc: #2563eb; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, "Microsoft YaHei", sans-serif; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 14px 18px 30px; }
+header { display: flex; align-items: center; gap: 10px; }
+header h1 { font-size: 17px; margin: 0 auto 0 0; }
+input { font: inherit; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; width: 110px; }
+button { font: inherit; padding: 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); cursor: pointer; }
+.guide { background: var(--panel); border-radius: 12px; padding: 10px 14px; margin: 10px 0; font-size: 14px; color: #3b4048; }
+.bar { height: 5px; background: var(--line); border-radius: 3px; margin: 8px 0; }
+.bar i { display: block; height: 100%; background: var(--acc); border-radius: 3px; }
+.set { display: flex; align-items: center; gap: 10px; margin: 6px 0 2px; font-weight: 600; }
+.set img { width: 100%; display: block; border-radius: 8px; }
+.q { font-size: 17px; margin: 12px 0 8px; font-weight: 600; }
+.opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.opts button { padding: 12px; text-align: left; }
+.opts button.on { border-color: var(--acc); box-shadow: inset 0 0 0 2px var(--acc); }
+.foot { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>两组图对比（48 题）</h1>标注人 <input id="who" placeholder="姓名缩写"><button id="exp">导出 CSV</button></header>
+<div class="guide">每题给出同一个提示词下 <b>A 组 8 张</b>和 <b>B 组 8 张</b>图片，以及一个问题。请看完两组图后，凭整体印象回答：B 组相比 A 组<b>整体偏向哪一端</b>，或者 B 组<b>组内是否更多样/更单一</b>。看不出明显区别就选"没有明显差别"或"差不多"，这也是正确答案之一。快捷键：1 / 2 / 3 选择，← 上一题，→ 下一题。进度自动保存在本浏览器；做完点"导出 CSV"把文件发回。</div>
+<div class="bar"><i id="prog"></i></div>
+<div id="item"></div>
+<div class="foot"><span id="pos"></span><span id="done"></span></div>
+</div>
+<script>
+const ITEMS = /*ITEMS*/[];
+const KEY = "gridCheckAnswers";
+let A = {}; try { A = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+let i = 0, t0 = Date.now();
+const who = document.getElementById("who");
+try { who.value = localStorage.getItem(KEY + "_who") || ""; } catch (e) {}
+who.oninput = () => { try { localStorage.setItem(KEY + "_who", who.value.trim()); } catch (e) {} };
+function save() { try { localStorage.setItem(KEY, JSON.stringify(A)); } catch (e) {} }
+function show() {
+  const it = ITEMS[i];
+  document.getElementById("item").innerHTML = `
+    <div class="set">A 组 · ${it.subject}</div><img src="img/${it.id}_A.jpg" alt="">
+    <div class="set">B 组 · ${it.subject}</div><img src="img/${it.id}_B.jpg" alt="">
+    <div class="q">${it.q}</div>
+    <div class="opts">${it.options.map((o, k) => `<button data-v="${o[0]}" class="${A[it.id]?.answer === o[0] ? "on" : ""}">${k + 1}. ${o[1]}</button>`).join("")}</div>`;
+  document.querySelectorAll(".opts button").forEach(b => b.onclick = () => answer(b.dataset.v));
+  document.getElementById("pos").textContent = `第 ${i + 1} / ${ITEMS.length} 题`;
+  const n = Object.keys(A).length;
+  document.getElementById("done").textContent = `已答 ${n}`;
+  document.getElementById("prog").style.width = (100 * n / ITEMS.length) + "%";
+  t0 = Date.now();
+}
+function answer(v) {
+  if (!who.value.trim()) { alert("请先填写标注人（姓名缩写）"); who.focus(); return; }
+  const it = ITEMS[i]; A[it.id] = { answer: v, ms: Date.now() - t0 }; save();
+  if (i < ITEMS.length - 1) i++; show();
+}
+document.addEventListener("keydown", e => {
+  if (e.target === who) return;
+  if (["1", "2", "3"].includes(e.key)) answer(ITEMS[i].options[+e.key - 1][0]);
+  if (e.key === "ArrowRight" && i < ITEMS.length - 1) { i++; show(); }
+  if (e.key === "ArrowLeft" && i > 0) { i--; show(); }
+});
+document.getElementById("exp").onclick = () => {
+  const w = who.value.trim();
+  if (!w) { alert("请先填写标注人（姓名缩写）"); return; }
+  if (Object.keys(A).length < ITEMS.length && !confirm(`还有 ${ITEMS.length - Object.keys(A).length} 题未答，仍然导出？`)) return;
+  const rows = [["annotator", "id", "answer", "ms"], ...ITEMS.filter(it => A[it.id]).map(it => [w, it.id, A[it.id].answer, A[it.id].ms])];
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([rows.map(r => r.join(",")).join("\n")], { type: "text/csv" }));
+  a.download = `grid_check_${w}.csv`; a.click();
+};
+show();
+</script>
+</body>
+</html>

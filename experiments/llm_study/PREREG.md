@@ -130,3 +130,12 @@ Only aspects validated on the configuration set involved are scored.
      - **Reference:** the agreement expected if each VLM answered at random with its own answer frequencies.
   2. **Truth from the shown images.** Constrained answers of the first draw are also scored against a truth computed from the 8 seeds the VLM saw, k = 0–7, with the same margins and a per-subject bootstrap over those 8 seeds. Per subject only, because pooled grids mix subjects.
 - **Reporting:** both are reported as exploratory and change none of the pre-registered measures.
+
+## Deviation 4 (2026-10-23, exploratory; specified before the package is built)
+- **Reason:** the 2026-10-22 review asked how people read the same grids that the VLMs saw. People therefore answer the VLMs' constrained questions on exactly those grid pairs.
+- **Design:** `make_grid_check.py` (48 items: 36 on the six Q5 contrasts, 12 on the two null contrasts; same three annotators; seed 20261024).
+- **Measures:**
+  - people's accuracy against the 32-seed and the 8-seed truth, side by side with each VLM's accuracy on the same items;
+  - the share of null items where people report a shift or a change in variety, against the VLMs' 98–100%;
+  - item-level agreement between people (majority answer) and each VLM.
+- **Reporting:** exploratory; changes none of the pre-registered measures.
