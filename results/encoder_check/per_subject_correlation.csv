@@ -1,0 +1,26 @@
+family,contrast,aspect,spearman_delta,spearman_lr
+Q1,klein-base 4B,sat,0.197,0.228
+Q1,klein-base 4B,medium,-0.069,0.283
+Q1,klein-base 4B,shot,0.381,0.030
+Q1,klein-base 4B,tone,0.232,0.168
+Q1,klein-base 4B,bg,0.555,-0.143
+Q1,Qwen-Image-2512,sat,0.546,0.312
+Q1,Qwen-Image-2512,medium,0.531,0.437
+Q1,Qwen-Image-2512,shot,-0.019,0.323
+Q1,Qwen-Image-2512,tone,0.519,0.200
+Q1,Qwen-Image-2512,bg,0.342,0.269
+Q3,klein 4B package,sat,0.041,0.310
+Q3,klein 4B package,medium,0.432,0.253
+Q3,klein 4B package,shot,0.291,0.038
+Q3,klein 4B package,tone,0.332,0.521
+Q3,klein 4B package,bg,0.472,0.269
+Q4,P1 klein 4B: original -> FLUX.2 rewrite,sat,0.727,0.562
+Q4,P1 klein 4B: original -> FLUX.2 rewrite,medium,0.457,0.817
+Q4,P1 klein 4B: original -> FLUX.2 rewrite,shot,0.781,-0.019
+Q4,P1 klein 4B: original -> FLUX.2 rewrite,tone,0.639,0.392
+Q4,P1 klein 4B: original -> FLUX.2 rewrite,bg,0.395,0.387
+Q4,P2 FLUX.2 dev: original -> FLUX.2 rewrite,sat,0.830,0.484
+Q4,P2 FLUX.2 dev: original -> FLUX.2 rewrite,medium,0.690,0.400
+Q4,P2 FLUX.2 dev: original -> FLUX.2 rewrite,shot,0.688,0.345
+Q4,P2 FLUX.2 dev: original -> FLUX.2 rewrite,tone,0.655,0.623
+Q4,P2 FLUX.2 dev: original -> FLUX.2 rewrite,bg,0.085,0.214

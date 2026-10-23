@@ -72,8 +72,8 @@ def human_agreement():
     for (rnd, asp), g in H.groupby(["round", "aspect"]):
         dec = g[g.answer != "none"]
         out.append(dict(round=rnd, aspect=asp, n=len(g), cant_tell=1 - len(dec) / len(g),
-                        agree_clip=(dec.answer == dec.clip).mean(), agree_siglip=(dec.answer == dec.siglip).mean(),
-                        clip_siglip_same_direction=(g.clip == g.siglip).mean()))
+                        agree_clip=(dec["answer"] == dec["clip"]).mean(), agree_siglip=(dec["answer"] == dec["siglip"]).mean(),
+                        clip_siglip_same_direction=(g["clip"] == g["siglip"]).mean()))
     return pd.DataFrame(out)
 
 
