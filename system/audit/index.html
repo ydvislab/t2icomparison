@@ -235,6 +235,13 @@ g.axi.dim { opacity: .16; }
 .famchips { position: absolute; left: 10px; top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
 .famchips button { border: 0; background: var(--page); border-radius: 999px; padding: 1px 9px; font: inherit; font-size: 12px; color: var(--ink-2); cursor: pointer; }
 .famchips button.on { background: var(--hl); color: #fff; }
+/* comparison set: more than two configurations */
+.setbar { display: flex; gap: 5px; align-items: center; min-width: 0; }
+.setbar .sc { display: inline-flex; align-items: center; gap: 5px; background: var(--panel); border-radius: 999px; padding: 3px 6px 3px 9px; box-shadow: var(--shadow); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.setbar .sc i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.setbar .sc b { font-weight: 400; color: var(--muted); cursor: pointer; padding: 0 2px; }
+.setbar select { border: 0; background: var(--panel); box-shadow: var(--shadow); border-radius: 999px; padding: 4px 8px; font: inherit; font-size: 12.5px; color: var(--ink-2); cursor: pointer; max-width: 120px; }
+.lanelab { font-size: 11px; font-weight: 600; }
 /* tooltip */
 .tip { position: fixed; pointer-events: none; background: var(--panel); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(16,24,40,.18);
   display: none; z-index: 9; font-size: 13px; color: var(--ink-2); max-width: 300px; }
@@ -249,6 +256,7 @@ g.axi.dim { opacity: .16; }
   <div class="pill"><i style="background:var(--a)"></i><select id="selA"></select></div>
   <button class="iconbtn" id="swap" title="swap">⇄</button>
   <div class="pill"><i style="background:var(--b)"></i><select id="selB"></select></div>
+  <div class="setbar" id="extraSet"></div>
   <div class="diff" id="diff"></div>
   <div class="seg" id="aspSeg"></div>
   <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
@@ -272,6 +280,31 @@ let M_LOC = PRE_LOC, M_LR = PRE_LR;   // the frozen margins; dragging a band edg
 const st = { fig: new URLSearchParams(location.search).has("figure"), A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat", main: "map",
   seedSel: null, seedSubj: null, subjSel: null, vFilter: null, fam: null };
 const cur = () => st.hover ?? st.subj;
+// comparison set: A (reference), B (focus of the pairwise views) and up to four more configurations; one categorical
+// hue per member, A and B keep theirs. Shift-click a configuration on the map, or use "+ compare", to add or remove one.
+st.extra = [];
+const SETCOL = ["var(--a)", "var(--b)", "#7c3aed", "#db2777", "#65a30d", "#0891b2"];   // hues not used by the diverging pole scale
+const SET = () => [...new Set([st.A, st.B, ...st.extra])].filter(Boolean).slice(0, 6);
+const colOf = g => SETCOL[SET().indexOf(g)] || "var(--dot)";
+function toggleExtra(g) {
+  if (g === st.A || g === st.B) return;
+  const i = st.extra.indexOf(g);
+  if (i >= 0) st.extra.splice(i, 1); else if (SET().length < 6) st.extra.push(g);
+  update();
+}
+function extraChips() {
+  st.extra = st.extra.filter(g => g !== st.A && g !== st.B);
+  const host = d3.select("#extraSet");
+  host.selectAll("span.sc").data(st.extra, g => g).join(en => {
+    const c = en.append("span").attr("class", "sc"); c.append("i"); c.append("span"); c.append("b").text("×").attr("title", "Remove from the comparison");
+    return c;
+  }).each(function (g) { const c = d3.select(this); c.select("i").style("background", colOf(g)); c.select("span").text(sh(G[g])).attr("title", G[g].label); c.select("b").on("click", () => toggleExtra(g)); });
+  const sel = host.selectAll("select").data(SET().length < 6 ? [0] : []).join("select")
+    .attr("title", "Add a configuration to the comparison (or shift-click it on the map)").on("change", e => { if (e.target.value) toggleExtra(e.target.value); });
+  sel.selectAll("option").data([null, ...META.groups.filter(g => !SET().includes(g.id))]).join("option")
+    .attr("value", g => g ? g.id : "").text(g => g ? g.label : "+ compare");
+  host.select("select").raise();
+}
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
 const aspName = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
 // validated aspects of a configuration pair (META.validity: annotation rounds 1-3); unknown groups count as validated
@@ -470,11 +503,14 @@ function drawMap(animate, zoomOnly) {
   // faint region and a concentrated one a small, dense region; each subject is a faint dot
   const per = gid => OV.find(d => d.g.id === gid)?.per || [];
   const est = gid => d3.contourDensity().x(p => x(p.x)).y(p => y(p.y)).size([W, H]).bandwidth(Math.max(18, W / 32)).contours(per(gid));
-  const CA = est(st.A), CB = est(st.B), peak = Math.max(CA.max, CB.max);
-  [[st.A, CA, "var(--a)", "ctxA"], [st.B, CB, "var(--b)", "ctxB"]].forEach(([gid, C, c, cls]) => {
-    const g = OVS.ctx.selectAll("g." + cls).data([0]).join("g").attr("class", cls);
-    g.selectAll("path").data([.08, .25, .5].map(f => C(f * peak))).join("path").attr("d", d3.geoPath()).attr("fill", c).attr("fill-opacity", .06)
-      .attr("stroke", c).attr("stroke-opacity", .45).attr("stroke-width", 1.1);
+  // one density per member of the comparison set, all at the same levels (fractions of the highest peak)
+  const members = SET(), Cs = members.map(est), peak = d3.max(Cs, C => C.max);
+  OVS.ctx.selectAll("g.ctxA, g.ctxB").remove();
+  OVS.ctx.selectAll("g.ctxm").data(members, g => g).join("g").attr("class", "ctxm").order();
+  members.forEach((gid, mi_) => {
+    const C = Cs[mi_], c = colOf(gid), g = OVS.ctx.selectAll("g.ctxm").filter(d => d === gid);
+    g.selectAll("path.ct").data([.08, .25, .5].map(f => C(f * peak))).join("path").attr("class", "ct").attr("d", d3.geoPath()).attr("fill", c)
+      .attr("fill-opacity", members.length > 2 ? .04 : .06).attr("stroke", c).attr("stroke-opacity", .5).attr("stroke-width", 1.1);
     // a subject beyond the fitted axes is drawn at the edge as a small triangle pointing outward (never silently clamped)
     const [dx0, dx1] = x.domain(), [dy0, dy1] = y.domain();
     g.selectAll("path.sp").data(per(gid)).join("path").attr("class", "sp").attr("fill", c).attr("opacity", .5)
@@ -520,9 +556,9 @@ function drawMap(animate, zoomOnly) {
     g.append("circle").attr("class", "ring").attr("r", 12);
     g.append("path").attr("class", "pt").attr("d", d => d3.symbol(famShape(d.g), 80)()).attr("fill", "var(--ink-2)");
     g.on("mouseenter", (e, d) => { st.hoverCfg = d.g.id; overviewHL(); })
-     .on("mousemove", (e, d) => showTip(e, `<b>${d.g.label}</b><div class="bar"><span>location</span><span><b>${fd(d.x)}</b></span><span>spread</span><span><b>${f2(d.y)}</b></span></div><span style="color:var(--muted)">drag onto another configuration to compare</span>`))
+     .on("mousemove", (e, d) => showTip(e, `<b>${d.g.label}</b><div class="bar"><span>location</span><span><b>${fd(d.x)}</b></span><span>spread</span><span><b>${f2(d.y)}</b></span></div><span style="color:var(--muted)">click: compare with A · shift-click: add to the comparison set · drag onto another: compare the two</span>`))
      .on("mouseleave", () => { st.hoverCfg = null; hideTip(); overviewHL(); })
-     .on("click", (e, d) => setPair(d.g.id === st.B ? st.A : st.B, d.g.id))
+     .on("click", (e, d) => (e.shiftKey || e.ctrlKey || e.metaKey) ? toggleExtra(d.g.id) : setPair(d.g.id === st.B ? st.A : st.B, d.g.id))
      .call(cfgDrag);
     return g;
   }).transition(t).attr("transform", d => `translate(${x(d.x)},${y(d.y)})`);
@@ -538,7 +574,7 @@ function drawMap(animate, zoomOnly) {
 // has to move away from its point
 function placeLabels(t) {
   const { x, y, W, H, m } = OVS;
-  const focus = new Set([st.A, st.B, st.hoverCfg].filter(Boolean));
+  const focus = new Set([...SET(), st.hoverCfg].filter(Boolean));
   const nodes = OV.filter(d => focus.has(d.g.id)).map(d => { const px = x(d.x), py = y(d.y), txt = d.g.label;
     return { d, px, py, txt, w: txt.length * 6.8 + 8, h: 17, x: px + 16, y: py - 14 }; });
   const fixed = OV.map(d => ({ fx: x(d.x), fy: y(d.y), x: x(d.x), y: y(d.y), w: 20, h: 20, point: true }));
@@ -554,8 +590,8 @@ function placeLabels(t) {
     g.append("text").attr("text-anchor", "middle").attr("dy", "0.35em");
     return g;
   });
-  lab.select("text").text(n => n.txt).style("fill", n => n.d.g.id === st.A ? "var(--a)" : n.d.g.id === st.B ? "var(--b)" : null)
-    .style("font-weight", n => n.d.g.id === st.A || n.d.g.id === st.B ? 600 : 500).transition(t).attr("x", n => n.x).attr("y", n => n.y);
+  lab.select("text").text(n => n.txt).style("fill", n => SET().includes(n.d.g.id) ? colOf(n.d.g.id) : null)
+    .style("font-weight", n => SET().includes(n.d.g.id) ? 600 : 500).transition(t).attr("x", n => n.x).attr("y", n => n.y);
   lab.select("path").transition(t).attr("d", n => Math.hypot(n.x - n.px, n.y - n.py) > n.w / 2 + 22
     ? `M${n.px},${n.py} Q${(n.px + n.x) / 2},${n.py} ${n.x - Math.sign(n.x - n.px) * n.w / 2},${n.y}` : "");
 }
@@ -645,11 +681,11 @@ function overviewHL() {
   if (st.main === "statements") { stmtHL(); matrixHL(hs, hc); return; }
   if (st.main === "trail") { matrixHL(hs, hc); return; }
   const { x, y } = OVS, [x0, x1] = x.domain(), [y0, y1] = y.domain();
-  OVS.pts.selectAll("g.cfg").select(".ring").attr("stroke", d => d.g.id === st.A ? "var(--a)" : d.g.id === st.B ? "var(--b)" : "none");
-  const foc = d => d.g.id === st.A || d.g.id === st.B || d.g.id === hc;
+  OVS.pts.selectAll("g.cfg").select(".ring").attr("stroke", d => SET().includes(d.g.id) ? colOf(d.g.id) : "none");
+  const foc = d => SET().includes(d.g.id) || d.g.id === hc;
   OVS.pts.selectAll("g.cfg").classed("focus", foc).classed("ctx", d => !foc(d)).select(".pt")
     .attr("d", d => d3.symbol(famShape(d.g), foc(d) ? 170 : d.g.rewrite ? 45 : 80)())
-    .attr("fill", d => d.g.id === st.A ? "var(--a)" : d.g.id === st.B ? "var(--b)" : "var(--ink-2)");
+    .attr("fill", d => SET().includes(d.g.id) ? colOf(d.g.id) : "var(--ink-2)");
   placeLabels(d3.transition().duration(0));
   let det = [];
   if (hs != null) det = OV.map(d => ({ d, p: d.per.find(p => p.si === hs) })).filter(o => o.p);
@@ -666,7 +702,7 @@ function overviewHL() {
 }
 function matrixHL(hs, hc) {
   if (OVS.mx) {
-    OVS.mx.selectAll(".colhl").attr("fill", g => g.id === hc ? "var(--band)" : g.id === st.A ? "color-mix(in srgb, var(--a) 15%, transparent)" : g.id === st.B ? "color-mix(in srgb, var(--b) 15%, transparent)" : "none");
+    OVS.mx.selectAll(".colhl").attr("fill", g => g.id === hc ? "var(--band)" : SET().includes(g.id) ? `color-mix(in srgb, ${colOf(g.id)} 15%, transparent)` : "none");
     OVS.mx.selectAll(".rl").classed("on", s => s.si === (hs ?? st.subj)).classed("pick", s => !!st.subjSel?.has(s.si));
     OVS.mx.selectAll("rect.cell").classed("on", d => d.s.si === (hs ?? st.subj) && (d.g.id === st.A || d.g.id === st.B));
   }
@@ -714,6 +750,7 @@ function buildScatters() {
     s.pool.append("line").attr("class", "px"); s.pool.append("line").attr("class", "py");
     s.pool.append("path").attr("d", d3.symbol(d3.symbolDiamond, 110)());
     s.pool.on("mousemove", e => showTip(e, poolTip(a))).on("mouseleave", hideTip);
+    s.exg = svg.append("g");   // further members of the comparison set against A
     s.seld = svg.append("g").attr("class", "seld").style("display", "none");
     s.seld.append("path").attr("d", d3.symbol(d3.symbolDiamond, 150)());
     s.seld.on("mousemove", e => showTip(e, selTip(a))).on("mouseleave", hideTip);
@@ -723,7 +760,9 @@ function buildScatters() {
 function drawScatters(animate) {
   for (const a of RET) {
     const s = SC[a.key], r = R[a.key], { x, y, m, W, H } = s, t = d3.transition().duration(animate ? DUR : 0).ease(d3.easeCubicInOut);
-    const xm = Math.max(1.6, d3.max(r.cells, c => Math.abs(c.d)) * 1.2), ym = Math.max(.9, d3.max(r.cells, c => Math.abs(c.lr)) * 1.2);
+    const ex = st.extra.filter(g => g !== st.A && g !== st.B).map(g => ({ g, p: extraContrast(g)[a.key].pool }));
+    const xm = Math.max(1.6, d3.max(r.cells, c => Math.abs(c.d)) * 1.2, (d3.max(ex, e => Math.max(Math.abs(e.p.dlo), Math.abs(e.p.dhi))) || 0) * 1.1);
+    const ym = Math.max(.9, d3.max(r.cells, c => Math.abs(c.lr)) * 1.2, (d3.max(ex, e => Math.max(Math.abs(e.p.llo), Math.abs(e.p.lhi))) || 0) * 1.1);
     x.domain([-xm, xm]); y.domain([-ym, ym]);
     s.bandX.transition(t).attr("x", x(-M_LOC)).attr("width", x(M_LOC) - x(-M_LOC)).attr("y", m.t).attr("height", H - m.b - m.t);
     s.bandY.transition(t).attr("y", y(M_LR)).attr("height", y(-M_LR) - y(M_LR)).attr("x", m.l).attr("width", W - m.l - m.r);
@@ -746,6 +785,16 @@ function drawScatters(animate) {
     s.pool.select(".px").transition(t).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
     s.pool.select(".py").transition(t).attr("x1", x(p.d)).attr("x2", x(p.d)).attr("y1", y(p.llo)).attr("y2", y(p.lhi));
     s.pool.select("path").transition(t).attr("transform", `translate(${x(p.d)},${y(p.lr)})`);
+    s.exg.selectAll("g.exd").data(ex, d => d.g).join(en => { const g = en.append("g").attr("class", "exd").style("cursor", "pointer");
+        g.append("line").attr("class", "px").attr("stroke-width", 2).attr("stroke-linecap", "round"); g.append("line").attr("class", "py").attr("stroke-width", 2).attr("stroke-linecap", "round");
+        g.append("path").attr("d", d3.symbol(d3.symbolDiamond, 95)()).attr("stroke", "var(--panel)").attr("stroke-width", 1.2); return g; })
+      .style("opacity", d => valid(a.key, st.A, d.g) ? 1 : .3)
+      .each(function (d) { const g = d3.select(this), p = d.p, c = colOf(d.g);
+        g.select(".px").attr("stroke", c).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
+        g.select(".py").attr("stroke", c).attr("x1", x(p.d)).attr("x2", x(p.d)).attr("y1", y(p.llo)).attr("y2", y(p.lhi));
+        g.select("path").attr("fill", c).attr("transform", `translate(${x(p.d)},${y(p.lr)})`); })
+      .on("mousemove", (e, d) => showTip(e, `<b>${G[st.A].label} → ${G[d.g].label}</b> · ${aspName(a.key)}<div class="bar"><span>shift</span><span><b>${fd(d.p.d)}</b> [${fd(d.p.dlo)}, ${fd(d.p.dhi)}]</span><span>spread</span><span><b>${fr(d.p.lr)}</b> [${fr(d.p.llo)}, ${fr(d.p.lhi)}]</span></div><span style="color:var(--muted)">click: make it B</span>`))
+      .on("mouseleave", hideTip).on("click", (e, d) => { e.stopPropagation(); setPair(st.A, d.g); });
     s.hLoc.attr("x", d => x(d * M_LOC) - 4).attr("y", m.t);
     s.hLr.attr("x", W - m.r - 14).attr("y", d => y(d * M_LR) - 4);
     // figure mode: margin values at the band edges and the pooled estimate in the card title
@@ -760,6 +809,11 @@ function drawScatters(animate) {
   }
   subjHL(); aspectSeg();
   linked();
+}
+function extraContrast(g) {
+  const k = st.A + ">" + g;
+  if (!CO.has(k)) CO.set(k, contrast(st.A, g));
+  return CO.get(k);
 }
 function scatterBrush(e, key) {
   if (!e.sourceEvent) return;
@@ -839,19 +893,21 @@ function drawRidge() {
   const { w: W, h: H } = box("#ridge"), aspects = ASP.filter(a => !s.excluded.includes(a.key)), m = { l: 102, r: 14 };
   const rowH = Math.max(30, Math.min(64, (H - 8) / aspects.length)), base = rowH * .62;
   const svg = host.append("svg").attr("width", W).attr("height", H).attr("class", "ridge");
+  const members = SET();
   aspects.forEach((a, i) => {
-    const ai = 3 + AIDX[a.key], sc = META.scale[a.key], ra = SCORES[st.A][si], rb = SCORES[st.B][si];
-    const ma = mi(ra.map(r => r[ai])).med, val = r => (r[ai] - ma) / sc;
-    const va = ra.map(val), vb = rb.map(val), ext = Math.max(2, d3.max([...va, ...vb], Math.abs) * 1.15);
+    const ai = 3 + AIDX[a.key], sc = META.scale[a.key], rows = members.map(g => SCORES[g][si]);
+    const ma = mi(rows[0].map(r => r[ai])).med, val = r => (r[ai] - ma) / sc;
+    const vals = rows.map(rs => rs.map(val)), ext = Math.max(2, d3.max(vals.flat(), Math.abs) * 1.15);
     const x = d3.scaleLinear([-ext, ext], [m.l, W - m.r]), xs = d3.range(81).map(k => -ext + 2 * ext * k / 80);
-    const da = kde(va, xs), db = kde(vb, xs), y = d3.scaleLinear([0, d3.max([...da, ...db], d => d[1])], [base, 4]);
+    const dens = vals.map(v => kde(v, xs)), y = d3.scaleLinear([0, d3.max(dens.flat(), d => d[1])], [base, 4]);
     const area = d3.area().x(d => x(d[0])).y0(base).y1(d => y(d[1])).curve(d3.curveBasis), on = a.key === st.aspect;
     const g = svg.append("g").attr("class", "row").attr("transform", `translate(0,${4 + i * rowH})`).style("opacity", on ? 1 : a.retained ? .5 : .28)
       .on("click", () => pick(si, a.key));
     g.append("text").attr("class", "rowlab").attr("x", 14).attr("y", base - 4).text(aspName(a.key));
     g.append("line").attr("class", "zero").attr("x1", m.l).attr("x2", W - m.r).attr("y1", base).attr("y2", base);
-    [[da, "var(--a)"], [db, "var(--b)"]].forEach(([d, c]) => g.append("path").attr("class", "area").attr("d", area(d)).attr("fill", c).attr("fill-opacity", .18).attr("stroke", c));
-    [[ra, va, "var(--a)", st.A, base + 5], [rb, vb, "var(--b)", st.B, base + 12]].forEach(([rows, v, c, gid, yy]) => {
+    dens.forEach((d, k) => g.append("path").attr("class", "area").attr("d", area(d)).attr("fill", colOf(members[k])).attr("fill-opacity", members.length > 2 ? .08 : .18).attr("stroke", colOf(members[k])));
+    const rug = Math.min(7, (rowH - base - 4) / members.length);
+    members.map((gid, k) => [rows[k], vals[k], colOf(gid), gid, base + 5 + k * rug]).forEach(([rows, v, c, gid, yy]) => {
       g.selectAll(null).data(rows).join("line").attr("class", r => "rug" + (r[2] === st.job && on ? " hl" : "")).attr("stroke", c)
         .attr("x1", (r, j) => x(v[j])).attr("x2", (r, j) => x(v[j])).attr("y1", yy - 3).attr("y2", yy + 3).attr("data-j", r => r[2])
         .on("mouseenter", (e, r) => { if (!on) return; st.job = r[2]; markJob(); })
@@ -866,7 +922,44 @@ function drawRidge() {
 // gives the same starting noise, so a curve follows one image across the change; otherwise images are matched by rank
 // (dashed curves, a quantile-quantile reading). Displacement shows as curves leaning one way, concentration as curves
 // converging; the thick curve joins the two medians.
+// More than two configurations: one horizontal axis per member (in set order) and one polyline per seed through the
+// images that seed produced in every member; a segment is dashed where the two members do not share starting noise
+// (different pipeline or resolution), so it is not a trajectory there. Bands are IQRs, the thick line joins the medians.
+function drawParallel(host, si) {
+  const a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key], members = SET();
+  const { w: W, h: H } = box("#ridge"), m = { l: 72, r: 18, t: 26, b: 30 };
+  const rows = members.map(g => SCORES[g][si]), ma = mi(rows[0].map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;
+  const all = rows.flat().map(v), lo = Math.min(-M_LOC, d3.min(all)), hi = Math.max(M_LOC, d3.max(all)), pad = (hi - lo) * .04;
+  const x = d3.scaleLinear([lo - pad, hi + pad], [m.l, W - m.r]), yy = d3.scalePoint(members, [m.t, H - m.b]);
+  const svg = host.append("svg").attr("width", W).attr("height", H);
+  const same = (g1, g2) => G[g1].settings.pipeline === G[g2].settings.pipeline && G[g1].settings.resolution === G[g2].settings.resolution;
+  svg.append("rect").attr("class", "band").attr("x", x(-M_LOC)).attr("width", x(M_LOC) - x(-M_LOC)).attr("y", m.t - 8).attr("height", H - m.b - m.t + 16).attr("rx", 4);
+  members.forEach((g, k) => {
+    const vs = rows[k].map(v).sort(d3.ascending), q1 = d3.quantileSorted(vs, .25), q3 = d3.quantileSorted(vs, .75), c = colOf(g);
+    svg.append("rect").attr("x", x(q1)).attr("width", Math.max(2, x(q3) - x(q1))).attr("y", yy(g) - 5).attr("height", 10).attr("rx", 5).attr("fill", c).attr("opacity", .22);
+    svg.append("line").attr("class", "zero").attr("x1", m.l).attr("x2", W - m.r).attr("y1", yy(g)).attr("y2", yy(g));
+    svg.append("circle").attr("cx", 12).attr("cy", yy(g)).attr("r", 5).attr("fill", c);
+    svg.append("text").attr("class", "lanelab").attr("x", 22).attr("y", yy(g)).attr("dy", "0.35em").style("fill", c).text(sh(G[g])).append("title").text(G[g].label);
+  });
+  const byK = rows.map(rs => new Map(rs.map(r => [r[0], r])));
+  const ks = [...new Set(rows.flatMap(rs => rs.map(r => r[0])))];
+  const seg = [];
+  ks.forEach(k => { for (let i = 0; i + 1 < members.length; i++) { const p = byK[i].get(k), q2 = byK[i + 1].get(k);
+    if (p && q2) seg.push({ j: p[2], x1: x(v(p)), y1: yy(members[i]), x2: x(v(q2)), y2: yy(members[i + 1]), dash: !same(members[i], members[i + 1]) }); } });
+  const curve = d => { const my = (d.y1 + d.y2) / 2; return `M${d.x1},${d.y1} C${d.x1},${my} ${d.x2},${my} ${d.x2},${d.y2}`; };
+  svg.append("g").selectAll("path").data(seg).join("path").attr("class", "traj").attr("data-j", d => d.j).attr("stroke-dasharray", d => d.dash ? "4 3" : null).attr("d", curve);
+  svg.append("g").selectAll("path").data(seg).join("path").attr("class", "trajhit").attr("d", curve)
+    .on("mouseenter", (e, d) => { st.job = d.j; st.jobB = null; markJob(); }).on("mouseleave", hideTip);
+  const meds = members.map((g, k) => ({ x: x(d3.median(rows[k], v)), y: yy(g) }));
+  svg.append("path").attr("class", "trajmed").attr("d", d3.line().x(d => d.x).y(d => d.y).curve(d3.curveMonotoneY)(meds));
+  svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 6).text(poleWord(a.left));
+  svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 6).attr("text-anchor", "end").text(poleWord(a.right));
+  svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", 13).attr("text-anchor", "end").text(aspName(a.key));
+  svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", 13).text("same seed across the set · dashed: different starting noise");
+  markJob(); seedHL();
+}
 function drawSeeds(host, si) {
+  if (SET().length > 2) return drawParallel(host, si);
   const a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key], ga = G[st.A], gb = G[st.B];
   const { w: W, h: H } = box("#ridge"), m = { l: 34, r: 18, t: 30, b: 34 };
   const sameNoise = ga.settings.pipeline === gb.settings.pipeline && ga.settings.resolution === gb.settings.resolution;
@@ -975,13 +1068,13 @@ function drawClusters(host, si) {
   const side = Math.min(W - 2 * m, H - 2 * m), ox = (W - side) / 2, oy = (H - side) / 2;
   const x = v => ox + v * side, y = v => oy + (1 - v) * side;
   const pts = META.groups.flatMap(g => (TSNE[g.id]?.[si] || []).map((p, i) => ({ g: g.id, p, r: SCORES[g.id][si][i] })));
-  const other = pts.filter(d => d.g !== st.A && d.g !== st.B);
+  const other = pts.filter(d => !SET().includes(d.g));
   svg.append("g").selectAll("circle").data(other).join("circle").attr("class", "cpt").attr("cx", d => x(d.p[0])).attr("cy", d => y(d.p[1]))
     .attr("r", 2.6).attr("fill", d => famColor(G[d.g])).attr("opacity", .28)
     .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r))).on("mouseleave", hideTip);
-  svg.append("g").selectAll("circle").data(pts.filter(d => d.g === st.A || d.g === st.B)).join("circle")
+  svg.append("g").selectAll("circle").data(pts.filter(d => SET().includes(d.g))).join("circle")
     .attr("class", "cpt ab").attr("data-j", d => d.r[2]).attr("data-g", d => d.g)
-    .attr("cx", d => x(d.p[0])).attr("cy", d => y(d.p[1])).attr("r", 3.6).attr("fill", d => d.g === st.A ? "var(--a)" : "var(--b)")
+    .attr("cx", d => x(d.p[0])).attr("cy", d => y(d.p[1])).attr("r", 3.6).attr("fill", d => colOf(d.g))
     .attr("stroke", "var(--panel)").attr("stroke-width", 1).style("cursor", "pointer")
     .on("mouseenter", (e, d) => { st.job = d.r[2]; st.jobB = null; markJob(); })
     .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r))).on("mouseleave", hideTip);
@@ -1327,6 +1420,43 @@ function stmtHL() { d3.selectAll(".strow").attr("fill", r => r.key === cur() ? "
 // selected on the other side, in the trajectories, the appearance map, the rugs and the rewrite view ("where did they
 // go?"). ▶ moves every image of A to where its same-seed image lands in B, and back.
 const AX = {};
+// More than two configurations: one lane per member (set order), images placed by score on a shared axis (scale units
+// from A's median); a click selects a seed in every lane, the trajectories and the appearance map.
+function drawLanes(si) {
+  const a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key], members = SET();
+  const host = d3.select("#strip"); host.selectAll("*").remove();
+  const { w: W, h: H } = box("#strip");
+  const rows = members.map(g => SCORES[g][si]), ma = mi(rows[0].map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;
+  const all = rows.flat().map(v), lo = Math.min(-M_LOC, d3.min(all)), hi = Math.max(M_LOC, d3.max(all)), pad = (hi - lo) * .04;
+  const m = { l: 14, r: 14, t: 4, b: 20 }, laneH = (H - m.t - m.b) / members.length;
+  const x = d3.scaleLinear([lo - pad, hi + pad], [m.l + 52, W - m.r - 10]);
+  const sz = Math.max(16, Math.min(56, (laneH - 8) / 2 - 2)), ROWS = Math.max(1, Math.floor((laneH - 6) / (sz + 2)));
+  const svg = host.append("svg").attr("width", W).attr("height", H).attr("class", "imgax");
+  svg.append("rect").attr("class", "band").attr("x", x(-M_LOC)).attr("width", x(M_LOC) - x(-M_LOC)).attr("y", m.t).attr("height", H - m.b - m.t).attr("rx", 4);
+  const items = [];
+  members.forEach((g, k) => {
+    const y0 = m.t + k * laneH, c = colOf(g), last = d3.range(ROWS).map(() => -1e9);
+    if (k) svg.append("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y0).attr("y2", y0).attr("stroke", "var(--grid)");
+    svg.append("circle").attr("cx", m.l + 6).attr("cy", y0 + laneH / 2).attr("r", 5).attr("fill", c);
+    svg.append("text").attr("class", "lanelab").attr("x", m.l + 14).attr("y", y0 + laneH / 2).attr("dy", "0.35em").style("fill", c).text(sh(G[g])).append("title").text(G[g].label);
+    const md = x(d3.median(rows[k], v));
+    svg.append("path").attr("d", d3.symbol(d3.symbolTriangle, 40)()).attr("transform", `translate(${md},${y0 + laneH - 4}) rotate(0)`).attr("fill", c);
+    [...rows[k]].sort((p, q2) => v(p) - v(q2)).forEach(r => {
+      const cx = x(v(r)), free = last.findIndex(l => cx - l >= sz + 2), row = free >= 0 ? free : d3.maxIndex(last.map(l => cx - l));
+      last[row] = cx; items.push({ g, r, cx, row, x0: cx - sz / 2, y: y0 + 3 + row * (sz + 2), c });
+    });
+  });
+  Object.assign(AX, { items, sz });
+  const gi = svg.append("g").selectAll("g.axi").data(items, d => d.g + d.r[2]).join("g").attr("class", "axi").attr("transform", d => `translate(${d.x0},${d.y})`)
+    .on("mouseenter", function (e, d) { d3.select(this).raise(); st.job = d.r[2]; st.jobB = null; markJob(); })
+    .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r))).on("mouseleave", hideTip)
+    .on("click", (e, d) => { st.seedSel = new Set([d.r[2]]); st.seedSubj = si; seedHL(); });
+  gi.append("image").attr("href", d => `thumbs/${d.g}/${d.r[2]}.jpg`).attr("width", sz).attr("height", sz).attr("preserveAspectRatio", "xMidYMid slice");
+  gi.append("rect").attr("class", "axb").attr("width", sz).attr("height", sz).attr("rx", 3).attr("stroke", d => d.c);
+  svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 5).text(poleWord(a.left));
+  svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 5).attr("text-anchor", "end").text(poleWord(a.right));
+  markJob(); seedHL();
+}
 function drawStrip() {
   const si = cur(), a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key];
   if (st.seedSubj !== si) { st.seedSel = null; st.seedSubj = si; }
@@ -1334,10 +1464,11 @@ function drawStrip() {
   head.append("span").attr("class", "pl").text("C");
   head.append("span").text(`${aspName(a.key)} · ${SUBJ[si].name}`);
   if (!valid(a.key)) head.append("span").attr("class", "nvmark").style("margin-left", "0").text("⊘").attr("title", nvTitle());
-  head.append("button").attr("class", "mini").attr("title", "Move every image of A to where its same-seed image lands in B, and back").text("▶").on("click", playMorph);
+  if (SET().length <= 2) head.append("button").attr("class", "mini").attr("title", "Move every image of A to where its same-seed image lands in B, and back").text("▶").on("click", playMorph);
   head.append("span").attr("id", "selCount").style("margin-left", "auto");
   head.append("button").attr("class", "mini").attr("id", "selClear").attr("title", "Clear the selected seeds").text("✕")
     .on("click", () => { st.seedSel = null; drawStrip(); seedHL(); });
+  if (SET().length > 2) return drawLanes(si);
   const host = d3.select("#strip"); host.selectAll("*").remove();
   const { w: W, h: H } = box("#strip");
   const ra = SCORES[st.A][si], rb = SCORES[st.B][si], ma = mi(ra.map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;
@@ -1416,7 +1547,7 @@ function hideTip() { d3.select("#tip").style("display", "none"); }
 
 // ---------------- init and responsive layout ----------------
 let R = null;
-function update() { clearZoom(); diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
+function update() { extraChips(); clearZoom(); diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
 d3.select("body").classed("fig", st.fig);
 header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();

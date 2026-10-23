@@ -80,3 +80,14 @@ See `INTERFACE.md`. Cool, crisp palette (A blue, B orange as the only data hues;
 - **Dragging a configuration** onto another still sets the pair.
 - **Reset on change:** a new pair or aspect returns to the fitted view.
 
+**Comparison set: more than two configurations (2026-10-23):**
+- **Set:** A (reference), B (focus of the pairwise views) and up to four more configurations, each with its own hue.
+- **Adding and removing:** shift-click a configuration on the map, or use "+ compare" in the header; × on a chip removes it.
+- **Configuration map:** per-subject positions and density contours for every member, at common density levels.
+- **Contrast scatters:** each further member against A as a coloured diamond with its 90% interval. A click makes it B. The per-subject dots stay those of A → B.
+- **Image axis:** one lane per member on a shared axis.
+- **Paired seeds:** parallel coordinates, one axis per member and one polyline per seed. Segments are dashed where two members do not share starting noise.
+- **Distributions:** one density per member on every aspect.
+- **Appearance map:** members coloured.
+- **Still pairwise (A → B):** the matrix shift column, the reversal flags, the statements and the audit trail.
+
