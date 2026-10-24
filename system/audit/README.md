@@ -81,7 +81,7 @@ See `INTERFACE.md`. Cool, crisp palette (A blue, B orange as the only data hues;
 - **Reset on change:** a new pair or aspect returns to the fitted view.
 
 **Comparison set: more than two configurations (2026-10-23):**
-- **Set:** A (reference), B (focus of the pairwise views) and up to four more configurations, each with its own hue.
+- **Set:** A (reference), B (focus of the pairwise views) and up to four more configurations, each with its own hue (capped at three on 2026-10-24, see below).
 - **Adding and removing:** shift-click a configuration on the map, or use "+ compare" in the header; × on a chip removes it.
 - **Configuration map:** per-subject positions and density contours for every member, at common density levels.
 - **Contrast scatters:** each further member against A as a coloured diamond with its 90% interval. A click makes it B. The per-subject dots stay those of A → B.
@@ -91,3 +91,8 @@ See `INTERFACE.md`. Cool, crisp palette (A blue, B orange as the only data hues;
 - **Appearance map:** members coloured.
 - **Still pairwise (A → B):** the matrix shift column, the reversal flags, the statements and the audit trail.
 
+
+**Comparison set capped at three; zoom keeps the density (2026-10-24):**
+- **Cap:** A, B and one more configuration C (plum). The four extra hues failed the palette validator; their violet was indistinguishable from A for deuteranopes. Only one further hue passes against A and B in both themes, and the paper's chain (guidance 1 → 4 → distilled) has three members. Adding a new C replaces the old one. Reasons in `INTERFACE.md` §4.
+- **Zoom:** the contour bandwidth is fixed in scale units, so zooming no longer breaks the contours into one blob per subject.
+- **Lane labels** in the image axis and the parallel coordinates are drawn in text ink; the coloured dot beside each carries the identity.

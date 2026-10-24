@@ -15,6 +15,7 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 - **T2 Pooled or per subject:** does a pooled conclusion hold for every subject?
 - **T3 Trace to images:** does a reading survive a look at the images, and is the contrast attributable to one setting?
 - **T4 Verify a language claim:** is a statement made in language (a VLM description, a rewritten prompt, an axis name) supported by the images?
+- **T5 Follow a chain of settings:** along a sequence such as guidance 1 → 4 → distilled (the paper's Q1 → Q3 chain), where does the typical output move and where does it narrow, image by image?
 
 ## 3. Views
 | Panel | View | Question it answers (task) | Why no other view answers it |
@@ -37,10 +38,12 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 | A and B selectors, ⇄ swap | the pair under audit | all |
 | Settings chips (⚠ n settings) | — (shows which declared settings differ) | T3: attribution |
 | Aspect buttons (struck through when not validated for the pair) | the aspect in every view | all |
+| Comparison set: shift-click a configuration on the map, or "+ compare" (adds a third configuration C; × removes it) | C enters the map, the contrast scatters (C against A, a diamond with its interval), the image axis (one lane per member), the paired seeds (parallel coordinates A–B–C, one polyline per seed), the distributions and the appearance map; the matrix shift column, the reversal flags, the statements and the trail stay A → B | T5 |
 | Main-view modes ◎ ▦ ❝ ⛓ | which of four questions panel A answers (Section 3) | T1, T4, T3 |
 | Evidence modes ⫽ ∿ ⁘ ✎ | which of four questions panel D answers (Section 3) | T1, coupling, discovery, T4 |
 | Subject selector | the subject in C, D and the trail | T2, T3 |
 | ⇅ order by shift, ⇄ step through flagged subjects (matrix) | row order; the selected subject | T2: find reversals |
+| Wheel and drag on the configuration map; double-click or ⟲ resets | the visible region of the map (semantic zoom: marks keep their size; marks outside the view become edge triangles) | entry to T1 when configurations overlap (the Stable Diffusion family) |
 | Brush in a scatter | a group of subjects, highlighted in all scatters and the matrix | T2: does a group disagree |
 | Margin handles in the scatters | the margins used for display, with a reset to the pre-registered values | robustness of verdicts to the margin |
 | Brush on the image axis or in the rewrite view | a group of seeds, highlighted in C and D | T1, T4 at the level of images |
@@ -51,6 +54,13 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 - **Verdict glyphs on the aspect buttons:** they repeated the pooled estimate that the contrast scatters (E) already show (principle 2).
 - **Findings board:** it duplicated the audit trail's saved list as a second record of findings. The trail records any finding: a claim, an aspect of a pair, a subject and a seed, with the analyst's verdict.
 - **Density contours on the t-SNE appearance map** (rev8): principle 6.
+
+**Why the comparison set stops at three configurations (2026-10-24)**
+- **Task:** T5 needs a chain, and the paper's chain is three configurations long (klein-base 4B guidance 1 → guidance 4 → distilled klein 4B). Longer sequences are read on the configuration map, which shows all twelve, and in the matrix.
+- **Colour:** members are told apart by hue in the scatters, the distributions and the map. With A blue and B orange fixed, the palette validator (all pairs, protan and deutan) admits exactly one further hue in both themes that also stays clear of the pole scale and the status colours: plum (light #86198f, dark #c3228e; worst colour-blind ΔE 14.7 light, 17.1 dark; normal vision ≥ 23). No second hue passes in the dark theme, and the first version's violet was indistinguishable from A for deuteranopes (ΔE 0.4).
+- **Density:** with three members the map's contours and the distributions stay readable; five overlapping filled contour sets did not.
+
+**Zoom keeps the density estimate (2026-10-24):** the kernel bandwidth of the map's contours is fixed in scale units, so zooming magnifies the same density instead of re-estimating it at a finer bandwidth (which broke the contours into one blob per subject and changed the spread reading with the zoom level, against principle 6).
 
 ## 5. Linking
 | Action | Effect |
@@ -64,4 +74,4 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 | Click a saved trail | the pair, aspect, subject, seed, statement and verdict of that trail are restored |
 
 ## 6. Palette ("cool and crisp")
-Cool light surfaces (page #f3f6fa, white panels with hairline borders), ink #0b1220. Data hue is reserved: **A blue #2563eb, B orange #f97316** (dataviz validator: CVD ΔE 32.8, normal 41.5, pass). Configuration families are shapes (circle Stable Diffusion, square FLUX.2, triangle Qwen-Image), not hues. The pole colour scale runs **teal #0d9488 → grey → ochre #a16207** (validated against A and B in all pairs). Status colours follow the reference status steps (good #0ca30c, critical #d03b3b, warning #e0a100, muted for "no shift") and never stand alone: every status mark carries a symbol (✓ ✗ ≈ ○ ⇄ ⊘) or a shape (a contradicted statement is a hollow glyph). Selection is a dark ring, so no extra hue competes with A and B.
+Cool light surfaces (page #f3f6fa, white panels with hairline borders), ink #0b1220. Data hue is reserved: **A blue #2563eb, B orange #f97316** (dataviz validator: CVD ΔE 32.8, normal 41.5, pass), and **C plum #86198f** for the optional third member of a comparison set (dark #c3228e; see Section 4). Configuration families are shapes (circle Stable Diffusion, square FLUX.2, triangle Qwen-Image), not hues. The pole colour scale runs **teal #0d9488 → grey → ochre #a16207** (validated against A and B in all pairs). Status colours follow the reference status steps (good #0ca30c, critical #d03b3b, warning #e0a100, muted for "no shift") and never stand alone: every status mark carries a symbol (✓ ✗ ≈ ○ ⇄ ⊘) or a shape (a contradicted statement is a hollow glyph). Selection is a dark ring, so no extra hue competes with A and B.

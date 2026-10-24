@@ -17,21 +17,21 @@
   color-scheme: light;
   --page: #f3f6fa; --panel: #ffffff; --ink: #0b1220; --ink-2: #3d4a5c; --muted: #8792a6; --faint: #cfd6e2;
   --grid: #e8edf4; --band: rgba(37,99,235,.055); --dot: #b3bdcc;
-  --a: #2563eb; --b: #f97316; --hl: #0b1220; --warn: #e0a100; --ok: #0ca30c; --bad: #d03b3b;
+  --a: #2563eb; --b: #f97316; --c: #86198f; --hl: #0b1220; --warn: #e0a100; --ok: #0ca30c; --bad: #d03b3b;
   --shadow: 0 0 0 1px #e3e8f0;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --page: #0a0e15; --panel: #111827; --ink: #e8edf5; --ink-2: #b4bfd0; --muted: #7d889c; --faint: #2b3445;
-    --grid: #1c2433; --band: rgba(96,165,250,.08); --dot: #4b5568; --a: #3b82f6; --b: #f97316; --hl: #e8edf5; --warn: #fab219; --ok: #22c55e; --bad: #ef4444;
+    --grid: #1c2433; --band: rgba(96,165,250,.08); --dot: #4b5568; --a: #3b82f6; --b: #f97316; --c: #c3228e; --hl: #e8edf5; --warn: #fab219; --ok: #22c55e; --bad: #ef4444;
     --shadow: 0 0 0 1px #1f2937;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
   --page: #0a0e15; --panel: #111827; --ink: #e8edf5; --ink-2: #b4bfd0; --muted: #7d889c; --faint: #2b3445;
-  --grid: #1c2433; --band: rgba(96,165,250,.08); --dot: #4b5568; --a: #3b82f6; --b: #f97316; --hl: #e8edf5; --warn: #fab219; --ok: #22c55e; --bad: #ef4444;
+  --grid: #1c2433; --band: rgba(96,165,250,.08); --dot: #4b5568; --a: #3b82f6; --b: #f97316; --c: #c3228e; --hl: #e8edf5; --warn: #fab219; --ok: #22c55e; --bad: #ef4444;
   --shadow: 0 0 0 1px #1f2937;
 }
 * { box-sizing: border-box; }
@@ -241,7 +241,7 @@ g.axi.dim { opacity: .16; }
 .setbar .sc i { width: 9px; height: 9px; border-radius: 50%; display: block; }
 .setbar .sc b { font-weight: 400; color: var(--muted); cursor: pointer; padding: 0 2px; }
 .setbar select { border: 0; background: var(--panel); box-shadow: var(--shadow); border-radius: 999px; padding: 4px 8px; font: inherit; font-size: 12.5px; color: var(--ink-2); cursor: pointer; max-width: 120px; }
-.lanelab { font-size: 11px; font-weight: 600; }
+.lanelab { font-size: 11px; font-weight: 600; fill: var(--ink-2); }
 /* tooltip */
 .tip { position: fixed; pointer-events: none; background: var(--panel); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(16,24,40,.18);
   display: none; z-index: 9; font-size: 13px; color: var(--ink-2); max-width: 300px; }
@@ -280,16 +280,18 @@ let M_LOC = PRE_LOC, M_LR = PRE_LR;   // the frozen margins; dragging a band edg
 const st = { fig: new URLSearchParams(location.search).has("figure"), A: null, B: null, aspect: RET[0].key, subj: 0, hover: null, hoverCfg: null, job: null, jobB: null, ev: "seeds", sortRows: "cat", main: "map",
   seedSel: null, seedSubj: null, subjSel: null, vFilter: null, fam: null };
 const cur = () => st.hover ?? st.subj;
-// comparison set: A (reference), B (focus of the pairwise views) and up to four more configurations; one categorical
-// hue per member, A and B keep theirs. Shift-click a configuration on the map, or use "+ compare", to add or remove one.
+// comparison set: A (reference), B (focus of the pairwise views) and one more configuration C, so a chain such as
+// guidance 1 -> 4 -> distilled can be followed. Capped at three because only one further hue stays distinguishable from
+// A and B for colour-blind readers in both themes (INTERFACE.md, palette). Shift-click a configuration on the map, or
+// use "+ compare", to add or replace C.
 st.extra = [];
-const SETCOL = ["var(--a)", "var(--b)", "#7c3aed", "#db2777", "#65a30d", "#0891b2"];   // hues not used by the diverging pole scale
-const SET = () => [...new Set([st.A, st.B, ...st.extra])].filter(Boolean).slice(0, 6);
+const SETCOL = ["var(--a)", "var(--b)", "var(--c)"], NSET = SETCOL.length;
+const SET = () => [...new Set([st.A, st.B, ...st.extra])].filter(Boolean).slice(0, NSET);
 const colOf = g => SETCOL[SET().indexOf(g)] || "var(--dot)";
 function toggleExtra(g) {
   if (g === st.A || g === st.B) return;
   const i = st.extra.indexOf(g);
-  if (i >= 0) st.extra.splice(i, 1); else if (SET().length < 6) st.extra.push(g);
+  if (i >= 0) st.extra.splice(i, 1); else st.extra = [g];   // a new C replaces the old one
   update();
 }
 function extraChips() {
@@ -299,7 +301,7 @@ function extraChips() {
     const c = en.append("span").attr("class", "sc"); c.append("i"); c.append("span"); c.append("b").text("×").attr("title", "Remove from the comparison");
     return c;
   }).each(function (g) { const c = d3.select(this); c.select("i").style("background", colOf(g)); c.select("span").text(sh(G[g])).attr("title", G[g].label); c.select("b").on("click", () => toggleExtra(g)); });
-  const sel = host.selectAll("select").data(SET().length < 6 ? [0] : []).join("select")
+  const sel = host.selectAll("select").data(SET().length < NSET ? [0] : []).join("select")
     .attr("title", "Add a configuration to the comparison (or shift-click it on the map)").on("change", e => { if (e.target.value) toggleExtra(e.target.value); });
   sel.selectAll("option").data([null, ...META.groups.filter(g => !SET().includes(g.id))]).join("option")
     .attr("value", g => g ? g.id : "").text(g => g ? g.label : "+ compare");
@@ -494,17 +496,19 @@ function drawMap(animate, zoomOnly) {
   const padx = (hi - lo) * .08 + .15, ylo = Math.min(d3.min(OV, d => d.y), d3.quantileSorted(ys, .05)), yhi = Math.max(d3.max(OV, d => d.y), d3.quantileSorted(ys, .95));
   x.domain([lo - padx, hi + padx]); y.domain([Math.max(0, ylo - (yhi - ylo) * .1), yhi + (yhi - ylo) * .12]);
   // the fitted axes are the zoom's identity; the current zoom rescales them
-  const zt = OVS.zt || d3.zoomIdentity;
-  if (zt.k !== 1 || zt.x || zt.y) { const bx = x.copy(), by = y.copy(); x.domain(zt.rescaleX(bx).domain()); y.domain(zt.rescaleY(by).domain()); }
+  const zt = OVS.zt || d3.zoomIdentity, fx = x.copy(), fy = y.copy();
+  if (zt.k !== 1 || zt.x || zt.y) { x.domain(zt.rescaleX(fx).domain()); y.domain(zt.rescaleY(fy).domain()); }
   if (zoomOnly) t.duration(0);
   d3.select("#zoomReset").style("display", zt.k !== 1 || zt.x || zt.y ? null : "none");
   // context: where the selected pair puts each subject (density of the 24 per-subject positions)
   // the same density levels for A and B (fractions of the larger peak), so a widely spread configuration shows a wide,
   // faint region and a concentrated one a small, dense region; each subject is a faint dot
   const per = gid => OV.find(d => d.g.id === gid)?.per || [];
-  const est = gid => d3.contourDensity().x(p => x(p.x)).y(p => y(p.y)).size([W, H]).bandwidth(Math.max(18, W / 32)).contours(per(gid));
+  // bandwidth fixed in scale units and levels taken from the fitted view (density per pixel scales by 1/k²), so zooming
+  // magnifies the same density and the same levels, never re-estimates them
+  const est = (gid, sx = x, sy = y, k = zt.k) => d3.contourDensity().x(p => sx(p.x)).y(p => sy(p.y)).size([W, H]).bandwidth(Math.max(18, W / 32) * k).contours(per(gid));
   // one density per member of the comparison set, all at the same levels (fractions of the highest peak)
-  const members = SET(), Cs = members.map(est), peak = d3.max(Cs, C => C.max);
+  const members = SET(), Cs = members.map(g => est(g)), peak = d3.max(members, g => est(g, fx, fy, 1).max) / (zt.k * zt.k);
   OVS.ctx.selectAll("g.ctxA, g.ctxB").remove();
   OVS.ctx.selectAll("g.ctxm").data(members, g => g).join("g").attr("class", "ctxm").order();
   members.forEach((gid, mi_) => {
@@ -939,7 +943,7 @@ function drawParallel(host, si) {
     svg.append("rect").attr("x", x(q1)).attr("width", Math.max(2, x(q3) - x(q1))).attr("y", yy(g) - 5).attr("height", 10).attr("rx", 5).attr("fill", c).attr("opacity", .22);
     svg.append("line").attr("class", "zero").attr("x1", m.l).attr("x2", W - m.r).attr("y1", yy(g)).attr("y2", yy(g));
     svg.append("circle").attr("cx", 12).attr("cy", yy(g)).attr("r", 5).attr("fill", c);
-    svg.append("text").attr("class", "lanelab").attr("x", 22).attr("y", yy(g)).attr("dy", "0.35em").style("fill", c).text(sh(G[g])).append("title").text(G[g].label);
+    svg.append("text").attr("class", "lanelab").attr("x", 22).attr("y", yy(g)).attr("dy", "0.35em").text(sh(G[g])).append("title").text(G[g].label);
   });
   const byK = rows.map(rs => new Map(rs.map(r => [r[0], r])));
   const ks = [...new Set(rows.flatMap(rs => rs.map(r => r[0])))];
@@ -1438,7 +1442,7 @@ function drawLanes(si) {
     const y0 = m.t + k * laneH, c = colOf(g), last = d3.range(ROWS).map(() => -1e9);
     if (k) svg.append("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y0).attr("y2", y0).attr("stroke", "var(--grid)");
     svg.append("circle").attr("cx", m.l + 6).attr("cy", y0 + laneH / 2).attr("r", 5).attr("fill", c);
-    svg.append("text").attr("class", "lanelab").attr("x", m.l + 14).attr("y", y0 + laneH / 2).attr("dy", "0.35em").style("fill", c).text(sh(G[g])).append("title").text(G[g].label);
+    svg.append("text").attr("class", "lanelab").attr("x", m.l + 14).attr("y", y0 + laneH / 2).attr("dy", "0.35em").text(sh(G[g])).append("title").text(G[g].label);
     const md = x(d3.median(rows[k], v));
     svg.append("path").attr("d", d3.symbol(d3.symbolTriangle, 40)()).attr("transform", `translate(${md},${y0 + laneH - 4}) rotate(0)`).attr("fill", c);
     [...rows[k]].sort((p, q2) => v(p) - v(q2)).forEach(r => {
