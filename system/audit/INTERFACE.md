@@ -1,4 +1,4 @@
-# Interface: final design and its rationale (rev10, 2026-10-22)
+# Interface: final design and its rationale (rev10, 2026-10-22; comparison set rev12, 2026-10-24)
 
 This file fixes the interface of the audit tool and gives, for every view, mode and control, the task it serves and why nothing else in the interface serves it. It is the basis for the design section of the paper (Section 4) and for the owner's review of the interface.
 
@@ -9,13 +9,14 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 4. **Every view is indispensable:** each answers a question that no other view answers.
 5. **No appearance switches:** a control may change *what is analysed* (pair, aspect, subject, mode of a panel), never only *how it looks*. A mode exists only if it serves a task that the other modes of the same panel cannot serve.
 6. **Contours only on metric spaces:** density contours summarize where points lie *in units that mean something*. They are drawn on the configuration map (scale units) and nowhere on the t-SNE appearance map, whose distances and areas have no metric meaning.
+7. **Many configurations: identity by position, role by colour.** Every view compares a *set* of up to six configurations, not a pair. Each member is identified by position (a matrix column, a shift column, an image lane, a parallel axis, a row in the distributions, a small multiple, a row of the contrast overview) and by a direct label. Colour encodes only the two roles: the **reference** (blue; every contrast is measured from it) and the **focus** (orange; the member that the per-subject views detail). Hue never has to tell six members apart, so the set is not bounded by the number of colour-blind-safe hues (which is three with A and B fixed; see Section 6), and position, the most accurate channel, carries identity.
 
 ## 2. Tasks
 - **T1 Displacement or concentration:** does a change of model or setting move the typical output, narrow it, or both?
 - **T2 Pooled or per subject:** does a pooled conclusion hold for every subject?
 - **T3 Trace to images:** does a reading survive a look at the images, and is the contrast attributable to one setting?
 - **T4 Verify a language claim:** is a statement made in language (a VLM description, a rewritten prompt, an axis name) supported by the images?
-- **T5 Follow a chain of settings:** along a sequence such as guidance 1 → 4 → distilled (the paper's Q1 → Q3 chain), where does the typical output move and where does it narrow, image by image?
+- **T5 Compare many configurations:** across a set of configurations (a chain such as guidance 1 → 4 → distilled, the paper's Q1 → Q3 chain, or a family such as 4B / 9B, base / distilled), which members move the typical output, which narrow it, for which subjects, and how one seed travels through all of them?
 
 ## 3. Views
 | Panel | View | Question it answers (task) | Why no other view answers it |
@@ -35,10 +36,9 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 ## 4. Controls
 | Control | What it changes | Task |
 |---|---|---|
-| A and B selectors, ⇄ swap | the pair under audit | all |
+| Comparison set bar: up to six chips in chain order; click a chip: make it the focus; click its dot: make it the reference; × removes a member; "+ add" or shift-click on the map adds one; ⇄ swaps reference and focus | the configurations under audit and their roles | all; T5 |
 | Settings chips (⚠ n settings) | — (shows which declared settings differ) | T3: attribution |
 | Aspect buttons (struck through when not validated for the pair) | the aspect in every view | all |
-| Comparison set: shift-click a configuration on the map, or "+ compare" (adds a third configuration C; × removes it) | C enters the map, the contrast scatters (C against A, a diamond with its interval), the image axis (one lane per member), the paired seeds (parallel coordinates A–B–C, one polyline per seed), the distributions and the appearance map; the matrix shift column, the reversal flags, the statements and the trail stay A → B | T5 |
 | Main-view modes ◎ ▦ ❝ ⛓ | which of four questions panel A answers (Section 3) | T1, T4, T3 |
 | Evidence modes ⫽ ∿ ⁘ ✎ | which of four questions panel D answers (Section 3) | T1, coupling, discovery, T4 |
 | Subject selector | the subject in C, D and the trail | T2, T3 |
@@ -55,10 +55,20 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 - **Findings board:** it duplicated the audit trail's saved list as a second record of findings. The trail records any finding: a claim, an aspect of a pair, a subject and a seed, with the analyst's verdict.
 - **Density contours on the t-SNE appearance map** (rev8): principle 6.
 
-**Why the comparison set stops at three configurations (2026-10-24)**
-- **Task:** T5 needs a chain, and the paper's chain is three configurations long (klein-base 4B guidance 1 → guidance 4 → distilled klein 4B). Longer sequences are read on the configuration map, which shows all twelve, and in the matrix.
-- **Colour:** members are told apart by hue in the scatters, the distributions and the map. With A blue and B orange fixed, the palette validator (all pairs, protan and deutan) admits exactly one further hue in both themes that also stays clear of the pole scale and the status colours: plum (light #86198f, dark #c3228e; worst colour-blind ΔE 14.7 light, 17.1 dark; normal vision ≥ 23). No second hue passes in the dark theme, and the first version's violet was indistinguishable from A for deuteranopes (ΔE 0.4).
-- **Density:** with three members the map's contours and the distributions stay readable; five overlapping filled contour sets did not.
+**The comparison set in every view (rev12, 2026-10-24)**
+
+| View | With a set of K members (identity by position) | Why it stays pairwise, where it does |
+|---|---|---|
+| Set bar (header) | K chips in chain order; roles REF and FOCUS | — |
+| A ◎ configuration map | every member ringed and labelled; an arrow from the reference to every member; density contours for reference and focus | contours for more than two members overlap into an unreadable field (tested with five); a member's subjects appear on hover, its spread is read in E and D |
+| A ▦ contrast overview | one row per member (reference → member), outlined; the focus row shaded | — |
+| B matrix | the member columns are shaded; **one shift column per member** (reference → member), each with its own reversal outlines; the focus column is emphasised | the ⇄ badge steps through the focus's reversals |
+| C image axis | one lane per member | — |
+| D ⫽ paired seeds | parallel coordinates, one axis per member in chain order, one polyline per seed (dashed where starting noise differs) | — |
+| D ∿ distributions | per validated aspect, one row per member: 10–90% range, IQR, median | overlaid densities are kept for two members only |
+| D ⁘ appearance map | small multiples, one panel per member on the same layout; hovering an image marks its seed in every panel | — |
+| E contrast scatters | per-subject dots for reference → focus; every other member as a labelled diamond with its 90% interval | 24 subjects × K members in one scatter would hide the subjects |
+| A ❝ statements, ⛓ audit trail | — | a VLM statement and a rewritten prompt are claims about one pair, so they are checked on reference → focus; clicking another member makes it the focus |
 
 **Zoom keeps the density estimate (2026-10-24):** the kernel bandwidth of the map's contours is fixed in scale units, so zooming magnifies the same density instead of re-estimating it at a finer bandwidth (which broke the contours into one blob per subject and changed the spread reading with the zoom level, against principle 6).
 
@@ -74,4 +84,4 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 | Click a saved trail | the pair, aspect, subject, seed, statement and verdict of that trail are restored |
 
 ## 6. Palette ("cool and crisp")
-Cool light surfaces (page #f3f6fa, white panels with hairline borders), ink #0b1220. Data hue is reserved: **A blue #2563eb, B orange #f97316** (dataviz validator: CVD ΔE 32.8, normal 41.5, pass), and **C plum #86198f** for the optional third member of a comparison set (dark #c3228e; see Section 4). Configuration families are shapes (circle Stable Diffusion, square FLUX.2, triangle Qwen-Image), not hues. The pole colour scale runs **teal #0d9488 → grey → ochre #a16207** (validated against A and B in all pairs). Status colours follow the reference status steps (good #0ca30c, critical #d03b3b, warning #e0a100, muted for "no shift") and never stand alone: every status mark carries a symbol (✓ ✗ ≈ ○ ⇄ ⊘) or a shape (a contradicted statement is a hollow glyph). Selection is a dark ring, so no extra hue competes with A and B.
+Cool light surfaces (page #f3f6fa, white panels with hairline borders), ink #0b1220. Data hue is reserved for the two roles: **reference blue #2563eb, focus orange #f97316** (dataviz validator: CVD ΔE 32.8, normal 41.5, pass). Further members of the comparison set are ink (#3d4a5c) and are told apart by position and label (principle 7). A hue per member was tried and rejected: with A and B fixed, the validator (all pairs, protan and deutan, clear of the pole scale and the status colours) admits only one further hue in both themes, and the first version's violet was indistinguishable from A for deuteranopes (ΔE 0.4). Configuration families are shapes (circle Stable Diffusion, square FLUX.2, triangle Qwen-Image), not hues. The pole colour scale runs **teal #0d9488 → grey → ochre #a16207** (validated against A and B in all pairs). Status colours follow the reference status steps (good #0ca30c, critical #d03b3b, warning #e0a100, muted for "no shift") and never stand alone: every status mark carries a symbol (✓ ✗ ≈ ○ ⇄ ⊘) or a shape (a contradicted statement is a hollow glyph). Selection is a dark ring, so no extra hue competes with A and B.

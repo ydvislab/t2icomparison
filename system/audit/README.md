@@ -96,3 +96,14 @@ See `INTERFACE.md`. Cool, crisp palette (A blue, B orange as the only data hues;
 - **Cap:** A, B and one more configuration C (plum). The four extra hues failed the palette validator; their violet was indistinguishable from A for deuteranopes. Only one further hue passes against A and B in both themes, and the paper's chain (guidance 1 → 4 → distilled) has three members. Adding a new C replaces the old one. Reasons in `INTERFACE.md` §4.
 - **Zoom:** the contour bandwidth is fixed in scale units, so zooming no longer breaks the contours into one blob per subject.
 - **Lane labels** in the image axis and the parallel coordinates are drawn in text ink; the coloured dot beside each carries the identity.
+
+**Comparison set of up to six configurations (rev12, 2026-10-24):** replaces the three-member cap of the same day.
+- **Roles, not hues:** the header holds one chip per member in chain order. The reference (blue) is the start of every contrast; the focus (orange) is the member the per-subject views detail. Further members are ink and are identified by position and label in every view (`INTERFACE.md`, principle 7 and the table "The comparison set in every view").
+- **New:**
+  - one shift column per member in the matrix, each with its reversal outlines;
+  - a row per member in the contrast overview;
+  - arrows from the reference to every member on the map;
+  - per-member interval rows in the distributions;
+  - small multiples in the appearance map;
+  - labelled diamonds in the contrast scatters.
+- **Kept pairwise, with the reason:** density contours on the map, per-subject dots in the scatters, VLM statements and the audit trail.
