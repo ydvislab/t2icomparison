@@ -3,7 +3,7 @@
 > One page: what evidence exists, where the work stands, what is missing. Target and conventions: `CLAUDE.md`. Manuscript: `docs/manuscript/paper_v2_en.md` (Chinese in step: `paper_v2_zh.md`). Last external review: `REVIEW_2026-10-22.md`. Earlier status pages are in git history.
 
 ## 1. In one sentence
-Language now measures, changes and explains the appearance defaults of text-to-image models: text poles define the axes, LLMs rewrite prompts, VLMs describe differences. The paper presents a visual audit method that separates displacement from concentration, exposes per-subject structure and traces every reading, including language-derived claims, to human-validated image evidence. It targets the Computers & Graphics special issue on LLMs and visual analytics, with submission planned for November 2026.
+Language now measures, changes and explains the appearance defaults of text-to-image models: text poles define the axes, LLMs rewrite prompts, VLMs describe differences. The paper presents a visual audit method that separates displacement from concentration, exposes per-subject structure and traces every reading, including language-derived claims, to human-validated image evidence. It targets the IEEE PacificVis 2027 conference track (paper due 2026-11-09), reframed as a visual analytics paper; the C&G special-issue target is dropped (2026-10-25, `PACIFICVIS_PLAN.md`).
 
 ## 2. Evidence in hand
 | Part | State | Where |
