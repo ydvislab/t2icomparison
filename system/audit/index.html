@@ -41,7 +41,7 @@ body { background: var(--page); color: var(--ink); font: 14px/1.45 Inter, system
   font-feature-settings: "tnum"; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 10px; padding: 12px 16px 14px;
   min-width: 1280px; min-height: 760px; height: 100vh; overflow: hidden; }
 /* header */
-header { display: flex; align-items: center; gap: 10px; min-width: 0; }
+header { display: flex; align-items: center; gap: 10px; min-width: 0; flex-wrap: wrap; row-gap: 6px; }
 header h1 { font-size: 18px; font-weight: 650; margin: 0 8px 0 0; letter-spacing: -.01em; white-space: nowrap; }
 .pill { display: flex; align-items: center; gap: 8px; background: var(--panel); border-radius: 999px; padding: 5px 8px 5px 12px; box-shadow: var(--shadow); }
 .pill i { width: 10px; height: 10px; border-radius: 50%; display: block; flex: none; }
@@ -151,6 +151,11 @@ button.mini.on { background: var(--ink); color: var(--panel); }
 #trail .stage { flex: 1 1 0; min-width: 0; border: 1px solid var(--grid); border-radius: 10px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; background: var(--panel); }
 #trail .stage h3 { margin: 0; font-size: 10.5px; font-weight: 600; color: var(--muted); letter-spacing: .03em; text-transform: uppercase; display: flex; gap: 6px; align-items: center; }
 #trail .stage .viz { flex: 1 1 auto; min-height: 0; position: relative; }
+#trail .rd { display: grid; grid-template-columns: 1fr; font-size: 12px; color: var(--ink-2); line-height: 1.3; }
+#trail .rd span { font-size: 10.5px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+#trail .rd span i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+#trail .rd b { color: var(--ink); font-weight: 600; }
+#trail .rd.ptr { margin-top: auto; font-size: 11px; color: var(--muted); }
 #trail .stage .viz svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 #trail .lnk { flex: 0 0 34px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
 #trail .lnk b { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 13px; }
@@ -209,7 +214,7 @@ g.axi.dim { opacity: .16; }
 .mx .rl.pick { fill: var(--hl); font-weight: 600; text-decoration: underline; }
 #mstat { cursor: pointer; color: var(--hl); font-weight: 600; display: none; }
 /* aspects not validated by people on the configurations of the pair */
-#side .card.nv .body { opacity: .32; }
+#side .card.nv .focusfx { opacity: .3; }
 .nvmark { color: var(--warn); font-weight: 700; margin-left: auto; cursor: help; }
 .seg button.nv { text-decoration: line-through; text-decoration-color: var(--warn); }
 /* main view: focus + context */
@@ -302,6 +307,10 @@ function toggleMember(g) {
   else if (st.set.length < NSET) st.set.push(g);
   update();
 }
+function settingsDiff(A, B) {
+  const a = G[A].settings, b = G[B].settings;
+  return [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(k => String(a[k]) !== String(b[k]) && k !== "pipeline");
+}
 function setChips() {
   const host = d3.select("#setBar"), S = SET();
   const role = g => g === st.A ? "ref" : g === st.B ? "focus" : "mem";
@@ -309,7 +318,7 @@ function setChips() {
     const c = en.append("span"); c.append("i"); c.append("em"); c.append("span").attr("class", "nm"); c.append("b").text("×");
     return c;
   }).order().attr("class", g => "sc " + role(g))
-    .attr("title", g => `${G[g].label}\n${role(g) === "ref" ? "reference: every contrast is measured from it" : role(g) === "focus" ? "focus: the per-subject views show it against the reference" : "click: make it the focus"} · click the dot: make it the reference`)
+    .attr("title", g => `${G[g].label}${g === st.A ? "" : `\nchanges against the reference: ${settingsDiff(st.A, g).join(", ") || "none declared"}`}\n${role(g) === "ref" ? "reference: every contrast is measured from it" : role(g) === "focus" ? "focus: the per-subject views show it against the reference" : "click: make it the focus"} · click the dot: make it the reference`)
     .each(function (g) {
       const c = d3.select(this), r = role(g);
       c.select("em").text(r === "ref" ? "REF" : r === "focus" ? "FOCUS" : "").style("display", r === "mem" ? "none" : null);
@@ -328,8 +337,8 @@ function setChips() {
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
 const aspName = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
 // validated aspects of a configuration pair (META.validity: annotation rounds 1-3); unknown groups count as validated
-const valid = (k, A = st.A, B = st.B) => [A, B].every(g => (META.validity?.[g]?.aspects ?? [k]).includes(k));
-const nvTitle = (A = st.A, B = st.B) => `not validated by people on these configurations (${[...new Set([A, B].map(g => META.validity?.[g]?.set))].join(", ")})`;
+const valid = (k, A = st.A, B = st.B) => [A, B].every(g => (META.validity?.[g]?.aspects ?? []).includes(k));   // unknown counts as not validated
+const nvTitle = (A = st.A, B = st.B) => `not validated by people on these configurations (${[...new Set([A, B].map(g => META.validity?.[g]?.set ?? "validity unknown"))].join(", ")})`;
 const box = sel => { const n = d3.select(sel).node(); return { w: n.clientWidth, h: n.clientHeight }; };
 const fd = d3.format("+.2f"), fr = v => "×" + d3.format(".2f")(Math.exp(v)), f2 = d3.format(".2f");
 
@@ -391,7 +400,8 @@ function panelControls() {
   d3.select("#mainSeg").selectAll("button").data([["map", "◎", "Configuration map: where every configuration settles and how tightly"], ["contrasts", "▦", "Contrast overview: every designed contrast on every aspect"], ["statements", "❝", "VLM statements about the selected pair, each checked against the audit"], ["trail", "⛓", "Audit trail: one claim stated in language (a VLM statement, a rewritten prompt or an axis name) linked to the measurement, a subject and the images that decide it"]])
     .join("button").text(d => d[1]).attr("title", d => d[2]).classed("on", d => d[0] === st.main)
     .on("click", (e, d) => { st.main = d[0]; panelControls(); buildMap(); drawMap(false); });
-  d3.select("#evSeg").selectAll("button").data([["seeds", "⫽", "Paired seeds: each curve follows one seed from the reference to the focus (with more members: through every member, one axis each)"], ["dist", "∿", "Distributions on every aspect (reference and focus as densities; with more members, one row per member)"], ["clusters", "⁘", "Appearance map: all images of this subject placed by CLIP image similarity (an index to images; areas and distances are not spread); with more members, one panel each"], ["rw", "✎", "Rewrites: what each rewritten prompt says (text side) against where its image lands"]])
+  if (st.ev === "rw" && !rwGroup() && !SET().some(g => G[g].rewrite)) st.ev = "seeds";
+  d3.select("#evSeg").selectAll("button").data([["seeds", "⫽", "Paired seeds: each curve follows one seed from the reference to the focus (with more members: through every member, one axis each)"], ["dist", "∿", "Distributions on every aspect (reference and focus as densities; with more members, one row per member)"], ["clusters", "⁘", "Appearance map: all images of this subject placed by CLIP image similarity (an index to images; areas and distances are not spread); with more members, one panel each"], ["rw", "✎", "Rewrites: what each rewritten prompt says (text side) against where its image lands"]].filter(d => d[0] !== "rw" || rwGroup() || SET().some(g => G[g].rewrite)))
     .join("button").text(d => d[1]).attr("title", d => d[2]).classed("on", d => d[0] === st.ev)
     .on("click", (e, d) => { st.ev = d[0]; panelControls(); drawRidge(); });
   d3.select("#sortBtn").classed("on", st.sortRows === "delta").on("click", () => { st.sortRows = st.sortRows === "delta" ? "cat" : "delta"; panelControls(); drawMatrix(); overviewHL(); });
@@ -573,7 +583,7 @@ function drawMap(animate, zoomOnly) {
       return `arrow ${d.kind}${on ? " sel" : mem ? " mem" : " dim"}`; })
     .each(function (d) { d3.select(this).selectAll("path").transition(t).attr("d", curve(d)); });
   OVS.pts.selectAll("g.cfg").data(OV, d => d.g.id).join(en => {
-    const g = en.append("g").attr("class", d => "cfg" + (d.g.rewrite ? " rw" : "")).attr("transform", d => `translate(${x(d.x)},${y(d.y)})`);
+    const g = en.append("g").attr("class", d => "cfg" + (d.g.rewrite ? " rw" : "")).attr("transform", cfgPos);
     g.append("circle").attr("class", "ring").attr("r", 12);
     g.append("path").attr("class", "pt").attr("d", d => d3.symbol(famShape(d.g), 80)()).attr("fill", "var(--ink-2)");
     g.on("mouseenter", (e, d) => { st.hoverCfg = d.g.id; overviewHL(); })
@@ -582,7 +592,7 @@ function drawMap(animate, zoomOnly) {
      .on("click", (e, d) => (e.shiftKey || e.ctrlKey || e.metaKey) ? toggleMember(d.g.id) : d.g.id !== st.A && d.g.id !== st.B && setPair(st.A, d.g.id))
      .call(cfgDrag);
     return g;
-  }).transition(t).attr("transform", d => `translate(${x(d.x)},${y(d.y)})`);
+  }).transition(t).attr("transform", cfgPos);
   placeLabels(t);
   const nset = (A, B) => Object.keys({ ...G[A].settings, ...G[B].settings }).filter(k => k !== "pipeline" && String(G[A].settings[k]) !== String(G[B].settings[k])).length;
   OVS.labs.selectAll("text.arrlab").data(st.fig ? arr.filter(d => d.f.id === st.A && d.to.id === st.B) : []).join("text").attr("class", "figval arrlab")
@@ -593,6 +603,10 @@ function drawMap(animate, zoomOnly) {
 }
 // labels: a small collision-avoiding layout (labels repel each other and the points); a thin leader line when a label
 // has to move away from its point
+// a configuration outside the zoomed view sits at the edge as an outward triangle (never silently clipped)
+function cfgOff(d) { const [x0, x1] = OVS.x.domain(), [y0, y1] = OVS.y.domain(); return d.x < x0 ? -90 : d.x > x1 ? 90 : d.y > y1 ? 0 : d.y < y0 ? 180 : null; }
+function cfgPos(d) { const [x0, x1] = OVS.x.domain(), [y0, y1] = OVS.y.domain(), o = cfgOff(d);
+  return `translate(${OVS.x(Math.max(x0, Math.min(x1, d.x)))},${OVS.y(Math.max(y0, Math.min(y1, d.y)))})${o === null ? "" : ` rotate(${o})`}`; }
 function placeLabels(t) {
   const { x, y, W, H, m } = OVS;
   const focus = new Set([...SET(), st.hoverCfg].filter(Boolean));
@@ -630,12 +644,17 @@ function drawMatrix() {
   const { w: W, h: H } = box("#matrix"), legend = 34, gap = 5, cats = d3.groups(subs, s => s.category);
   const probe = host.append("svg").attr("width", 1).attr("height", 1), measure = (txt, size, weight) => {
     const t = probe.append("text").style("font-size", size + "px").style("font-weight", weight).text(txt), w = t.node().getComputedTextLength(); t.remove(); return w; };
-  const cw0 = (W - 150) / CFGS.length, rotate = cw0 < 44;
-  const top = rotate ? 18 + d3.max(CFGS, g => measure(SHORT[g.id.slice(0, 3)], 11, 500)) * .72 : 34;
+  const big = SET().length > 2, COLS = big ? [...SET().map(g => G[g]), ...CFGS.filter(g => !st.set.includes(g.id))] : CFGS;
+  const cw0 = (W - 150) / COLS.length, rotate = cw0 < 44;
+  const top = rotate || big ? 18 + d3.max(COLS, g => measure(sh(g), 11, 500)) * (big ? .9 : .72) : 34;
   const rh = Math.max(9, Math.min(20, (H - top - legend - gap * (cats.length - 1)) / subs.length)), fs = Math.max(10, Math.min(13, rh - 2));
   const lw = 12 + d3.max(subs, s => measure(s.name.replace(/^an? /, ""), fs, 600));
   probe.remove();
-  const oth = OTHERS(), dw = oth.length > 1 ? Math.min(230, 46 * oth.length) : 78, cw = Math.min(54, (W - lw - 14 - dw - 12) / CFGS.length);
+  const oth = OTHERS(), dw = oth.length > 1 ? Math.min(230, 46 * oth.length) : 78, nIn = big ? SET().length : COLS.length, gapC = big ? 8 : 0;
+  const cw = Math.min(54, (W - lw - 14 - dw - 12 - gapC) / (nIn + (COLS.length - nIn) * .55)), cwOf = i => i < nIn ? cw : cw * .55;
+  const CX = [];
+  COLS.forEach((g, i) => CX.push(i ? CX[i - 1] + cwOf(i - 1) + (i === nIn ? gapC : 0) : lw));
+  const matW = CX[COLS.length - 1] + cwOf(COLS.length - 1) - lw;
   let yy = top; const rowY = new Map();
   if (st.sortRows === "delta") {
     [...subs].sort((p, q2) => (rcells.get(q2.si)?.d ?? 0) - (rcells.get(p.si)?.d ?? 0)).forEach(s => { rowY.set(s.si, yy); yy += rh; });
@@ -645,20 +664,21 @@ function drawMatrix() {
   const val = new Map(); OV.forEach(d => d.per.forEach(p => val.set(d.g.id + "|" + p.si, p)));
   const ext = Math.max(1, d3.quantile([...val.values()].map(p => Math.abs(p.x)).sort(d3.ascending), .95));
   const col = d3.scaleDiverging(DIV).domain([-ext, 0, ext]).clamp(true);
-  const cx = i => lw + i * cw;
-  mx.append("g").selectAll("rect").data(CFGS).join("rect").attr("class", "colhl")
-    .attr("x", (g, i) => cx(i) - 1).attr("width", cw).attr("y", top - 4).attr("height", yy - top + 2).attr("rx", 4).attr("fill", "none");
-  mx.append("g").selectAll("g").data(CFGS).join("g").attr("transform", (g, i) => `translate(${cx(i) + cw / 2 - 1},${top - 8})`)
-    .call(g => g.append("path").attr("d", c => d3.symbol(famShape(c), 30)()).attr("transform", "translate(0,2)").attr("fill", "var(--ink-2)"))
-    .call(g => g.append("text").attr("class", "cl").attr("text-anchor", rotate ? "start" : "middle")
-      .attr("transform", rotate ? "translate(-2,-6) rotate(-45)" : "translate(0,-8)").text(d => SHORT[d.id.slice(0, 3)]));
+  const cx = i => CX[i];
+  mx.append("g").selectAll("rect").data(COLS).join("rect").attr("class", "colhl")
+    .attr("x", (g, i) => cx(i) - 1).attr("width", (g, i) => cwOf(i)).attr("y", top - 4).attr("height", yy - top + 2).attr("rx", 4).attr("fill", "none");
+  mx.append("g").selectAll("g").data(COLS).join("g").attr("transform", (g, i) => `translate(${cx(i) + cwOf(i) / 2 - 1},${top - 8})`)
+    .call(g => g.append("path").attr("d", c => d3.symbol(famShape(c), 30)()).attr("transform", "translate(0,2)").attr("fill", c => colOf(c.id) === "var(--dot)" ? "var(--ink-2)" : colOf(c.id)))
+    .call(g => g.append("text").attr("class", "cl").attr("text-anchor", rotate || big ? "start" : "middle").style("opacity", (c, i) => i < nIn ? 1 : .7)
+      .style("font-size", (c, i) => i < nIn ? null : "9.5px")
+      .attr("transform", (c, i) => i >= nIn ? "translate(3,-6) rotate(-90)" : rotate ? "translate(-2,-6) rotate(-45)" : "translate(0,-8)").text(d => sh(d)));
   mx.append("g").selectAll("text").data(subs).join("text").attr("class", s => "rl" + (rev.has(s.si) ? " rev" : "")).style("font-size", fs + "px")
     .attr("x", lw - 8).attr("y", s => rowY.get(s.si) + rh / 2).attr("dy", "0.35em").attr("text-anchor", "end").text(s => s.name.replace(/^an? /, ""))
     .on("mouseenter", (e, s) => { st.hover = s.si; linked(); }).on("mouseleave", () => { st.hover = null; linked(); })
     .on("click", (e, s) => pick(s.si, st.aspect));
-  const cells = subs.flatMap(s => CFGS.map((g, i) => ({ s, g, i, p: val.get(g.id + "|" + s.si) })));
+  const cells = subs.flatMap(s => COLS.map((g, i) => ({ s, g, i, p: val.get(g.id + "|" + s.si) }))).filter(d => d.p);
   mx.append("g").selectAll("rect").data(cells).join("rect").attr("class", "cell").attr("rx", Math.min(3, rh / 4))
-    .attr("x", d => cx(d.i)).attr("y", d => rowY.get(d.s.si)).attr("width", cw - 2).attr("height", rh - 2).attr("fill", d => col(d.p.x))
+    .attr("x", d => cx(d.i)).attr("y", d => rowY.get(d.s.si)).attr("width", d => cwOf(d.i) - 2).attr("height", rh - 2).attr("fill", d => col(d.p.x))
     .on("mouseenter", (e, d) => { st.hover = d.s.si; st.hoverCfg = d.g.id; linked(); })
     .on("mousemove", (e, d) => showTip(e, `<b>${d.s.name}</b> · ${d.g.label}<div class="bar"><span>location</span><span><b>${fd(d.p.x)}</b></span><span>spread</span><span><b>${f2(d.p.y)}</b></span></div>`))
     .on("mouseleave", () => { st.hover = null; st.hoverCfg = null; hideTip(); linked(); })
@@ -666,11 +686,11 @@ function drawMatrix() {
   // shift from the reference to each member of the set, one column per member in chain order (the focus column is
   // emphasised): a bar from the centre, coloured like the matrix; outlined in red where a subject moves against that
   // contrast's pooled direction
-  const yEnd = yy - (st.sortRows === "delta" ? 0 : gap), x00 = lw + CFGS.length * cw + 12, dwk = dw / Math.max(1, oth.length);
+  const yEnd = yy - (st.sortRows === "delta" ? 0 : gap), x00 = lw + matW + 12, dwk = dw / Math.max(1, oth.length);
   oth.forEach((g, k) => {
     const RR = g === st.B ? R : extraContrast(g), cellsK = new Map((RR?.[st.aspect]?.cells || []).map(c => [c.si, c]));
     const revK = g === st.B ? rev : new Set(reversals(st.aspect, RR)), x0 = x00 + k * dwk;
-    const dx = d3.scaleLinear(oth.length > 1 ? [-2, 2] : [-3, 3], [x0, x0 + dwk - 4]).clamp(true), dg = mx.append("g");
+    const DM = 2.5, dx = d3.scaleLinear([-DM, DM], [x0, x0 + dwk - 4]).clamp(true), dg = mx.append("g");   // one scale for every column
     if (oth.length === 1) {
       dg.append("circle").attr("cx", dx(-1.2)).attr("cy", top - 10).attr("r", 4).attr("fill", "var(--a)");
       dg.append("circle").attr("cx", dx(1.2)).attr("cy", top - 10).attr("r", 4).attr("fill", "var(--b)");
@@ -689,9 +709,13 @@ function drawMatrix() {
       .on("mousemove", (e, s) => showTip(e, `<span style="color:var(--muted)">${sh(G[st.A])} → ${sh(G[g])}</span><br>` + cellTip(ASP[AIDX[st.aspect]], cellsK.get(s.si)) + (revK.has(s.si) ? `<br><b style="color:var(--warn)">against the pooled direction</b>` : "")))
       .on("mouseleave", () => { st.hover = null; hideTip(); linked(); })
       .on("click", (e, s) => { pick(s.si, st.aspect); if (g !== st.B) setPair(st.A, g); });
+    // a shift beyond the column's scale gets a small outward triangle at the edge (never silently clipped)
+    dg.selectAll("path.ovf").data(subs.filter(s => cellsK.has(s.si) && Math.abs(cellsK.get(s.si).d) > DM)).join("path").attr("class", "ovf")
+      .attr("d", d3.symbol(d3.symbolTriangle, 22)()).attr("fill", "var(--ink)")
+      .attr("transform", s => { const d = cellsK.get(s.si).d; return `translate(${dx(d) + Math.sign(d) * 3},${rowY.get(s.si) + rh / 2 - 1}) rotate(${d > 0 ? 90 : -90})`; });
   });
   revBadge(rev);
-  const lwid = Math.min(240, cw * CFGS.length), lg = mx.append("g").attr("transform", `translate(${lw},${Math.min(yy + 4, H - 28)})`);
+  const lwid = Math.min(240, matW), lg = mx.append("g").attr("transform", `translate(${lw},${Math.min(yy + 4, H - 28)})`);
   const grad = mx.append("defs").append("linearGradient").attr("id", "mxgrad");
   d3.range(11).forEach(k => grad.append("stop").attr("offset", k / 10).attr("stop-color", col(-ext + 2 * ext * k / 10)));
   lg.append("rect").attr("width", lwid).attr("height", 6).attr("rx", 3).attr("fill", "url(#mxgrad)");
@@ -717,7 +741,7 @@ function overviewHL() {
   OVS.pts.selectAll("g.cfg").select(".ring").attr("stroke", d => SET().includes(d.g.id) ? colOf(d.g.id) : "none");
   const foc = d => SET().includes(d.g.id) || d.g.id === hc;
   OVS.pts.selectAll("g.cfg").classed("focus", foc).classed("ctx", d => !foc(d)).select(".pt")
-    .attr("d", d => d3.symbol(famShape(d.g), foc(d) ? 170 : d.g.rewrite ? 45 : 80)())
+    .attr("d", d => cfgOff(d) !== null ? d3.symbol(d3.symbolTriangle, foc(d) ? 120 : 60)() : d3.symbol(famShape(d.g), foc(d) ? 170 : d.g.rewrite ? 45 : 80)())
     .attr("fill", d => SET().includes(d.g.id) ? colOf(d.g.id) : "var(--ink-2)");
   placeLabels(d3.transition().duration(0));
   let det = [];
@@ -759,7 +783,9 @@ function buildScatters() {
   const side = d3.select("#side"); side.selectAll("*").remove();
   for (const a of RET) {
     const card = side.append("section").attr("class", "card").attr("data-a", a.key).on("click", e => { if (e.target.tagName !== "circle") pick(st.subj, a.key); });
-    card.append("h2").call(h => { if (a === RET[0]) h.append("span").attr("class", "pl").text("E"); h.append("span").text(aspName(a.key)); h.append("span").attr("class", "est figonly"); });
+    card.append("h2").call(h => { if (a === RET[0]) h.append("span").attr("class", "pl").text("E"); h.append("span").text(aspName(a.key));
+      if (a === RET[0]) h.append("small").style("margin-left", "auto").attr("title", "x: shift of the median (scale units) · y: spread ratio, up = wider").text("↔ shift · ↕ spread");
+      h.append("span").attr("class", "est figonly"); });
     card.append("div").attr("class", "body");
   }
   side.selectAll(".card").each(function () {
@@ -782,14 +808,15 @@ function buildScatters() {
       .call(d3.drag().on("start", function () { d3.select(this).classed("drag", true); }).on("end", function () { d3.select(this).classed("drag", false); })
         .on("drag", e => { M_LR = Math.max(.05, Math.min(1.5, Math.abs(s.y.invert(e.y)))); marginsChanged(); }))
       .on("mousemove", e => showTip(e, `spread margin <b>×${f2(Math.exp(M_LR))}</b> (pre-registered ×${f2(Math.exp(PRE_LR))})`)).on("mouseleave", hideTip);
-    svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", m.l).attr("y", H - 4).text(poleWord(a.left));
-    svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text(poleWord(a.right));
+    svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", m.l).attr("y", H - 4).text("← " + poleWord(a.left));
+    svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text(poleWord(a.right) + " →");
     s.mlab = svg.append("g").attr("class", "figonly");
-    s.ci = svg.append("g"); s.dots = svg.append("g"); s.pool = svg.append("g").attr("class", "pool");
+    s.ci = svg.append("g").attr("class", "focusfx"); s.dots = svg.append("g").attr("class", "focusfx"); s.pool = svg.append("g").attr("class", "pool focusfx");
     s.pool.append("line").attr("class", "px"); s.pool.append("line").attr("class", "py");
     s.pool.append("path").attr("d", d3.symbol(d3.symbolDiamond, 110)());
     s.pool.on("mousemove", e => showTip(e, poolTip(a))).on("mouseleave", hideTip);
     s.exg = svg.append("g");   // further members of the comparison set against A
+    s.exsel = svg.append("g");  // the brushed subjects' median for every further member
     s.seld = svg.append("g").attr("class", "seld").style("display", "none");
     s.seld.append("path").attr("d", d3.symbol(d3.symbolDiamond, 150)());
     s.seld.on("mousemove", e => showTip(e, selTip(a))).on("mouseleave", hideTip);
@@ -833,9 +860,13 @@ function drawScatters(animate) {
         g.select(".px").attr("stroke", c).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
         g.select(".py").attr("stroke", c).attr("x1", x(p.d)).attr("x2", x(p.d)).attr("y1", y(p.llo)).attr("y2", y(p.lhi));
         g.select("path").attr("fill", c).attr("transform", `translate(${x(p.d)},${y(p.lr)})`);
-        g.select("text").attr("x", x(p.d) + 5).attr("y", y(p.lr) + (d.k % 2 ? 15 : 0)).text(sh(G[d.g])); })
+        g.select("text").attr("x", x(p.d) + 6).attr("y", y(p.lr)).text(sh(G[d.g])); })
       .on("mousemove", (e, d) => showTip(e, `<b>${G[st.A].label} → ${G[d.g].label}</b> · ${aspName(a.key)}<div class="bar"><span>shift</span><span><b>${fd(d.p.d)}</b> [${fd(d.p.dlo)}, ${fd(d.p.dhi)}]</span><span>spread</span><span><b>${fr(d.p.lr)}</b> [${fr(d.p.llo)}, ${fr(d.p.lhi)}]</span></div><span style="color:var(--muted)">click: make it the focus</span>`))
       .on("mouseleave", hideTip).on("click", (e, d) => { e.stopPropagation(); setPair(st.A, d.g); });
+    // member labels: placed right of each diamond, pushed apart vertically where they would overlap
+    const labs = s.exg.selectAll("g.exd").nodes().map(n => ({ n, d: d3.select(n).datum() })).map(o => ({ ...o, y: y(o.d.p.lr) - 6, x: x(o.d.p.d) })).sort((p, q2) => p.y - q2.y);
+    labs.forEach((o, i) => { for (let k = 0; k < i; k++) { const q2 = labs[k]; if (Math.abs(q2.x - o.x) < 34 && o.y - q2.y < 11) o.y = q2.y + 11; } });
+    labs.forEach(o => d3.select(o.n).select("text").attr("y", o.y).attr("dy", null));
     s.hLoc.attr("x", d => x(d * M_LOC) - 4).attr("y", m.t);
     s.hLr.attr("x", W - m.r - 14).attr("y", d => y(d * M_LR) - 4);
     // figure mode: margin values at the band edges and the pooled estimate in the card title
@@ -845,8 +876,9 @@ function drawScatters(animate) {
     d3.select(`#side .card[data-a="${a.key}"] h2 .est`).text(`${fd(p.d)} · ${fr(p.lr)}${p.src === "tool" ? "" : " ★"}`)
       .attr("title", `pooled shift ${fd(p.d)} [${fd(p.dlo)}, ${fd(p.dhi)}], spread ${fr(p.lr)} [${fr(p.llo)}, ${fr(p.lhi)}]; 90% interval from ${p.src === "tool" ? "the tool (400 resamples)" : p.src + " (10,000 resamples); ★ = scripted analysis"}`);
     s.brushG.call(s.brush.move, null);
+    // only the reference -> focus marks fade when that pair is not validated; every further member fades on its own validity
     const card = d3.select(`#side .card[data-a="${a.key}"]`).classed("nv", !valid(a.key));
-    card.select("h2").selectAll(".nvmark").data(valid(a.key) ? [] : [1]).join("span").attr("class", "nvmark").text("⊘").attr("title", nvTitle());
+    card.select("h2").selectAll(".nvmark").data(valid(a.key) ? [] : [1]).join("span").attr("class", "nvmark").text("⊘").attr("title", "reference → focus: " + nvTitle());
   }
   subjHL(); aspectSeg();
   linked();
@@ -877,6 +909,11 @@ function subjHL() {
     const sel = S ? R[a.key].cells.filter(c => S.has(c.si)) : [];
     s.seld.style("display", sel.length ? null : "none");
     if (sel.length) s.seld.select("path").attr("transform", `translate(${s.x(d3.median(sel, c => c.d))},${s.y(d3.median(sel, c => c.lr))})`);
+    const ex = S ? OTHERS().filter(g => g !== st.B).map(g => { const cs = extraContrast(g)[a.key].cells.filter(c => S.has(c.si));
+      return cs.length ? { g, d: d3.median(cs, c => c.d), lr: d3.median(cs, c => c.lr) } : null; }).filter(Boolean) : [];
+    s.exsel.selectAll("path").data(ex, d => d.g).join("path").attr("d", d3.symbol(d3.symbolDiamond, 110)()).attr("fill", "none")
+      .attr("stroke", "var(--hl)").attr("stroke-width", 1.8).attr("transform", d => `translate(${s.x(d.d)},${s.y(d.lr)})`)
+      .on("mousemove", (e, d) => showTip(e, `<b>${st.subjSel.size} brushed subjects</b> · ${sh(G[st.A])} → ${sh(G[d.g])}<div class="bar"><span>shift</span><span><b>${fd(d.d)}</b></span><span>spread</span><span><b>${fr(d.lr)}</b></span></div>`)).on("mouseleave", hideTip);
   }
 }
 function selTip(a) {
@@ -890,6 +927,8 @@ function marginsChanged() {
   CO.clear();
   drawScatters(false); drawMatrix(); overviewHL();
   if (st.main === "contrasts") drawContrastOverview();
+  if (st.main === "trail") drawTrail();
+  if (st.main === "statements") drawStatements();
 }
 function cellTip(a, c) {
   const vl = verdict(c.dlo, c.dhi, M_LOC), vs = verdict(c.llo, c.lhi, M_LR);
@@ -912,6 +951,7 @@ function linked() {
 function pick(si, aspect) {
   const changed = aspect !== st.aspect;
   st.subj = si; st.aspect = aspect; st.job = null; st.hover = null; d3.select("#selS").property("value", si);
+  if (st.stSel && st.stSel.level !== "pooled" && st.stSel.si !== si) st.stSel = null;   // a statement about one subject is not carried to another
   if (changed) { clearZoom(); aspectSeg(); drawMap(true); }
   else if (st.main === "statements") drawStatements();
   else if (st.main === "trail") drawTrail();
@@ -938,7 +978,7 @@ function drawRidge() {
   const members = SET();
   aspects.forEach((a, i) => {
     const ai = 3 + AIDX[a.key], sc = META.scale[a.key], rows = members.map(g => SCORES[g][si]);
-    const ma = mi(rows[0].map(r => r[ai])).med, val = r => (r[ai] - ma) / sc;
+    const ma = mi(SCORES[st.A][si].map(r => r[ai])).med, val = r => (r[ai] - ma) / sc;
     const vals = rows.map(rs => rs.map(val)), ext = Math.max(2, d3.max(vals.flat(), Math.abs) * 1.15);
     const x = d3.scaleLinear([-ext, ext], [m.l, W - m.r]), xs = d3.range(81).map(k => -ext + 2 * ext * k / 80);
     const dens = vals.map(v => kde(v, xs)), y = d3.scaleLinear([0, d3.max(dens.flat(), d => d[1])], [base, 4]);
@@ -976,13 +1016,13 @@ function drawSetDist(host, si) {
     g.append("rect").attr("x", x(-M_LOC)).attr("width", x(M_LOC) - x(-M_LOC)).attr("y", 3).attr("height", members.length * sub).attr("fill", "var(--band)");
     g.append("line").attr("class", "zero").attr("x1", x(0)).attr("x2", x(0)).attr("y1", 3).attr("y2", 3 + members.length * sub);
     members.forEach((gid, k) => {
-      const v = vals[k], yy = 3 + (k + .5) * sub, c = colOf(gid), qq = pp => x(d3.quantileSorted(v, pp)), role = gid === st.A || gid === st.B;
-      const gg = g.append("g").on("mousemove", e => showTip(e, `<b>${G[gid].label}</b> · ${aspName(a.key)}<div class="bar"><span>median</span><span><b>${fd(d3.quantileSorted(v, .5))}</b></span><span>IQR</span><span><b>${f2(d3.quantileSorted(v, .75) - d3.quantileSorted(v, .25))}</b></span></div>`)).on("mouseleave", hideTip);
+      const v = vals[k], yy = 3 + (k + .5) * sub, c = colOf(gid), qq = pp => x(d3.quantileSorted(v, pp)), role = gid === st.A || gid === st.B, ok = valid(a.key, st.A, gid);
+      const gg = g.append("g").style("opacity", ok ? 1 : .3).on("mousemove", e => showTip(e, `<b>${G[gid].label}</b> · ${aspName(a.key)}<div class="bar"><span>median</span><span><b>${fd(d3.quantileSorted(v, .5))}</b></span><span>IQR</span><span><b>${f2(d3.quantileSorted(v, .75) - d3.quantileSorted(v, .25))}</b></span></div>`)).on("mouseleave", hideTip);
       gg.append("line").attr("x1", qq(.1)).attr("x2", qq(.9)).attr("y1", yy).attr("y2", yy).attr("stroke", c).attr("stroke-width", 1.3).attr("opacity", .7);
       gg.append("line").attr("x1", qq(.25)).attr("x2", qq(.75)).attr("y1", yy).attr("y2", yy).attr("stroke", c).attr("stroke-width", Math.max(3, sub * .6)).attr("stroke-linecap", "round");
       gg.append("line").attr("x1", qq(.5)).attr("x2", qq(.5)).attr("y1", yy - sub * .4).attr("y2", yy + sub * .4).attr("stroke", "var(--panel)").attr("stroke-width", 2);
       gg.append("text").attr("x", m.l - 8).attr("y", yy).attr("dy", "0.35em").attr("text-anchor", "end")
-        .style("font-size", Math.max(9, Math.min(11, sub)) + "px").style("fill", role ? "var(--ink)" : "var(--ink-2)").style("font-weight", role ? 650 : 500).text(sh(G[gid]));
+        .style("font-size", Math.max(9, Math.min(11, sub)) + "px").style("fill", role ? "var(--ink)" : "var(--ink-2)").style("font-weight", role ? 650 : 500).text((ok ? "" : "⊘ ") + sh(G[gid]));
     });
   });
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text("line 10–90% · bar IQR · gap median · from the reference's median");
@@ -999,7 +1039,7 @@ function drawSetDist(host, si) {
 function drawParallel(host, si) {
   const a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key], members = SET();
   const { w: W, h: H } = box("#ridge"), m = { l: 72, r: 18, t: 26, b: 30 };
-  const rows = members.map(g => SCORES[g][si]), ma = mi(rows[0].map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;
+  const rows = members.map(g => SCORES[g][si]), ma = mi(SCORES[st.A][si].map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;   // 0 = the reference's median
   const all = rows.flat().map(v), lo = Math.min(-M_LOC, d3.min(all)), hi = Math.max(M_LOC, d3.max(all)), pad = (hi - lo) * .04;
   const x = d3.scaleLinear([lo - pad, hi + pad], [m.l, W - m.r]), yy = d3.scalePoint(members, [m.t, H - m.b]);
   const svg = host.append("svg").attr("width", W).attr("height", H);
@@ -1010,13 +1050,18 @@ function drawParallel(host, si) {
     svg.append("rect").attr("x", x(q1)).attr("width", Math.max(2, x(q3) - x(q1))).attr("y", yy(g) - 5).attr("height", 10).attr("rx", 5).attr("fill", c).attr("opacity", .22);
     svg.append("line").attr("class", "zero").attr("x1", m.l).attr("x2", W - m.r).attr("y1", yy(g)).attr("y2", yy(g));
     svg.append("circle").attr("cx", 12).attr("cy", yy(g)).attr("r", 5).attr("fill", c);
-    svg.append("text").attr("class", "lanelab").attr("x", 22).attr("y", yy(g)).attr("dy", "0.35em").text(sh(G[g])).append("title").text(G[g].label);
+    svg.append("text").attr("class", "lanelab").attr("x", 22).attr("y", yy(g)).attr("dy", "0.35em").text(sh(G[g]) + (valid(a.key, st.A, g) ? "" : " ⊘")).append("title").text(G[g].label);
   });
-  const byK = rows.map(rs => new Map(rs.map(r => [r[0], r])));
-  const ks = [...new Set(rows.flatMap(rs => rs.map(r => r[0])))];
+  // the same correspondence everywhere (two-member view, trail, here): neighbours that share starting noise are joined
+  // seed by seed; otherwise images are matched by rank and the segment is dashed (a quantile alignment, not a path)
   const seg = [];
-  ks.forEach(k => { for (let i = 0; i + 1 < members.length; i++) { const p = byK[i].get(k), q2 = byK[i + 1].get(k);
-    if (p && q2) seg.push({ j: p[2], x1: x(v(p)), y1: yy(members[i]), x2: x(v(q2)), y2: yy(members[i + 1]), dash: !same(members[i], members[i + 1]) }); } });
+  for (let i = 0; i + 1 < members.length; i++) {
+    const L = rows[i], Rr = rows[i + 1], sn = same(members[i], members[i + 1]);
+    let pairs;
+    if (sn) { const byK = new Map(Rr.map(r => [r[0], r])); pairs = L.filter(r => byK.has(r[0])).map(r => [r, byK.get(r[0])]); }
+    else { const sa = [...L].sort((p, q2) => v(p) - v(q2)), sb = [...Rr].sort((p, q2) => v(p) - v(q2)); pairs = sa.map((r, k) => [r, sb[Math.round(k * (sb.length - 1) / Math.max(1, sa.length - 1))]]); }
+    pairs.forEach(([p, q2]) => seg.push({ j: p[2], x1: x(v(p)), y1: yy(members[i]), x2: x(v(q2)), y2: yy(members[i + 1]), dash: !sn }));
+  }
   const curve = d => { const my = (d.y1 + d.y2) / 2; return `M${d.x1},${d.y1} C${d.x1},${my} ${d.x2},${my} ${d.x2},${d.y2}`; };
   svg.append("g").selectAll("path").data(seg).join("path").attr("class", "traj").attr("data-j", d => d.j).attr("stroke-dasharray", d => d.dash ? "4 3" : null).attr("d", curve);
   svg.append("g").selectAll("path").data(seg).join("path").attr("class", "trajhit").attr("d", curve)
@@ -1026,7 +1071,7 @@ function drawParallel(host, si) {
   svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 6).text(poleWord(a.left));
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 6).attr("text-anchor", "end").text(poleWord(a.right));
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", 13).attr("text-anchor", "end").text(aspName(a.key));
-  svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", 13).text("same seed across the set · dashed: different starting noise");
+  svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", 13).text("solid: same seed · dashed: matched by rank · 0 = reference median");
   markJob(); seedHL();
 }
 function drawSeeds(host, si) {
@@ -1079,14 +1124,16 @@ function drawSeeds(host, si) {
 //  - an amber number = subjects displaced against the pooled direction (shown from 3 subjects; exact count in the tooltip).
 const CO = new Map();
 function coData() {
-  const rows = ARROWS.map(([f, to, kind]) => ({ f: byPrefix(f), to: byPrefix(to), kind })).filter(d => d.f && d.to);
-  OTHERS().forEach(g => { if (!rows.some(r => r.f.id === st.A && r.to.id === g)) rows.push({ f: G[st.A], to: G[g], kind: "selected" }); });
+  const designed = ARROWS.map(([f, to, kind]) => ({ f: byPrefix(f), to: byPrefix(to), kind })).filter(d => d.f && d.to);
+  const set = OTHERS().map(g => ({ f: G[st.A], to: G[g], kind: designed.find(d => d.f.id === st.A && d.to.id === g)?.kind || "selected", set: true }));
+  const rows = [...set, ...designed.filter(d => !(d.f.id === st.A && st.set.includes(d.to.id)))];
   rows.forEach(r => { const k = r.f.id + ">" + r.to.id; if (!CO.has(k)) CO.set(k, contrast(r.f.id, r.to.id)); r.R = CO.get(k); });
   return rows;
 }
 function drawContrastOverview() {
   const svg = OVS.co, { w: W, h: H } = box("#map"); svg.attr("width", W).attr("height", H).selectAll("*").remove();
-  const rows = coData(), lw = 150, top = 34, cw = (W - lw - 10) / RET.length, ch = Math.min(110, (H - top - 30) / rows.length);
+  const rows = coData(), nSet = rows.filter(r => r.set).length, gapS = 22, key = 22, lw = 150, top = 34, cw = (W - lw - 10) / RET.length;
+  const ch = Math.min(110, (H - top - 24 - gapS - key - 13) / rows.length), ry = (r, i) => top + i * ch + (r.set ? 0 : gapS);
   const dmax = Math.max(1, d3.max(rows, r => d3.max(RET, a => Math.abs(r.R[a.key].pool.d))));
   const col = d3.scaleDiverging(DIV).domain([-dmax, 0, dmax]);
   svg.append("defs").append("marker").attr("id", "coah").attr("viewBox", "0 0 10 10").attr("refX", 6).attr("refY", 5)
@@ -1094,8 +1141,15 @@ function drawContrastOverview() {
   svg.append("g").selectAll("text").data(RET).join("text").attr("class", "cohead").attr("x", (a, i) => lw + (i + .5) * cw).attr("y", top - 14)
     .attr("text-anchor", "middle").style("font-size", "13px").style("font-weight", 600).style("fill", "var(--ink-2)").text(a => aspName(a.key));
   OVS.coCol = svg.append("g").selectAll("rect").data(RET).join("rect").attr("x", (a, i) => lw + i * cw + 3).attr("width", cw - 6)
-    .attr("y", top - 6).attr("height", rows.length * ch + 4).attr("rx", 8).attr("fill", "none");
-  const rg = svg.append("g").selectAll("g").data(rows).join("g").attr("transform", (r, i) => `translate(0,${top + i * ch})`);
+    .attr("y", top - 6).attr("height", rows.length * ch + gapS + 4).attr("rx", 8).attr("fill", "none");
+  const rg = svg.append("g").selectAll("g").data(rows).join("g").attr("transform", (r, i) => `translate(0,${ry(r, i)})`);
+  svg.append("text").attr("class", "pole").attr("x", 12).attr("y", top + nSet * ch + gapS - 7).style("font-weight", 600).text("DESIGNED CONTRASTS");
+  svg.append("line").attr("x1", 8).attr("x2", W - 8).attr("y1", top + nSet * ch + gapS / 2 - 6).attr("y2", top + nSet * ch + gapS / 2 - 6).attr("stroke", "var(--grid)");
+  // persistent key for the glyph
+  const ky = top + rows.length * ch + gapS + 8;
+  ["arrow: pooled shift toward a pole (dashed while the 90% interval reaches into the margin)",
+   "disc vs dashed ring: spread ratio vs ×1 (outlined once beyond the margin) · ⇄n: subjects against the pooled direction"]
+    .forEach((t, i) => svg.append("text").attr("class", "pole").attr("x", 12).attr("y", ky + i * 13).text(t));
   OVS.coRow = rg.append("rect").attr("x", 4).attr("width", W - 8).attr("height", ch - 4).attr("rx", 8).attr("fill", "none");
   rg.append("line").attr("x1", 12).attr("x2", 34).attr("y1", ch / 2).attr("y2", ch / 2).attr("stroke", "var(--ink-2)").attr("stroke-width", 1.8)
     .attr("stroke-dasharray", r => r.kind === "package" ? "5 4" : r.kind === "prompt" ? "1.5 4" : r.kind === "selected" ? "8 2 1 2" : null).attr("marker-end", "url(#ah)");
@@ -1191,9 +1245,10 @@ const FAMRE = new RegExp("\\b(" + Object.values(FAMILIES).flat().map(w => w.repl
 const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 function drawRewrites(host, si) {
   const { w: W, h: H } = box("#ridge"), svg = host.append("svg").attr("width", W).attr("height", H);
-  const gid = G[st.B].rewrite ? st.B : G[st.A].rewrite ? st.A : null;
+  const gid = rwGroup(), rw = SET().find(g => G[g].rewrite);
   if (!gid || typeof REWRITE === "undefined" || !REWRITE[gid]) {
-    svg.append("text").attr("x", 14).attr("y", 26).text("Pick a dotted arrow (prompt rewritten by an LLM) to compare text and image.");
+    svg.append("text").attr("x", 14).attr("y", 26).text(rw ? `A rewrite is read against its own base: ${G[G[rw].base].label} → ${G[rw].label}.` : "Pick a dotted arrow (prompt rewritten by an LLM) to compare text and image.");
+    if (rw) svg.append("text").attr("x", 14).attr("y", 46).style("fill", "var(--ink)").style("cursor", "pointer").style("font-weight", 600).text("show this pair →").on("click", () => setPair(G[rw].base, rw));
     return;
   }
   const other = gid === st.B ? st.A : st.B, a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key];
@@ -1277,6 +1332,10 @@ function drawStatements() {
     .attr("fill", d => VCOL(d.k === "other" ? "" : d.k)).attr("opacity", d => st.vFilter && st.vFilter !== d.k ? .25 : 1).style("cursor", "pointer")
     .on("mousemove", (e, d) => showTip(e, `<b>${d.k}</b> · ${d.n} of ${list0.length}`)).on("mouseleave", hideTip)
     .on("click", (e, d) => { st.vFilter = st.vFilter === d.k ? null : d.k; drawStatements(); });
+  const VSYM = { confirmed: "✓", "narrowed, did not move": "≈", "audit: no shift": "○", contradicted: "✗", other: "?" };
+  svg.append("g").selectAll("text").data(keys.map(k => { let x0 = 0; for (const k2 of keys) { if (k2 === k) break; x0 += counts.get(k2); } return { k, x0, n: counts.get(k) }; }))
+    .join("text").attr("x", d => bx(d.x0) + 2).attr("y", 28).style("font-size", "11px").style("fill", "var(--ink-2)")
+    .text(d => bx(d.x0 + d.n) - bx(d.x0) > 34 ? `${VSYM[d.k]} ${d.n}` : VSYM[d.k]);
   // glyph matrix
   const rows = [{ key: -1, name: "pooled" }, ...SUBJ.map((s, i) => ({ key: i, name: s.name.replace(/^an? /, "") }))];
   const rh = Math.max(8, (H - m.t - m.b) / rows.length), cw = bw / SCOLS.length, gsz = Math.max(4, Math.min(8, rh - 4));
@@ -1333,7 +1392,8 @@ const LV = {  // link verdicts: symbol, colour, label
 st.trailK = 0; st.trailUV = null;
 function loadT() { try { return JSON.parse(localStorage.getItem("auditTrails") || "[]"); } catch (e) { return []; } }
 function saveT(T) { try { localStorage.setItem("auditTrails", JSON.stringify(T)); } catch (e) { /* storage unavailable */ } }
-function rwGroup() { return G[st.B].rewrite ? st.B : G[st.A].rewrite ? st.A : null; }
+// a rewritten-prompt configuration is compared with its own base (the same generator with the original prompt) only
+function rwGroup() { return G[st.B].rewrite && G[st.B].base === st.A ? st.B : G[st.A].rewrite && G[st.A].base === st.B ? st.A : null; }
 function trailClaim() {
   const a = ASP[AIDX[st.aspect]], si = st.subj, ai = 3 + AIDX[a.key], sc = META.scale[a.key];
   const stmt = st.stSel && st.stSel.A === st.A && st.stSel.B === st.B ? st.stSel : null;
@@ -1413,42 +1473,23 @@ function drawTrail() {
   link(C.l1, C.kind === "axis" ? (nvA ? "not validated" : "validated by people") : null);
   // 2 measurement: per-subject contrast scatter of this aspect, with margins and the pooled estimate
   const s2 = stage(`${aspName(a.key)} · ${sh(G[st.A])} → ${sh(G[st.B])}`, "");
-  const v2 = s2.append("div").attr("class", "viz");
-  later.push(() => {
-  const W2 = v2.node().clientWidth || 160, H2 = v2.node().clientHeight || 120;
-  const g2 = v2.append("svg").attr("viewBox", `0 0 ${W2} ${H2}`), m2 = 8;
+  // the measurement itself is drawn once, in the contrast scatter E (its card is selected and the subject highlighted);
+  // the trail states the numbers that decide the link
+  const rd = (lab, v) => s2.append("div").attr("class", "rd").html(`<span>${lab}</span>${v}`);
   if (r) {
-    const xm = Math.max(1.6, d3.max(r.cells, c => Math.abs(c.d)) * 1.15), ym = Math.max(.9, d3.max(r.cells, c => Math.abs(c.lr)) * 1.15);
-    const x = d3.scaleLinear([-xm, xm], [m2, W2 - m2]), y = d3.scaleLinear([-ym, ym], [H2 - 14, m2]);
-    g2.append("rect").attr("x", x(-M_LOC)).attr("width", x(M_LOC) - x(-M_LOC)).attr("y", m2).attr("height", H2 - 14 - m2).attr("fill", "var(--band)");
-    g2.append("rect").attr("y", y(M_LR)).attr("height", y(-M_LR) - y(M_LR)).attr("x", m2).attr("width", W2 - 2 * m2).attr("fill", "var(--band)");
-    g2.append("g").selectAll("circle").data(r.cells).join("circle").attr("cx", c => x(c.d)).attr("cy", c => y(c.lr)).attr("r", c => c.si === si ? 5 : 3)
-      .attr("fill", c => c.si === si ? "var(--hl)" : "var(--dot)").attr("opacity", nvA ? .35 : 1).style("cursor", "pointer").on("click", (e, c) => pick(c.si, a.key))
-      .append("title").text(c => `${SUBJ[c.si].name}: ${fd(c.d)}, ${fr(c.lr)}`);
-    g2.append("line").attr("x1", x(pool.dlo)).attr("x2", x(pool.dhi)).attr("y1", y(pool.lr)).attr("y2", y(pool.lr)).attr("stroke", "var(--ink)").attr("stroke-width", 1.4);
-    g2.append("line").attr("x1", x(pool.d)).attr("x2", x(pool.d)).attr("y1", y(pool.llo)).attr("y2", y(pool.lhi)).attr("stroke", "var(--ink)").attr("stroke-width", 1.4);
-    g2.append("path").attr("d", d3.symbol(d3.symbolDiamond, 70)()).attr("transform", `translate(${x(pool.d)},${y(pool.lr)})`).attr("fill", "var(--panel)").attr("stroke", "var(--ink)").attr("stroke-width", 1.4);
-    g2.append("text").attr("class", "pole").attr("x", m2).attr("y", H2 - 2).text(`pooled ${fd(pool.d)} · ${fr(pool.lr)}${nvA ? " · not validated" : ""}`);
+    rd("all subjects", `<b>${fd(pool.d)}</b> [${fd(pool.dlo)}, ${fd(pool.dhi)}] · <b>${fr(pool.lr)}</b>`);
+    if (cell) rd(SUBJ[si].name.replace(/^an? /, ""), `<b>${fd(cell.d)}</b> [${fd(cell.dlo)}, ${fd(cell.dhi)}] · <b>${fr(cell.lr)}</b>`);
+    rd("margins", `±${f2(M_LOC)} · ×${f2(Math.exp(M_LR))}${nvA ? " · <b>not validated</b>" : ""}`);
   }
-  });
+  s2.append("div").attr("class", "rd ptr").text("→ E: " + aspName(a.key));
   link(l2, C.level === "pooled" ? "pooled claim" : null);
   // 3 subject: A and B on the axis
   const s3 = stage(SUBJ[si].name, "");
-  const v3 = s3.append("div").attr("class", "viz");
-  later.push(() => {
-  const W3 = v3.node().clientWidth || 160, H3 = v3.node().clientHeight || 120;
-  const g3 = v3.append("svg").attr("viewBox", `0 0 ${W3} ${H3}`);
-  const ext = Math.max(1.5, d3.max([...ra, ...rb], x => Math.abs(val(x))) * 1.1), x3 = d3.scaleLinear([-ext, ext], [8, W3 - 8]);
-  g3.append("rect").attr("x", x3(-M_LOC)).attr("width", x3(M_LOC) - x3(-M_LOC)).attr("y", 6).attr("height", H3 - 34).attr("fill", "var(--band)");
-  [[ra, (H3 - 30) * .3, "var(--a)", imA], [rb, (H3 - 30) * .72, "var(--b)", imB]].forEach(([rows, yy, c, sel]) => {
-    g3.append("g").selectAll("circle").data(rows).join("circle").attr("cx", x => x3(val(x))).attr("cy", yy).attr("r", x => x === sel ? 5 : 3)
-      .attr("fill", c).attr("opacity", x => x === sel ? 1 : .55).attr("stroke", x => x === sel ? "var(--ink)" : "none");
-    const md = d3.median(rows, val);
-    g3.append("line").attr("x1", x3(md)).attr("x2", x3(md)).attr("y1", yy - 10).attr("y2", yy + 10).attr("stroke", c).attr("stroke-width", 2);
-  });
-  g3.append("text").attr("class", "pole").attr("x", 8).attr("y", H3 - 15).text("← " + poleWord(a.left));
-  g3.append("text").attr("class", "pole").attr("x", W3 - 8).attr("y", H3 - 2).attr("text-anchor", "end").text(poleWord(a.right) + " →");
-  });
+  // where A and B put this subject's images is drawn once, in the image axis C; the trail gives the two medians and spreads
+  const ms = rows => { const v = rows.map(val).sort(d3.ascending); return `<b>${fd(d3.quantileSorted(v, .5))}</b> · IQR ${f2(d3.quantileSorted(v, .75) - d3.quantileSorted(v, .25))}`; };
+  s3.append("div").attr("class", "rd").html(`<span><i style="background:var(--a)"></i>${sh(G[st.A])}</span>${ms(ra)}`);
+  s3.append("div").attr("class", "rd").html(`<span><i style="background:var(--b)"></i>${sh(G[st.B])}</span>${ms(rb)}`);
+  s3.append("div").attr("class", "rd ptr").text("→ C: images on the axis");
   link(st.trailUV === "ok" ? "ok" : st.trailUV === "no" ? "bad" : "none", st.trailUV ? "your verdict" : "look, then judge");
   // 4 images
   const s4 = stage(sameNoise ? "same seed" : "matched by rank", "");
@@ -1468,7 +1509,8 @@ function drawTrail() {
   bar.append("button").text("+ save trail").attr("title", "Save this trail with its view").on("click", () => {
     const T = loadT();
     T.unshift({ id: Date.now(), time: new Date().toISOString().slice(0, 16), A: st.A, B: st.B, aspect: st.aspect, subj: si, kind: C.kind, src: C.src,
-      text: C.text, level: C.level, vid: C.vid || null, trailK: st.trailK, seed: imA[1], l1: C.l1, l2, l3: st.trailUV || "" });
+      text: C.text, level: C.level, vid: C.vid || null, trailK: st.trailK, seed: imA[1], l1: C.l1, l2, l3: st.trailUV || "",
+      set: [...st.set], ev: st.ev, mloc: M_LOC, mlr: M_LR, subjSel: st.subjSel ? [...st.subjSel] : null, seedSel: st.seedSel ? [...st.seedSel] : null });
     saveT(T); drawTrail();
   });
   bar.append("button").text("⤓").attr("title", "Download saved trails as CSV").on("click", exportTrails);
@@ -1487,12 +1529,18 @@ function restoreTrail(t) {
   st.main = "trail"; panelControls(); buildMap();
   st.stSel = t.vid ? (STATEMENTS || []).find(s => vid(s) === t.vid) || null : null;
   st.trailK = t.trailK;
+  if (t.set) st.set = t.set.filter(g => G[g]);
+  if (t.mloc) { M_LOC = t.mloc; M_LR = t.mlr; }
+  if (t.ev) st.ev = t.ev;
   setPair(t.A, t.B); pick(t.subj, t.aspect);
+  if (t.mloc) marginsChanged();
+  st.subjSel = t.subjSel ? new Set(t.subjSel) : null; st.seedSel = t.seedSel ? new Set(t.seedSel) : null; st.seedSubj = t.subj;
+  panelControls(); subjHL(); seedHL();
   st.trailUV = t.l3 || null; drawTrail();
 }
 function exportTrails() {
-  const T = loadT(), cols = ["time", "kind", "text", "A", "B", "aspect", "subject", "level", "seed", "claim_to_measure", "measure_to_subject", "analyst"];
-  const csv = [cols.join(",")].concat(T.map(t => [t.time, t.kind, t.text, t.A, t.B, t.aspect, SUBJ[t.subj]?.name, t.level, t.seed,
+  const T = loadT(), cols = ["time", "kind", "text", "A", "B", "set", "aspect", "subject", "level", "seed", "margin_loc", "margin_spread", "claim_to_measure", "measure_to_subject", "analyst"];
+  const csv = [cols.join(",")].concat(T.map(t => [t.time, t.kind, t.text, t.A, t.B, (t.set || [t.A, t.B]).join(" "), t.aspect, SUBJ[t.subj]?.name, t.level, t.seed, t.mloc ?? PRE_LOC, t.mlr ?? PRE_LR,
     (LV[t.l1] || LV.none)[2], (LV[t.l2] || LV.none)[2], t.l3 === "ok" ? "supported" : t.l3 === "no" ? "not supported" : ""]
     .map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "audit_trails.csv"; a.click();
@@ -1523,7 +1571,7 @@ function drawLanes(si) {
   const a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key], members = SET();
   const host = d3.select("#strip"); host.selectAll("*").remove();
   const { w: W, h: H } = box("#strip");
-  const rows = members.map(g => SCORES[g][si]), ma = mi(rows[0].map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;
+  const rows = members.map(g => SCORES[g][si]), ma = mi(SCORES[st.A][si].map(r => r[ai])).med, v = r => (r[ai] - ma) / sc;   // 0 = the reference's median
   const all = rows.flat().map(v), lo = Math.min(-M_LOC, d3.min(all)), hi = Math.max(M_LOC, d3.max(all)), pad = (hi - lo) * .04;
   const m = { l: 14, r: 14, t: 4, b: 20 }, laneH = (H - m.t - m.b) / members.length;
   const x = d3.scaleLinear([lo - pad, hi + pad], [m.l + 52, W - m.r - 10]);
@@ -1535,12 +1583,13 @@ function drawLanes(si) {
     const y0 = m.t + k * laneH, c = colOf(g), last = d3.range(ROWS).map(() => -1e9);
     if (k) svg.append("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y0).attr("y2", y0).attr("stroke", "var(--grid)");
     svg.append("circle").attr("cx", m.l + 6).attr("cy", y0 + laneH / 2).attr("r", 5).attr("fill", c);
-    svg.append("text").attr("class", "lanelab").attr("x", m.l + 14).attr("y", y0 + laneH / 2).attr("dy", "0.35em").text(sh(G[g])).append("title").text(G[g].label);
+    const ok = valid(a.key, st.A, g);
+    svg.append("text").attr("class", "lanelab").attr("x", m.l + 14).attr("y", y0 + laneH / 2).attr("dy", "0.35em").text(sh(G[g]) + (ok ? "" : " ⊘")).append("title").text(G[g].label + (ok ? "" : " · " + nvTitle(st.A, g)));
     const md = x(d3.median(rows[k], v));
     svg.append("path").attr("d", d3.symbol(d3.symbolTriangle, 40)()).attr("transform", `translate(${md},${y0 + laneH - 4}) rotate(0)`).attr("fill", c);
     [...rows[k]].sort((p, q2) => v(p) - v(q2)).forEach(r => {
       const cx = x(v(r)), free = last.findIndex(l => cx - l >= sz + 2), row = free >= 0 ? free : d3.maxIndex(last.map(l => cx - l));
-      last[row] = cx; items.push({ g, r, cx, row, x0: cx - sz / 2, y: y0 + 3 + row * (sz + 2), c });
+      last[row] = cx; items.push({ g, r, cx, row, x0: cx - sz / 2, y: y0 + 3 + row * (sz + 2), c, ok });
     });
   });
   Object.assign(AX, { items, sz });
@@ -1548,7 +1597,7 @@ function drawLanes(si) {
     .on("mouseenter", function (e, d) { d3.select(this).raise(); st.job = d.r[2]; st.jobB = null; markJob(); })
     .on("mousemove", (e, d) => showTip(e, imgTip(d.g, d.r))).on("mouseleave", hideTip)
     .on("click", (e, d) => { st.seedSel = new Set([d.r[2]]); st.seedSubj = si; seedHL(); });
-  gi.append("image").attr("href", d => `thumbs/${d.g}/${d.r[2]}.jpg`).attr("width", sz).attr("height", sz).attr("preserveAspectRatio", "xMidYMid slice");
+  gi.append("image").attr("href", d => `thumbs/${d.g}/${d.r[2]}.jpg`).attr("width", sz).attr("height", sz).attr("preserveAspectRatio", "xMidYMid slice").style("opacity", d => d.ok ? 1 : .45);
   gi.append("rect").attr("class", "axb").attr("width", sz).attr("height", sz).attr("rx", 3).attr("stroke", d => d.c);
   svg.append("text").attr("class", "pole").attr("x", m.l).attr("y", H - 5).text(poleWord(a.left));
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 5).attr("text-anchor", "end").text(poleWord(a.right));
@@ -1556,12 +1605,11 @@ function drawLanes(si) {
 }
 function drawStrip() {
   const si = cur(), a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key];
-  if (st.seedSubj !== si) { st.seedSel = null; st.seedSubj = si; }
+  if (st.hover == null && st.seedSubj !== si) { st.seedSel = null; st.seedSubj = si; }
   const head = d3.select("#stripName"); head.selectAll("*").remove();
   head.append("span").attr("class", "pl").text("C");
   head.append("span").text(`${aspName(a.key)} · ${SUBJ[si].name}`);
-  if (!valid(a.key)) head.append("span").attr("class", "nvmark").style("margin-left", "0").text("⊘").attr("title", nvTitle());
-  if (SET().length <= 2) head.append("button").attr("class", "mini").attr("title", "Move every image of A to where its same-seed image lands in B, and back").text("▶").on("click", playMorph);
+  if (SET().length <= 2 && !valid(a.key)) head.append("span").attr("class", "nvmark").style("margin-left", "0").text("⊘").attr("title", nvTitle());
   head.append("span").attr("id", "selCount").style("margin-left", "auto");
   head.append("button").attr("class", "mini").attr("id", "selClear").attr("title", "Clear the selected seeds").text("✕")
     .on("click", () => { st.seedSel = null; drawStrip(); seedHL(); });
@@ -1609,12 +1657,6 @@ function drawStrip() {
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 5).attr("text-anchor", "end").text(poleWord(a.right));
   markJob(); seedHL();
 }
-function playMorph() {
-  const bx = new Map(AX.items.filter(d => d.side > 0).map(d => [d.r[2], d]));
-  d3.selectAll("g.axi").filter(d => d.side < 0 && bx.has(d.r[2])).raise()
-    .transition().duration(1400).ease(d3.easeCubicInOut).attr("transform", d => `translate(${bx.get(d.r[2]).cx - AX.sz / 2},${d.y})`)
-    .transition().delay(1100).duration(1100).ease(d3.easeCubicInOut).attr("transform", d => `translate(${d.x0},${d.y})`);
-}
 function seedHL() {
   const S = st.seedSubj === cur() ? st.seedSel : null, has = j => !!S && S.has(j);
   d3.selectAll("g.axi").classed("sel", d => has(d.r[2])).classed("dim", d => !!S && !has(d.r[2]));
@@ -1644,7 +1686,7 @@ function hideTip() { d3.select("#tip").style("display", "none"); }
 
 // ---------------- init and responsive layout ----------------
 let R = null;
-function update() { setChips(); clearZoom(); diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
+function update() { setChips(); panelControls(); clearZoom(); diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
 d3.select("body").classed("fig", st.fig);
 header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();

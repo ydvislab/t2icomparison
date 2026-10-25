@@ -10,7 +10,10 @@
    (docs/REVIEW_2026-10-22.md): besides every number the audit tool uses, every image, the rewrites and the VLM
    statements, it now has the pooled estimates with the same 90% intervals as the tool, aligned per-subject box plots
    on the chosen aspect, and an image grid that can be sorted by the aspect score. It still has no margin bands,
-   verdicts, location-vs-spread scatter, paired-seed links, brushing or linking between views. */
+   verdicts, location-vs-spread scatter, paired-seed links, brushing or linking between views.
+   2026-10-25 (interface review): the same comparison set as the tool (a reference and up to five further
+   configurations), so a comparison of the two conditions does not confound set access with the visual design; every
+   table, box plot, image grid and text list covers all members; rewritten prompts are no longer truncated. */
 :root { color-scheme: light; --page: #f5f6f8; --panel: #fff; --ink: #1f2328; --ink-2: #4b5260; --muted: #8a909a; --line: #e4e7ec; --a: #3d6fa5; --b: #d9822b; --grid: #eef0f3; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --line: #2a2f37; --a: #77a1d3; --b: #ec9c50; --grid: #23272e; } }
 :root[data-theme="dark"] { color-scheme: dark; --page: #0f1115; --panel: #181b21; --ink: #eceef2; --ink-2: #b7bcc6; --muted: #7f8692; --line: #2a2f37; --a: #77a1d3; --b: #ec9c50; --grid: #23272e; }
@@ -44,28 +47,30 @@ dt { color: var(--muted); }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .seg button { font: inherit; font-size: 12px; border: 0; background: var(--panel); color: var(--ink-2); padding: 3px 8px; cursor: pointer; }
 .seg button.on { background: var(--ink); color: var(--panel); }
+.chip { display: inline-flex; gap: 4px; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; background: var(--panel); font-size: 12px; }
+.chip b { font-weight: 400; color: var(--muted); cursor: pointer; }
 </style>
 </head>
 <body>
 <header>
   <h1>Score table</h1>
-  A <select id="selA"></select> B <select id="selB"></select>
+  reference <select id="selA"></select> compared with <span id="setChips"></span><select id="selAdd"></select>
   subject <select id="selS"></select>
   aspect <select id="selK"></select>
   <span class="note" id="mnote"></span>
 </header>
 <div class="grid">
   <div>
-    <section><h2>Pooled contrast A → B: median over subjects, 90% bootstrap interval (scale units; spread as IQR ratio B / A)</h2><div id="tblPool"></div></section>
+    <section><h2>Pooled contrast reference → each configuration: median over subjects, 90% bootstrap interval (scale units; spread as IQR ratio)</h2><div class="scroll" id="tblPool"></div></section>
     <section style="margin-top:12px"><h2 id="hBox"></h2><div class="boxes" id="boxes"></div></section>
     <section style="margin-top:12px"><h2>Typical location and spread per configuration (median over subjects, scale units)</h2><div class="scroll" id="tblCfg"></div></section>
-    <section style="margin-top:12px"><h2>Per subject: A and B on every aspect (scale units; difference B − A; IQR ratio B / A)</h2><div class="scroll" id="tblSubj"></div></section>
+    <section style="margin-top:12px"><h2 id="hSubj"></h2><div class="scroll" id="tblSubj"></div></section>
   </div>
   <div>
     <section><h2>Settings</h2><dl id="settings"></dl></section>
     <section style="margin-top:12px"><h2>Human validation of the aspects (annotation rounds)</h2><div id="valid"></div></section>
     <section style="margin-top:12px"><h2 style="display:flex;gap:8px;align-items:center">Images of the selected subject <span class="seg" id="sortSeg"><button data-k="seed" class="on">by seed</button><button data-k="score">by aspect score</button></span></h2><div id="grid"></div></section>
-    <section style="margin-top:12px"><h2>Rewritten prompts and VLM statements for this pair</h2><div class="txt" id="texts"></div></section>
+    <section style="margin-top:12px"><h2>Rewritten prompts and VLM statements for the compared configurations</h2><div class="txt" id="texts"></div></section>
   </div>
 </div>
 <script src="d3.min.js"></script>
@@ -75,7 +80,9 @@ dt { color: var(--muted); }
 const ASP = META.aspects.filter(a => a.retained), AIDX = Object.fromEntries(META.aspects.map((a, i) => [a.key, i]));
 const SUBJ = META.subjects, G = Object.fromEntries(META.groups.map(g => [g.id, g]));
 const name = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
-const st = { A: "G07_klein_base4b_cfg1", B: "G06_klein_base4b_cfg4", s: 0, k: "sat", sort: "seed" };
+const st = { A: "G07_klein_base4b_cfg1", set: ["G06_klein_base4b_cfg4"], s: 0, k: "sat", sort: "seed" };
+const NSET = 5;   // further configurations, as in the tool (six in all)
+const ALL = () => [st.A, ...st.set];
 const NBOOT = 400;  // as in the audit tool, so both conditions show the same intervals
 const f2 = d3.format(".2f"), fs = d3.format("+.2f");
 const q = (v, p) => d3.quantile([...v].sort(d3.ascending), p);
@@ -126,13 +133,13 @@ const fx = v => "×" + f2(Math.exp(v));
 // cross-configuration centre); box = middle 50%, line = median, whiskers = 10th-90th percentile
 function boxes() {
   const k = st.k, ai = 3 + AIDX[k], sc = META.scale[k];
-  d3.select("#hBox").text(`Per subject on ${name(k)}: A (upper) and B (lower), scale units from the subject's cross-configuration centre; box = middle 50%, line = median, whiskers = 10th–90th percentile`);
+  d3.select("#hBox").text(`Per subject on ${name(k)}: one bar per configuration (reference first, then in the order added), scale units from the subject's cross-configuration centre; box = middle 50%, line = median, whiskers = 10th–90th percentile`);
   const center = SUBJ.map((s, si) => d3.median(META.groups.filter(x => !x.rewrite), x => med(SCORES[x.id][si].map(r => r[ai]))));
   const rows = SUBJ.map((s, si) => ({ s, si, cat: s.category,
-    st: [st.A, st.B].map(g => { const v = SCORES[g][si].map(r => (r[ai] - center[si]) / sc).sort(d3.ascending);
+    st: ALL().map(g => { const v = SCORES[g][si].map(r => (r[ai] - center[si]) / sc).sort(d3.ascending);
       return { g, p10: d3.quantileSorted(v, .1), q1: d3.quantileSorted(v, .25), m: d3.quantileSorted(v, .5), q3: d3.quantileSorted(v, .75), p90: d3.quantileSorted(v, .9) }; }) }))
     .filter(r => !r.s.excluded.includes(k));
-  const host = d3.select("#boxes").html(""), W = host.node().clientWidth || 600, L = 160, R = 10, rh = 16, gap = 6;
+  const n = ALL().length, host = d3.select("#boxes").html(""), W = host.node().clientWidth || 600, L = 160, R = 10, rh = 4 + 7 * n, gap = 6;
   let y = 4; const cats = [...new Set(rows.map(r => r.cat))];
   rows.forEach((r, i) => { if (i && r.cat !== rows[i - 1].cat) y += gap; r.y = y; y += rh; });
   const H = y + 40, lo = d3.min(rows, r => d3.min(r.st, s => s.p10)), hi = d3.max(rows, r => d3.max(r.st, s => s.p90));
@@ -144,10 +151,10 @@ function boxes() {
   svg.append("text").attr("x", L).attr("y", H - 2).attr("class", "note").style("font-size", "10px").text("← " + a.left);
   svg.append("text").attr("x", W - R).attr("y", H - 2).attr("text-anchor", "end").style("font-size", "10px").text(a.right + " →");
   const row = svg.append("g").selectAll("g").data(rows).join("g").attr("transform", r => `translate(0,${r.y})`);
-  row.append("title").text(r => `${r.s.name}\nA: median ${fs(r.st[0].m)}, IQR ${f2(r.st[0].q3 - r.st[0].q1)}\nB: median ${fs(r.st[1].m)}, IQR ${f2(r.st[1].q3 - r.st[1].q1)}`);
+  row.append("title").text(r => `${r.s.name}\n` + r.st.map(z => `${G[z.g].label}: median ${fs(z.m)}, IQR ${f2(z.q3 - z.q1)}`).join("\n"));
   row.append("text").attr("x", L - 6).attr("y", rh / 2 + 4).attr("text-anchor", "end").text(r => r.s.name);
-  [0, 1].forEach(j => {
-    const col = j ? "var(--b)" : "var(--a)", yy = 2 + j * 7;
+  d3.range(n).forEach(j => {
+    const col = j ? (j === 1 ? "var(--b)" : "var(--ink-2)") : "var(--a)", yy = 2 + j * 7;
     row.append("line").attr("x1", r => x(r.st[j].p10)).attr("x2", r => x(r.st[j].p90)).attr("y1", yy + 2.5).attr("y2", yy + 2.5).attr("stroke", col).attr("stroke-width", 1);
     row.append("rect").attr("x", r => x(r.st[j].q1)).attr("width", r => Math.max(1, x(r.st[j].q3) - x(r.st[j].q1))).attr("y", yy).attr("height", 5).attr("rx", 1.5)
       .attr("fill", col).attr("fill-opacity", .35).attr("stroke", col).attr("stroke-width", 1);
@@ -160,30 +167,30 @@ function table(host, head, rows) {
   t.selectAll("tr.r").data(rows).join("tr").attr("class", "r").selectAll("td").data(d => d).join("td").text(d => d);
 }
 function draw() {
-  const P = pooled(st.A, st.B), valid = g => META.validity?.[g]?.aspects ?? [];
-  table("#tblPool", ["aspect", "shift B − A", "90% interval", "spread B / A", "90% interval", "validated for A and B"],
-    ASP.map(a => { const r = P[a.key]; return [name(a.key), fs(r.d), `[${fs(r.dlo)}, ${fs(r.dhi)}]`, fx(r.lr), `[${fx(r.llo)}, ${fx(r.lhi)}]`,
-      valid(st.A).includes(a.key) && valid(st.B).includes(a.key) ? "yes" : "no"]; }));
-  const nd = Object.keys({ ...G[st.A].settings, ...G[st.B].settings }).filter(k => G[st.A].settings[k] !== G[st.B].settings[k]).length;
-  d3.select("#mnote").text(`Practical margins (frozen): shift ±${META.margins.location} scale units; spread ratio between ×${f2(Math.exp(-META.margins.log_iqr))} and ×${f2(Math.exp(META.margins.log_iqr))} · ${nd} declared setting${nd === 1 ? "" : "s"} differ`);
+  const valid = g => META.validity?.[g]?.aspects ?? [], lab = g => G[g].label;
+  const rowsP = st.set.flatMap(g => { const P = pooled(st.A, g); return ASP.map(a => { const r = P[a.key];
+    return [`${lab(st.A)} → ${lab(g)}`, name(a.key), fs(r.d), `[${fs(r.dlo)}, ${fs(r.dhi)}]`, fx(r.lr), `[${fx(r.llo)}, ${fx(r.lhi)}]`,
+      valid(st.A).includes(a.key) && valid(g).includes(a.key) ? "yes" : "no"]; }); });
+  table("#tblPool", ["contrast", "aspect", "shift", "90% interval", "spread ratio", "90% interval", "validated for both"], rowsP);
+  const nd = g => Object.keys({ ...G[st.A].settings, ...G[g].settings }).filter(k => G[st.A].settings[k] !== G[g].settings[k]).length;
+  d3.select("#mnote").text(`Practical margins (frozen): shift ±${META.margins.location} scale units; spread ratio between ×${f2(Math.exp(-META.margins.log_iqr))} and ×${f2(Math.exp(META.margins.log_iqr))} · declared settings that differ from the reference: ${st.set.map(g => `${lab(g)} ${nd(g)}`).join(", ")}`);
   boxes();
   const okS = k => SUBJ.map((s, i) => i).filter(i => !SUBJ[i].excluded.includes(k));
   table("#tblCfg", ["configuration", ...ASP.flatMap(a => [name(a.key) + " loc", "spread"])],
     META.groups.map(g => [g.label, ...ASP.flatMap(a => { const ss = okS(a.key); return [fs(d3.median(ss, i => loc(g.id, i, a.key))), f2(d3.median(ss, i => spr(g.id, i, a.key)))]; })]));
-  table("#tblSubj", ["subject", ...ASP.flatMap(a => [name(a.key) + " A", "B", "B − A", "IQR B/A"])],
-    SUBJ.map((s, i) => [s.name, ...ASP.flatMap(a => {
-      if (s.excluded.includes(a.key)) return ["", "", "", ""];
-      const la = loc(st.A, i, a.key), lb = loc(st.B, i, a.key);
-      return [fs(la), fs(lb), fs(lb - la), f2(spr(st.B, i, a.key) / spr(st.A, i, a.key))];
-    })]));
-  const sa = G[st.A].settings, sb = G[st.B].settings, keys = [...new Set([...Object.keys(sa), ...Object.keys(sb)])];
-  d3.select("#settings").html("").selectAll("div").data(keys).join(en => { const f = en.append("div").style("display", "contents");
-    f.append("dt").text(k => k); f.append("dd").style("margin", 0).text(k => sa[k] ?? "–"); f.append("dd").style("margin", 0).text(k => sb[k] ?? "–"); return f; });
+  d3.select("#hSubj").text(`Per subject on ${name(st.k)}: the reference's location, and for each configuration its location, the difference from the reference and the IQR ratio (scale units)`);
+  table("#tblSubj", ["subject", "reference", ...st.set.flatMap(g => [lab(g), "− ref", "IQR ratio"])],
+    SUBJ.map((s, i) => { if (s.excluded.includes(st.k)) return [s.name, "", ...st.set.flatMap(() => ["", "", ""])];
+      const la = loc(st.A, i, st.k); return [s.name, fs(la), ...st.set.flatMap(g => { const lb = loc(g, i, st.k); return [fs(lb), fs(lb - la), f2(spr(g, i, st.k) / spr(st.A, i, st.k))]; })]; }));
+  const keys = [...new Set(ALL().flatMap(g => Object.keys(G[g].settings)))];
+  d3.select("#settings").style("grid-template-columns", `auto repeat(${ALL().length}, 1fr)`).html("");
+  d3.select("#settings").append("dt").text("setting"); ALL().forEach(g => d3.select("#settings").append("dd").style("margin", 0).style("font-weight", 600).text(lab(g)));
+  keys.forEach(k => { d3.select("#settings").append("dt").text(k); ALL().forEach(g => d3.select("#settings").append("dd").style("margin", 0).text(G[g].settings[k] ?? "–")); });
   table("#valid", ["configuration", "validated in", ...ASP.map(a => name(a.key))],
-    [st.A, st.B].map(g => [G[g].label, META.validity?.[g]?.set ?? "", ...ASP.map(a => (META.validity?.[g]?.aspects ?? []).includes(a.key) ? "yes" : "no")]));
+    ALL().map(g => [lab(g), META.validity?.[g]?.set ?? "unknown", ...ASP.map(a => valid(g).includes(a.key) ? "yes" : "no")]));
   const gh = d3.select("#grid").html("");
-  [st.A, st.B].forEach(g => {
-    gh.append("div").attr("class", "lab").text(G[g].label);
+  ALL().forEach(g => {
+    gh.append("div").attr("class", "lab").text(lab(g));
     const ai = 3 + AIDX[st.k], rows = [...SCORES[g][st.s]];
     if (st.sort === "score") rows.sort((p, q2) => p[ai] - q2[ai]);
     const cell = gh.append("div").attr("class", "imgs").selectAll("div").data(rows).join("div").attr("class", "cell");
@@ -191,20 +198,27 @@ function draw() {
     if (st.sort === "score") cell.append("div").attr("class", "cap").text(r => fs(r[ai] / META.scale[st.k]));
   });
   const tx = d3.select("#texts").html("");
-  [st.A, st.B].filter(g => typeof REWRITE !== "undefined" && REWRITE[g]).forEach(g => {
-    tx.append("div").attr("class", "lab").text(`Rewritten prompts · ${G[g].label} · ${SUBJ[st.s].name}`);
-    tx.selectAll(null).data(REWRITE[g][st.s].slice(0, 8)).join("p").text(r => `seed ${r[0]}: ${r[1]}`);
+  ALL().filter(g => typeof REWRITE !== "undefined" && REWRITE[g]).forEach(g => {
+    tx.append("div").attr("class", "lab").text(`Rewritten prompts · ${lab(g)} · ${SUBJ[st.s].name}`);
+    tx.selectAll(null).data(REWRITE[g][st.s]).join("p").text(r => `seed ${r[0]}: ${r[1]}`);
   });
-  const S = (typeof STATEMENTS === "undefined" ? [] : STATEMENTS).filter(x => x.A === st.A && x.B === st.B && (x.level === "pooled" || x.si === st.s));
+  const S = (typeof STATEMENTS === "undefined" ? [] : STATEMENTS).filter(x => ALL().includes(x.A) && ALL().includes(x.B) && (x.level === "pooled" || x.si === st.s));
   if (S.length) {
     tx.append("div").attr("class", "lab").text("VLM statements (pooled, and for this subject)");
-    tx.selectAll(null).data(S).join("p").text(x => `${x.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"}, ${x.level}: ${x.text}`);
+    tx.selectAll(null).data(S).join("p").text(x => `${x.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"}, ${lab(x.A)} → ${lab(x.B)}, ${x.level}: ${x.text}`);
   }
 }
-for (const [id, k] of [["#selA", "A"], ["#selB", "B"]]) {
-  d3.select(id).selectAll("option").data(META.groups).join("option").attr("value", g => g.id).text(g => g.label);
-  d3.select(id).property("value", st[k]).on("change", e => { st[k] = e.target.value; draw(); });
+function setUI() {
+  d3.select("#setChips").selectAll("span.chip").data(st.set, g => g).join(en => { const c = en.append("span").attr("class", "chip"); c.append("span"); c.append("b").text("×"); return c; })
+    .each(function (g) { const c = d3.select(this); c.select("span").text(G[g].label); c.select("b").attr("title", "remove").on("click", () => { if (st.set.length > 1) { st.set = st.set.filter(x => x !== g); setUI(); draw(); } }); });
+  d3.select("#selAdd").style("display", st.set.length < NSET ? null : "none").selectAll("option").data([null, ...META.groups.filter(g => !ALL().includes(g.id))]).join("option")
+    .attr("value", g => g ? g.id : "").text(g => g ? g.label : "+ add");
+  d3.select("#selAdd").property("value", "");
 }
+d3.select("#selA").selectAll("option").data(META.groups).join("option").attr("value", g => g.id).text(g => g.label);
+d3.select("#selA").property("value", st.A).on("change", e => { st.A = e.target.value; st.set = st.set.filter(g => g !== st.A); if (!st.set.length) st.set = [META.groups.find(g => g.id !== st.A).id]; setUI(); draw(); });
+d3.select("#selAdd").on("change", e => { if (e.target.value) { st.set.push(e.target.value); setUI(); draw(); } });
+setUI();
 d3.select("#selS").selectAll("option").data(SUBJ).join("option").attr("value", (s, i) => i).text(s => s.name);
 d3.select("#selS").on("change", e => { st.s = +e.target.value; draw(); });
 d3.select("#selK").selectAll("option").data(ASP).join("option").attr("value", a => a.key).text(a => name(a.key));

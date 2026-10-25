@@ -107,3 +107,16 @@ See `INTERFACE.md`. Cool, crisp palette (A blue, B orange as the only data hues;
   - small multiples in the appearance map;
   - labelled diamonds in the contrast scatters.
 - **Kept pairwise, with the reason:** density contours on the map, per-subject dots in the scatters, VLM statements and the audit trail.
+
+**rev13 (2026-10-25): fixes after the interface review** (`docs/REVIEW_2026-10-25_interface.md`). Full list in `INTERFACE.md`, section "Fixed after the interface review".
+- **One reference origin** in every view.
+- **Validity per member.**
+- **One correspondence policy:** same seed where starting noise is shared, otherwise rank, dashed. The ▶ morph is cut.
+- **Statements and rewrites keep their scope:** subject-level statements stay with their subject; a rewrite is read against its own base only.
+- **Contrast overview:** the set is its own group, with a glyph key.
+- **Matrix:** set members' columns first, and shift columns on one scale with overflow triangles.
+- **Brushed-subject medians** for every member.
+- **Saved trails** store the whole set and the selections.
+- **Trail:** its mini scatter and mini distribution are replaced by numbers that point to E and C.
+- **Other display fixes:** collision-free member labels, edge triangles for configurations under zoom, symbols on the statement verdict bar.
+- **Baseline:** gets the same comparison set.

@@ -1,15 +1,15 @@
-# Interface: final design and its rationale (rev10, 2026-10-22; comparison set rev12, 2026-10-24)
+# Interface: final design and its rationale (rev10, 2026-10-22; comparison set rev12, 2026-10-24; review fixes rev13, 2026-10-25)
 
-This file fixes the interface of the audit tool and gives, for every view, mode and control, the task it serves and why nothing else in the interface serves it. It is the basis for the design section of the paper (Section 4) and for the owner's review of the interface.
+The principles below are design requirements, each tied to a task; they are hypotheses for the expert study, not results (external review 2026-10-25, `docs/REVIEW_2026-10-25_interface.md`). This file fixes the interface of the audit tool and gives, for every view, mode and control, the task it serves and why nothing else in the interface serves it. It is the basis for the design section of the paper (Section 4) and for the owner's review of the interface.
 
 ## 1. Principles
-1. **Established encodings only:** positions on common scales, distributions (dots, densities, box-like bands), scatter plots with density contours, small multiples, a diverging colour scale for polarity.
-2. **One encoding per quantity:** a quantity is drawn in one view; other views refer to it through linking, not by drawing it again.
+1. **Familiar encodings first:** positions on common scales, distributions (dots, densities, interval bars), scatter plots with density contours, small multiples, parallel coordinates, a diverging colour scale for polarity. The one compound glyph (the contrast overview) carries a persistent key.
+2. **Each quantity has one home view; repetition is deliberate and marked.** A measured effect is drawn in E, the images in C, the distributions in D. Overview (▦) and provenance (⛓) views restate a quantity only as a summary that points to its home view (the trail gives numbers and "→ E", "→ C" instead of redrawing the scatter and the images' axis).
 3. **Text on demand:** views carry pole words and panel titles only; numbers, settings and statements appear on hover or selection.
-4. **Every view is indispensable:** each answers a question that no other view answers.
+4. **Each view serves a task no other view serves as directly** (Section 3 names the task). This is a design claim to be tested, not a demonstrated fact.
 5. **No appearance switches:** a control may change *what is analysed* (pair, aspect, subject, mode of a panel), never only *how it looks*. A mode exists only if it serves a task that the other modes of the same panel cannot serve.
 6. **Contours only on metric spaces:** density contours summarize where points lie *in units that mean something*. They are drawn on the configuration map (scale units) and nowhere on the t-SNE appearance map, whose distances and areas have no metric meaning.
-7. **Many configurations: identity by position, role by colour.** Every view compares a *set* of up to six configurations, not a pair. Each member is identified by position (a matrix column, a shift column, an image lane, a parallel axis, a row in the distributions, a small multiple, a row of the contrast overview) and by a direct label. Colour encodes only the two roles: the **reference** (blue; every contrast is measured from it) and the **focus** (orange; the member that the per-subject views detail). Hue never has to tell six members apart, so the set is not bounded by the number of colour-blind-safe hues (which is three with A and B fixed; see Section 6), and position, the most accurate channel, carries identity.
+7. **Many configurations: identity by labelled slots, role by colour.** The views compare a *set* of up to six configurations. Where a view has categorical slots (a matrix column, a shift column, an image lane, a parallel axis, a row in the distributions, a small multiple, a row of the contrast overview), each member has its own slot, in the same set order everywhere. Where position encodes a measurement (the map, the scatters), identity is carried by a direct label, placed so that labels do not overlap. Colour encodes only the two roles: the **reference** (blue; every contrast starts from it, and every reference-relative view puts 0 at its median) and the **focus** (orange; the member the per-subject views detail). Hue never has to tell six members apart. Statement- and rewrite-level views stay pairwise, with the reason given in Section 4.
 
 ## 2. Tasks
 - **T1 Displacement or concentration:** does a change of model or setting move the typical output, narrow it, or both?
@@ -55,27 +55,37 @@ This file fixes the interface of the audit tool and gives, for every view, mode 
 - **Findings board:** it duplicated the audit trail's saved list as a second record of findings. The trail records any finding: a claim, an aspect of a pair, a subject and a seed, with the analyst's verdict.
 - **Density contours on the t-SNE appearance map** (rev8): principle 6.
 
-**The comparison set in every view (rev12, 2026-10-24)**
+**The comparison set in every view (rev12, 2026-10-24; rev13, 2026-10-25)**
 
 | View | With a set of K members (identity by position) | Why it stays pairwise, where it does |
 |---|---|---|
 | Set bar (header) | K chips in chain order; roles REF and FOCUS | — |
 | A ◎ configuration map | every member ringed and labelled; an arrow from the reference to every member; density contours for reference and focus | contours for more than two members overlap into an unreadable field (tested with five); a member's subjects appear on hover, its spread is read in E and D |
-| A ▦ contrast overview | one row per member (reference → member), outlined; the focus row shaded | — |
-| B matrix | the member columns are shaded; **one shift column per member** (reference → member), each with its own reversal outlines; the focus column is emphasised | the ⇄ badge steps through the focus's reversals |
+| A ▦ contrast overview | the set is its own group (one row per member, reference → member) above the designed contrasts; the focus row shaded; a persistent key decodes the glyph | — |
+| B matrix | the member columns come first, in set order (rewritten configurations included), the other configurations follow narrower; **one shift column per member** (reference → member) on one common scale, each with its own reversal outlines and edge triangles for shifts beyond the scale; a click on a column's label makes that member the focus | the ⇄ badge and the ⇅ order follow the focus; any member becomes the focus with one click |
 | C image axis | one lane per member | — |
-| D ⫽ paired seeds | parallel coordinates, one axis per member in chain order, one polyline per seed (dashed where starting noise differs) | — |
-| D ∿ distributions | per validated aspect, one row per member: 10–90% range, IQR, median | overlaid densities are kept for two members only |
+| D ⫽ paired seeds | parallel coordinates, one axis per member in set order; neighbours that share starting noise are joined seed by seed, others are matched by rank and dashed (the same correspondence as the two-member view and the trail) | the ▶ morph animation was cut: it moved images by seed ID even where seeds do not share starting noise |
+| D ∿ distributions | per retained aspect, one row per member: 10–90% range, IQR, median; a member–aspect not validated by people is faded and marked ⊘ | overlaid densities are kept for two members only |
 | D ⁘ appearance map | small multiples, one panel per member on the same layout; hovering an image marks its seed in every panel | — |
-| E contrast scatters | per-subject dots for reference → focus; every other member as a labelled diamond with its 90% interval | 24 subjects × K members in one scatter would hide the subjects |
-| A ❝ statements, ⛓ audit trail | — | a VLM statement and a rewritten prompt are claims about one pair, so they are checked on reference → focus; clicking another member makes it the focus |
+| E contrast scatters | per-subject dots for reference → focus; every other member as a labelled diamond with its 90% interval, faded on its own validity; brushing subjects adds, for every member, a hollow diamond at the brushed subjects' median | 24 subjects × K members in one scatter would hide the subjects |
+| A ❝ statements, ⛓ audit trail | a saved trail stores the whole set, its order, the evidence mode, the margins and the brushed subjects and seeds, and restores them | a VLM statement and a rewritten prompt are claims about one pair, so they are checked on reference → focus; a subject-level statement is dropped when another subject is chosen; a rewrite is read only against its own base |
 
 **Zoom keeps the density estimate (2026-10-24):** the kernel bandwidth of the map's contours is fixed in scale units, so zooming magnifies the same density instead of re-estimating it at a finer bandwidth (which broke the contours into one blob per subject and changed the spread reading with the zoom level, against principle 6).
+
+**Fixed after the interface review (rev13, 2026-10-25)**
+- **One origin:** every reference-relative view is centred on the reference's median. Before, the parallel coordinates and the lanes used the first member of the set.
+- **Validity per member:** unknown validity counts as not validated. E fades only the reference → focus marks for that pair; every other member fades on its own validity in E, C, D.
+- **Seed selections:** a selection survives hovering another subject.
+- **Edge triangles for configurations:** a configuration outside the zoomed map becomes an edge triangle.
+- **Verdict symbols:** the statement verdict bar carries symbols (✓ ≈ ○ ✗ ?).
+- **Header and scatter labels:** the set bar wraps onto its own row when long. The scatter pole words read as change (← / →), with a key "↔ shift · ↕ spread".
+- **Margins:** a margin change redraws the trail and the statements.
+- **Baseline:** `baseline.html` gets the same comparison set (a reference and up to five configurations in every table, box plot, image grid and text list). Its rewrite text is no longer truncated.
 
 ## 5. Linking
 | Action | Effect |
 |---|---|
-| Choose a pair (selectors, a point or arrow on the map, a glyph in the overview, a statement) | every view recomputes for the pair |
+| Choose a reference or focus (set bar, a point or arrow on the map, a glyph or row in the overview, a matrix shift-column label, a scatter diamond, a statement) | every view recomputes; set members keep their slots |
 | Choose an aspect (buttons, a scatter, a row in ∿) | every view switches to the aspect |
 | Hover a subject (scatter dot, matrix row) | the subject is highlighted in all scatters, the matrix and the map |
 | Click a subject (scatter dot, matrix row, trail stage 2) | C, D and the trail show that subject |
