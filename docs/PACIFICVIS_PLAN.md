@@ -58,3 +58,12 @@ Checked on 2026-10-25 at pacificvis2027.github.io, "Conference Papers" and "Pape
 - PCS account and abstract registration by 11-02.
 - Experts for 11-02 – 11-06; ethics wording for the paper.
 - LaTeX: no TeX is installed locally. Either install `tectonic` locally or compile on Overleaf.
+
+## Progress (2026-10-25)
+- Done and pushed: live verdicts (statements judged from the current contrast and margins; scripted intervals only in figure mode); findings log (☆ in the header, one record list for notes and saved trails, each replaying the whole analysis state).
+- In progress: **user-defined aspects with an in-tool human check**. Design:
+  1. **Image embeddings:** the build exports the CLIP ViT-L/14 image embeddings (int8, in the order of `SCORES`) as a script file, so it also loads from disk.
+  2. **Text encoder:** the analyst types two pole phrases; the tool embeds them in the browser with transformers.js 3.5.2 and the ONNX export `Xenova/clip-vit-large-patch14` (text model, q8 about 125 MB, fp16 about 248 MB), bundled under `vendor/` with no network access. This needs the package served over http (`python3 -m http.server` in the package folder); from `file://` the feature explains how to start the server.
+  3. **Scoring:** score = cos(image, right) − cos(image, left). The scale is computed on the fly as in the build, and the margins are the frozen ones. The new aspect enters every view, marked "not validated" until checked.
+  4. **In-tool check:** about 12 large-gap pairs from the current set are shown side by side. The analyst picks the image closer to the right pole, or "can't tell". The rule is the frozen one (agreement ≥ 0.75, can't tell ≤ 0.40). The result is stored with the aspect and shown wherever it is used.
+  5. **Fidelity test:** in-browser vs PyTorch text embeddings for the five frozen aspects; required cosine ≥ 0.99 before use. Not yet run. The first try failed on the ORT wasm path, which must be an absolute URL.
