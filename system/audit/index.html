@@ -255,6 +255,17 @@ g.axi.dim { opacity: .16; }
 .mx .shl.focus { fill: var(--ink); font-weight: 650; }
 .setbar select { border: 0; background: var(--panel); box-shadow: var(--shadow); border-radius: 999px; padding: 4px 8px; font: inherit; font-size: 12.5px; color: var(--ink-2); cursor: pointer; max-width: 120px; }
 .lanelab { font-size: 11px; font-weight: 600; fill: var(--ink-2); }
+/* findings log */
+.pillbtn { border: 0; background: var(--panel); box-shadow: var(--shadow); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; flex: none; }
+#findDrawer { position: fixed; top: 56px; left: 50%; transform: translateX(-50%); width: min(560px, 92vw); max-height: 72vh; overflow: auto; background: var(--panel);
+  border-radius: 12px; box-shadow: 0 0 0 1px var(--grid), 0 14px 36px rgba(16,24,40,.2); padding: 10px 12px; z-index: 8; }
+#findDrawer .fhead { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; } #findDrawer .fhead b { font-size: 14px; } #findDrawer .fhead span { color: var(--muted); font-size: 12px; margin-right: auto; }
+#findDrawer textarea { width: 100%; font: inherit; font-size: 13px; border: 1px solid var(--grid); border-radius: 8px; padding: 6px 8px; resize: vertical; min-height: 52px; background: var(--page); color: var(--ink); }
+#findDrawer .fr { display: grid; grid-template-columns: 18px 1fr auto 14px; gap: 8px; padding: 6px; border-radius: 8px; cursor: pointer; align-items: start; }
+#findDrawer .fr:hover { background: var(--band); }
+#findDrawer .fr .q { font-size: 13px; color: var(--ink); } #findDrawer .fr .ctx { font-size: 11px; color: var(--muted); }
+#findDrawer .fr .vs { display: flex; gap: 2px; } #findDrawer .fr .vs i { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 10px; font-style: normal; }
+#findDrawer .fr .x { color: var(--muted); }
 /* tooltip */
 .tip { position: fixed; pointer-events: none; background: var(--panel); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(16,24,40,.18);
   display: none; z-index: 9; font-size: 13px; color: var(--ink-2); max-width: 300px; }
@@ -268,6 +279,7 @@ g.axi.dim { opacity: .16; }
   <h1>Default Audit</h1>
   <div class="setbar" id="setBar"></div>
   <button class="iconbtn" id="swap" title="Swap reference and focus">⇄</button>
+  <button class="pillbtn" id="findBtn" title="Findings: record what you found in this view, and replay recorded findings">☆ 0</button>
   <div class="diff" id="diff"></div>
   <div class="seg" id="aspSeg"></div>
   <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
@@ -279,6 +291,7 @@ g.axi.dim { opacity: .16; }
   <section class="card" id="ridgeCard"><h2><span id="subjName"></span><div class="seg mini" id="evSeg"></div><select id="selS"></select></h2><div class="body" id="ridge"></div></section>
   <aside id="side"></aside>
 </main>
+<div id="findDrawer" style="display:none"></div>
 <div class="tip" id="tip"></div>
 <script src="d3.min.js"></script>
 <script src="data.js"></script>
@@ -374,8 +387,9 @@ function contrast(A = st.A, B = st.B) {
     }
     pd.sort((x, y) => x - y); pl.sort((x, y) => x - y);
     R[a.key] = { cells, pool: { d: d3.median(cells, c => c.d), lr: d3.median(cells, c => c.lr), dlo: q(pd, .05), dhi: q(pd, .95), llo: q(pl, .05), lhi: q(pl, .95), src: "tool" } };
-    // for a designed contrast with a scripted analysis, show that analysis's intervals (10,000 resamples) instead
-    const off = META.official?.[A + "|" + B]?.[a.key];
+    // figure mode only: for a designed contrast with a scripted analysis, show that analysis's intervals (10,000
+    // resamples), so paper figures match the paper; in analysis every interval is the tool's own, computed now
+    const off = st.fig ? META.official?.[A + "|" + B]?.[a.key] : null;
     if (off) Object.assign(R[a.key].pool, { dlo: off.dlo, dhi: off.dhi, llo: off.llo, lhi: off.lhi, src: off.src });
   }
   return R;
@@ -1298,6 +1312,35 @@ function drawRewrites(host, si) {
 // aspect and subject so the other views show the evidence.
 const VCOL = v => v.startsWith("confirmed") ? "var(--ok)" : v === "contradicted" ? "var(--bad)" : v.startsWith("narrowed") ? "var(--warn)"
   : v === "audit: no shift" ? "var(--muted)" : "var(--faint)";
+// The audit's answer to a VLM statement, computed now from the current contrast and margins with the rule of the Q5
+// scoring (results/q5/truth.csv): a subject moved if |shift| >= margin and its interval excludes 0, stayed if its
+// interval lies inside the margins; pooled from the pooled interval. The build's precomputed verdict is used only when
+// the statement's pair is not the selected one.
+function truthAt(s, asp) {
+  const r = R?.[asp]; if (!r) return null;
+  if (s.level === "pooled") { const p = r.pool, vl = verdict(p.dlo, p.dhi, M_LOC), vs = verdict(p.llo, p.lhi, M_LR);
+    return { shift: vl === "moved" ? (p.d > 0 ? "right" : "left") : vl === "same" ? "none" : "", variety: vs === "moved" ? (p.lr < 0 ? "less" : "more") : vs === "same" ? "same" : "" }; }
+  const c = r.cells.find(c2 => c2.si === s.si); if (!c) return null;
+  const shift = Math.abs(c.d) >= M_LOC && (c.dlo > 0 || c.dhi < 0) ? (c.d > 0 ? "right" : "left") : c.dlo > -M_LOC && c.dhi < M_LOC ? "none" : "";
+  const variety = Math.abs(c.lr) >= M_LR && (c.llo > 0 || c.lhi < 0) ? (c.lr < 0 ? "less" : "more") : c.llo > -M_LR && c.lhi < M_LR ? "same" : "";
+  return { shift, variety };
+}
+function vOf(s) {
+  if (s.A !== st.A || s.B !== st.B || !R) return s.verdict;
+  if (RET.some(a => a.key === s.prop) && (s.dir === "right" || s.dir === "left")) {
+    if (!valid(s.prop)) return "aspect not validated here";
+    const t = truthAt(s, s.prop); if (!t || !t.shift) return "audit undecided";
+    if (t.shift === s.dir) return "confirmed";
+    if (t.shift === "none") return t.variety === "less" ? "narrowed, did not move" : "audit: no shift";
+    return "contradicted";
+  }
+  if (s.prop === "variety" && (s.dir === "less" || s.dir === "more")) {
+    const ts = RET.filter(a => valid(a.key)).map(a => [a.key, truthAt(s, a.key)]).filter(([, t]) => t && t.variety);
+    const hit = ts.filter(([, t]) => t.variety === s.dir).map(([k]) => k);
+    return hit.length ? "confirmed on " + hit.join(", ") : ts.length ? "not on the measured aspects" : "audit undecided";
+  }
+  return s.verdict;
+}
 const VORDER = ["confirmed", "narrowed, did not move", "audit: no shift", "contradicted", "other"];
 const vkey = v => v.startsWith("confirmed") ? "confirmed" : VORDER.includes(v) ? v : "other";
 st.vlm = "all"; st.stLevel = "subject";
@@ -1321,11 +1364,11 @@ function drawStatements() {
     .text(d => d[1]).classed("on", d => d[0] === st.vlm).on("click", (e, d) => { st.vlm = d[0]; drawStatements(); });
   ctl.append("button").attr("class", "mini").attr("title", "Download your own verdicts (✓ / ✗) as CSV").text("⤓").on("click", exportVerdicts);
   const list0 = all.filter(s => st.vlm === "all" || s.vlm === st.vlm);
-  const list = list0.filter(s => !st.vFilter || vkey(s.verdict) === st.vFilter);
+  const list = list0.filter(s => !st.vFilter || vkey(vOf(s)) === st.vFilter);
   const svg = host.append("svg").attr("width", W).attr("height", H);
   const m = { l: 128, r: 14, t: 60, b: st.stSel ? 46 : 14 }, bw = W - m.l - m.r;
   // verdict bar (filter)
-  const counts = d3.rollup(list0, v => v.length, s => vkey(s.verdict)), keys = VORDER.filter(k => counts.get(k));
+  const counts = d3.rollup(list0, v => v.length, s => vkey(vOf(s))), keys = VORDER.filter(k => counts.get(k));
   const bx = d3.scaleLinear([0, list0.length], [m.l, m.l + bw]); let acc = 0;
   svg.append("g").selectAll("rect").data(keys.map(k => { const r = { k, x0: acc, n: counts.get(k) }; acc += r.n; return r; })).join("rect")
     .attr("x", d => bx(d.x0) + 1).attr("width", d => Math.max(1, bx(d.x0 + d.n) - bx(d.x0) - 2)).attr("y", 33).attr("height", 6).attr("rx", 2)
@@ -1358,17 +1401,17 @@ function drawStatements() {
   const U = userV();
   svg.append("g").selectAll("path").data(glyphs).join("path").attr("class", "sg")
     .attr("d", d => d3.symbol(d.s.vlm === "qwen" ? d3.symbolCircle : d3.symbolSquare, gsz * gsz * (d.s.vlm === "qwen" ? .85 : .7))())
-    .attr("transform", d => `translate(${d.x},${d.y})`).attr("fill", d => d.s.verdict === "contradicted" ? "var(--panel)" : VCOL(d.s.verdict))
-    .attr("stroke", d => d.s === st.stSel ? "var(--ink)" : d.s.verdict === "contradicted" ? "var(--bad)" : U[vid(d.s)] ? "var(--ink-2)" : "var(--panel)")
-    .attr("stroke-width", d => d.s === st.stSel ? 2 : d.s.verdict === "contradicted" ? 1.8 : 1)
+    .attr("transform", d => `translate(${d.x},${d.y})`).attr("fill", d => vOf(d.s) === "contradicted" ? "var(--panel)" : VCOL(vOf(d.s)))
+    .attr("stroke", d => d.s === st.stSel ? "var(--ink)" : vOf(d.s) === "contradicted" ? "var(--bad)" : U[vid(d.s)] ? "var(--ink-2)" : "var(--panel)")
+    .attr("stroke-width", d => d.s === st.stSel ? 2 : vOf(d.s) === "contradicted" ? 1.8 : 1)
     .style("cursor", "pointer")
-    .on("mousemove", (e, d) => showTip(e, `<b style="color:${VCOL(d.s.verdict)}">${d.s.verdict}</b><br>${esc(d.s.text)}<br><span style="color:var(--muted)">${d.s.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"}</span>`))
+    .on("mousemove", (e, d) => showTip(e, `<b style="color:${VCOL(vOf(d.s))}">${vOf(d.s)}</b>${vOf(d.s) !== d.s.verdict ? ` <span style="color:var(--muted)">(frozen analysis: ${d.s.verdict})</span>` : ""}<br>${esc(d.s.text)}<br><span style="color:var(--muted)">${d.s.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"}</span>`))
     .on("mouseleave", hideTip)
     .on("click", (e, d) => { st.stSel = d.s; pick(d.s.si >= 0 ? d.s.si : st.subj, d.s.aspect || st.aspect); drawStatements(); });
   // the selected statement, with the analyst's verdict
   if (st.stSel && all.includes(st.stSel)) {
     const d = host.append("div").attr("class", "stmt on").style("position", "absolute").style("left", "10px").style("right", "10px").style("bottom", "6px").style("background", "var(--panel)");
-    d.append("i").style("background", VCOL(st.stSel.verdict));
+    d.append("i").style("background", VCOL(vOf(st.stSel)));
     d.append("div").attr("class", "t").style("font-size", "12px").text(st.stSel.text);
     d.append("div").attr("class", "uv").selectAll("button").data([["ok", "✓"], ["no", "✗"]]).join("button").attr("class", b => b[0])
       .classed("on", b => U[vid(st.stSel)] === b[0]).text(b => b[1])
@@ -1398,7 +1441,7 @@ function trailClaim() {
   const a = ASP[AIDX[st.aspect]], si = st.subj, ai = 3 + AIDX[a.key], sc = META.scale[a.key];
   const stmt = st.stSel && st.stSel.A === st.A && st.stSel.B === st.B ? st.stSel : null;
   if (stmt) {
-    const v = stmt.verdict, l1 = v.startsWith("confirmed") ? "ok" : v === "contradicted" ? "bad" : v.startsWith("narrowed") ? "narrow"
+    const v = vOf(stmt), l1 = v.startsWith("confirmed") ? "ok" : v === "contradicted" ? "bad" : v.startsWith("narrowed") ? "narrow"
       : v === "audit: no shift" ? "still" : v === "aspect not validated here" ? "nv" : "none";
     return { src: stmt.vlm === "qwen" ? "●" : "■", srcName: stmt.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B", kind: "vlm", text: stmt.text,
       level: stmt.level, dir: stmt.dir, prop: stmt.prop, aspect: stmt.aspect || st.aspect, l1, vid: vid(stmt) };
@@ -1504,55 +1547,79 @@ function drawTrail() {
   stp.append("button").text("›").attr("title", "next seed").on("click", () => { st.trailK++; drawTrail(); });
   s4.append("div").attr("class", "uv").selectAll("button").data([["ok", "✓"], ["no", "✗"]]).join("button")
     .attr("class", b => b[0]).classed("on", b => st.trailUV === b[0]).text(b => b[1]).attr("title", b => b[0] === "ok" ? "the images support the reading" : "the images do not support it").on("click", (e, b) => { st.trailUV = st.trailUV === b[0] ? null : b[0]; drawTrail(); });
-  // saved trails
+  // a trail is saved into the findings log (header ☆), with the whole analysis state
   const bar = wrap.append("div").attr("class", "tbar");
-  bar.append("button").text("+ save trail").attr("title", "Save this trail with its view").on("click", () => {
-    const T = loadT();
-    T.unshift({ id: Date.now(), time: new Date().toISOString().slice(0, 16), A: st.A, B: st.B, aspect: st.aspect, subj: si, kind: C.kind, src: C.src,
-      text: C.text, level: C.level, vid: C.vid || null, trailK: st.trailK, seed: imA[1], l1: C.l1, l2, l3: st.trailUV || "",
-      set: [...st.set], ev: st.ev, mloc: M_LOC, mlr: M_LR, subjSel: st.subjSel ? [...st.subjSel] : null, seedSel: st.seedSel ? [...st.seedSel] : null });
-    saveT(T); drawTrail();
+  bar.append("button").text("+ save trail to findings").attr("title", "Save this trail with its view into the findings log (☆ in the header)").on("click", () => {
+    addRecord({ kind: C.kind, src: C.src, text: C.text, level: C.level, seed: imA[1], l1: C.l1, l2, l3: st.trailUV || "", vid: C.vid || null });
   });
-  bar.append("button").text("⤓").attr("title", "Download saved trails as CSV").on("click", exportTrails);
-  bar.append("span").text(`${loadT().length} saved`).attr("title", "The trail follows the current selection: a VLM statement (❝), a rewritten-prompt pair (dotted arrow), otherwise the aspect's axis");
-  const list = wrap.append("div").attr("class", "saved");
-  const sym = k => (LV[k] || LV.none);
-  const rows = list.selectAll("div.tr").data(loadT()).join("div").attr("class", "tr").on("click", (e, t) => { if (!e.target.classList.contains("x")) restoreTrail(t); });
-  rows.append("span").text(t => t.src);
-  rows.append("span").attr("class", "q").text(t => `${t.text}  ·  ${sh(G[t.A] || { id: t.A, label: t.A })} → ${sh(G[t.B] || { id: t.B, label: t.B })} · ${aspName(t.aspect)} · ${SUBJ[t.subj]?.name || ""}`).attr("title", t => t.text);
-  ["l1", "l2", "l3"].forEach(k => rows.append("span").attr("class", "s").style("background", t => sym(t[k] === "no" ? "bad" : t[k] || "none")[1]).text(t => sym(t[k] === "no" ? "bad" : t[k] || "none")[0]));
-  rows.append("span").style("color", "var(--muted)").text(t => t.time.slice(5).replace("T", " "));
-  rows.append("span").attr("class", "x").text("✕").attr("title", "delete").on("click", (e, t) => { saveT(loadT().filter(x => x.id !== t.id)); drawTrail(); });
+  bar.append("span").text("The trail follows the current selection: a VLM statement (❝), a rewritten-prompt pair (✎), otherwise the aspect's axis");
   later.forEach(f => f());
 }
-function restoreTrail(t) {
-  st.main = "trail"; panelControls(); buildMap();
-  st.stSel = t.vid ? (STATEMENTS || []).find(s => vid(s) === t.vid) || null : null;
-  st.trailK = t.trailK;
+// ---------------- findings log (insight provenance) ----------------
+// One record list for everything the analyst finds: a note written in any view (☆ in the header) or a saved audit
+// trail. Each record stores the whole analysis state (set and roles, aspect, subject, panel modes, margins, brushed
+// subjects and seeds, statement, seed step, map zoom), so a click replays the view in which the finding was made.
+function snapshot() {
+  return { set: [...st.set], A: st.A, B: st.B, aspect: st.aspect, subj: st.subj, main: st.main, ev: st.ev, mloc: M_LOC, mlr: M_LR,
+    subjSel: st.subjSel ? [...st.subjSel] : null, seedSel: st.seedSel ? [...st.seedSel] : null, vid: st.stSel ? vid(st.stSel) : null,
+    trailK: st.trailK, zt: OVS.zt && (OVS.zt.k !== 1 || OVS.zt.x || OVS.zt.y) ? { k: OVS.zt.k, x: OVS.zt.x, y: OVS.zt.y } : null };
+}
+function addRecord(r) {
+  const T = loadT(); T.unshift({ ...snapshot(), ...r, id: Date.now(), time: new Date().toISOString().slice(0, 16) }); saveT(T); drawFindings();
+}
+function restoreRecord(t) {
+  st.main = t.main || "trail"; st.trailK = t.trailK ?? 0;
   if (t.set) st.set = t.set.filter(g => G[g]);
-  if (t.mloc) { M_LOC = t.mloc; M_LR = t.mlr; }
+  M_LOC = t.mloc ?? PRE_LOC; M_LR = t.mlr ?? PRE_LR;
   if (t.ev) st.ev = t.ev;
+  panelControls(); buildMap();
+  st.stSel = t.vid ? (STATEMENTS || []).find(s => vid(s) === t.vid) || null : null;
   setPair(t.A, t.B); pick(t.subj, t.aspect);
-  if (t.mloc) marginsChanged();
+  marginsChanged();
   st.subjSel = t.subjSel ? new Set(t.subjSel) : null; st.seedSel = t.seedSel ? new Set(t.seedSel) : null; st.seedSubj = t.subj;
-  panelControls(); subjHL(); seedHL();
-  st.trailUV = t.l3 || null; drawTrail();
+  if (t.zt && st.main === "map") { OVS.zt = d3.zoomIdentity.translate(t.zt.x, t.zt.y).scale(t.zt.k); OVS.svg?.property("__zoom", OVS.zt); drawMap(false, true); }
+  panelControls(); subjHL(); seedHL(); drawStrip();
+  if (st.main === "trail") { st.trailUV = t.l3 || null; drawTrail(); }
 }
-function exportTrails() {
-  const T = loadT(), cols = ["time", "kind", "text", "A", "B", "set", "aspect", "subject", "level", "seed", "margin_loc", "margin_spread", "claim_to_measure", "measure_to_subject", "analyst"];
-  const csv = [cols.join(",")].concat(T.map(t => [t.time, t.kind, t.text, t.A, t.B, (t.set || [t.A, t.B]).join(" "), t.aspect, SUBJ[t.subj]?.name, t.level, t.seed, t.mloc ?? PRE_LOC, t.mlr ?? PRE_LR,
-    (LV[t.l1] || LV.none)[2], (LV[t.l2] || LV.none)[2], t.l3 === "ok" ? "supported" : t.l3 === "no" ? "not supported" : ""]
+function exportFindings() {
+  const T = loadT(), cols = ["time", "kind", "text", "reference", "focus", "set", "aspect", "subject", "view", "evidence", "level", "seed", "margin_loc", "margin_spread", "brushed_subjects", "claim_to_measure", "measure_to_subject", "analyst"];
+  const csv = [cols.join(",")].concat(T.map(t => [t.time, t.kind, t.text, t.A, t.B, (t.set || [t.A, t.B]).join(" "), t.aspect, SUBJ[t.subj]?.name, t.main || "trail", t.ev || "", t.level || "", t.seed ?? "",
+    t.mloc ?? PRE_LOC, t.mlr ?? PRE_LR, (t.subjSel || []).map(i => SUBJ[i]?.name).join("; "),
+    t.kind === "note" ? "" : (LV[t.l1] || LV.none)[2], t.kind === "note" ? "" : (LV[t.l2] || LV.none)[2], t.l3 === "ok" ? "supported" : t.l3 === "no" ? "not supported" : ""]
     .map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","))).join("\n");
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "audit_trails.csv"; a.click();
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "audit_findings.csv"; a.click();
 }
-
+function drawFindings() {
+  const T = loadT();
+  d3.select("#findBtn").text(`☆ ${T.length}`);
+  const dr = d3.select("#findDrawer"); if (dr.style("display") === "none") return;
+  dr.selectAll("*").remove();
+  const top = dr.append("div").attr("class", "fhead");
+  top.append("b").text("Findings");
+  top.append("span").text(`${T.length} recorded`);
+  top.append("button").attr("class", "mini").text("⤓").attr("title", "Download the findings as CSV").on("click", exportFindings);
+  top.append("button").attr("class", "mini").text("✕").attr("title", "Close").on("click", () => { dr.style("display", "none"); });
+  const ta = dr.append("textarea").attr("placeholder", "What did you find in this view? (saved with the whole view: set, aspect, subject, margins, selections)");
+  dr.append("button").attr("class", "chipbtn").style("margin", "4px 0 8px").text("+ record finding").on("click", () => {
+    const v = ta.property("value").trim(); if (v) addRecord({ kind: "note", src: "☆", text: v });
+  });
+  const sym = k => (LV[k] || LV.none);
+  const rows = dr.append("div").selectAll("div.fr").data(T).join("div").attr("class", "fr")
+    .on("click", (e, t) => { if (!e.target.classList.contains("x")) { restoreRecord(t); } });
+  rows.append("span").attr("class", "src").text(t => t.src);
+  const mid = rows.append("div");
+  mid.append("div").attr("class", "q").text(t => t.text);
+  mid.append("div").attr("class", "ctx").text(t => `${sh(G[t.A] || { id: t.A, label: t.A })} → ${sh(G[t.B] || { id: t.B, label: t.B })}${(t.set || []).length > 2 ? ` (+${t.set.length - 2})` : ""} · ${aspName(t.aspect)} · ${SUBJ[t.subj]?.name || ""} · ${t.time.slice(5).replace("T", " ")}`);
+  rows.append("span").attr("class", "vs").html(t => t.kind === "note" ? "" : ["l1", "l2", "l3"].map(k => { const v = sym(t[k] === "no" ? "bad" : t[k] || "none"); return `<i style="background:${v[1]}" title="${v[2]}">${v[0]}</i>`; }).join(""));
+  rows.append("span").attr("class", "x").text("✕").attr("title", "delete").on("click", (e, t) => { saveT(loadT().filter(x => x.id !== t.id)); drawFindings(); });
+}
 
 const vid = s => [s.vlm, s.A, s.B, s.level, s.si, s.text].join("|");
 function userV() { try { return JSON.parse(localStorage.getItem("auditUserVerdicts") || "{}"); } catch (e) { return {}; } }
 function saveV(U) { try { localStorage.setItem("auditUserVerdicts", JSON.stringify(U)); } catch (e) { /* storage unavailable */ } }
 function exportVerdicts() {
-  const U = userV(), rows = (STATEMENTS || []).filter(s => U[vid(s)]).map(s => [s.vlm, s.A, s.B, s.level, s.si >= 0 ? SUBJ[s.si].name : "", s.text, s.verdict, U[vid(s)]]);
-  const csv = [["vlm", "A", "B", "level", "subject", "statement", "audit_verdict", "user_verdict"], ...rows]
+  const U = userV(), rows = (STATEMENTS || []).filter(s => U[vid(s)]).map(s => [s.vlm, s.A, s.B, s.level, s.si >= 0 ? SUBJ[s.si].name : "", s.text, s.verdict, vOf(s), M_LOC, M_LR, U[vid(s)]]);
+  const csv = [["vlm", "A", "B", "level", "subject", "statement", "audit_verdict_frozen", "audit_verdict_now", "margin_loc", "margin_spread", "user_verdict"], ...rows]
     .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "statement_verdicts.csv"; a.click();
 }
@@ -1691,6 +1758,8 @@ function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(fa
 d3.select("body").classed("fig", st.fig);
 header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
 d3.select("#zoomReset").on("click", resetZoom);
+d3.select("#findBtn").on("click", () => { const dr = d3.select("#findDrawer"); dr.style("display", dr.style("display") === "none" ? null : "none"); drawFindings(); });
+drawFindings();
 [["#mapCard h2", "A"], ["#matrixCard h2", "B"], ["#ridgeCard h2", "D"], ["#stripCard", "C"]].forEach(([sel, l]) => {
   const h = sel === "#stripCard" ? d3.select("#stripName") : d3.select(sel);
   if (sel !== "#stripCard") { const sp = document.createElement("span"); sp.className = "pl"; sp.textContent = l; h.node().prepend(sp); }
