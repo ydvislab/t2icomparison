@@ -44,7 +44,7 @@ PAGE = {"tool": "audit/index.html", "baseline": "audit/baseline.html"}
 SETUP = {"tool": "In the header: left selector = A, right selector = B; aspect buttons on the right. Subject: selector in panel D.",
          "baseline": "Selectors at the top: A, B, subject, aspect."}
 TRAIN_SHOW = {
-    "tool": ["header: A, B, the declared settings that differ (chip next to + compare), the aspect buttons (struck through = not validated by people for this pair)",
+    "tool": ["header: reference and focus, the declared settings that differ (chip next to + add), the encoder switch (CLIP | SigLIP 2; tasks use CLIP), the aspect buttons (struck through = not validated by people for this pair)",
              "panel A, map (◎): where each configuration settles (x) and how tightly (y); click = choose B, shift-click = add to the comparison set; zoom with the wheel",
              "panel E: the contrast scatter of every aspect, one dot per subject; the shaded band is the margin; the diamond is the pooled contrast",
              "panel B: subjects × configurations; panel C: the images of one subject placed on the aspect axis (A above, B below)",
@@ -81,30 +81,31 @@ def sheet(e):
              "baseline": {t: OTHER[k] for t, k in zip(["T1", "T2", "T3", "T4"], tool_cases)}}
     title = "Pilot session (order of E1; answers are not analysed)" if e == "P" else f"Session sheet {e}"
     s = [f"# {title}", "",
-         f"First condition: **{first}**, then **{second}**. Tasks within a condition run T1 → T4. Up to about 75 minutes.", "",
+         f"First condition: **{first}**, then **{second}**. Tasks within a condition run T1 → T4. About 60 minutes.", "",
          "Expected answers are not on this sheet (they are in `docs/EXPERT_SESSION.md` and are not shown to the expert).", "",
          "## Before the session",
          "- The expert has unzipped `expert_offline_package.zip` and has Chrome or Edge; screen sharing and recording work.",
          "- Consent form signed under the approved ethics protocol.",
          "- The expert should not open either page before you ask.", "",
          "## 0. Consent and background (3 min)",
-         "- **Read aloud:** 这次测试大约 75 分钟。我们会请你用两个页面完成几道判断题，没有标准的操作方式，请边做边把想法说出来。我们评价的是工具，不是你。全程录屏，记录中不出现你的名字。",
+         "- **Read aloud:** 这次测试大约 60 分钟。我们会请你用两个页面完成几道判断题，没有标准的操作方式，请边做边把想法说出来。我们评价的是工具，不是你。全程录屏，记录中不出现你的名字。",
          "- **Record:** role; years in imaging or graphics research; years with generative image models; experience with CLIP-based metrics (none / some / regular); prior involvement with this project (none / saw a demo / contributed).", ""]
     order = 0
     for part, cond in ((1, first), (2, second)):
         s += [f"## Part {part}: {cond} (open `{PAGE[cond]}`)", "",
-              f"### Training (up to 8 min, not scored)",
+              f"### Training (up to 6 min, not scored)",
               f"- **Set up:** A = `klein 4B`, B = `klein 4B · FLUX.2 rewrite`, aspect = `saturation`, subject = `a kitchen`.",
               "- **Show, in this order:**"]
         s += [f"  {i + 1}. {x}" for i, x in enumerate(TRAIN_SHOW[cond])]
         s += ["- Let the expert try one free question on this case; answer questions about what a view shows, not about what the case means.", "",
-              "### Tasks (about 6 min each; at 8 min ask for a final answer)",
+              "### Tasks (about 5 min each; at 7 min ask for a final answer)",
               "- Remind the expert once: 请边做边说出你在看什么、为什么这样判断。",
+              "- The questions refer to the CLIP measurement (the default). In the tool, if the expert switches to SigLIP 2, ask for the final answer under CLIP and note what changed.",
               "- If the expert asks what a view means, repeat only what was said in training. Give no hint about the answer.", ""]
         for t in ["T1", "T2", "T3", "T4"]:
             order += 1
             s.append(trial_block(cond, order, t, cases[cond][t]))
-    s += ["## Interview (8 min)",
+    s += ["## Interview (6 min)",
           "1. 哪些结论如果只看表格和图片网格，你可能会判断错？为什么？ — *Which reading would you have got wrong with the table and grid alone? Why?*",
           "2. 你什么时候去看了原图？看图改变了你的答案吗？ — *When did you go to the images, and did that change your answer?*",
           "3. 你会相信 VLM 对两个模型差别的描述吗？需要核对什么？ — *Would you trust a VLM's description of how two models differ? What would you need to check?*",

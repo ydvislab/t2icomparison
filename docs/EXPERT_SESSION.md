@@ -14,7 +14,7 @@ The expected answers below come from the frozen analyses. They are fixed before 
 | **T3** can this reading be trusted? | "Here is a reading: [claim]. Can it be trusted? Why or why not?" | "Raising Qwen-Image's guidance from 1 to 4 makes its tone more modern." | "Distilling SDXL into SDXL-Turbo makes backgrounds busier for some subjects and plainer for others." | **a:** not trustworthy as stated. Tone is **not validated by people on the Qwen-Image configurations** (round 2), so the measurement cannot support the claim. **b:** the per-subject pattern is real, but it **cannot be attributed to distillation**, because five declared settings differ (checkpoint, scheduler, steps, guidance, resolution). (`annotation/PROTOCOL.md` §7; `docs/PROVENANCE.md`) |
 | **T4** verify a language claim | "A VLM looked at 8 images of A and 8 of B and said: [statement]. Is it correct? Show the evidence." | SDXL → Turbo, "a restaurant": *"Set B images include more detailed architectural elements such as arched windows and ornate moldings, which are less prominent in set A."* | SDXL → Turbo, "a car": *"Set B images have a more sepia tone and muted color palette."* | **a:** **incorrect.** The restaurant backgrounds become much plainer (−1.68) and less varied (×0.12). **b:** **correct.** Tone moves toward vintage (+1.44) and saturation toward muted (−1.47). (`results/q5/truth.csv`) |
 
-**Training case** (not scored; one per condition, at most 8 minutes each): klein 4B, original prompt → FLUX.2 rewrite, **saturation**, "a kitchen". Saturation is validated on both sides; the earlier choice, background, fails round 3 on rewritten images. It shows the image axis, scatter, matrix and statements in the tool, and the tables, grid and texts in the baseline.
+**Training case** (not scored; one per condition, at most 6 minutes each): klein 4B, original prompt → FLUX.2 rewrite, **saturation**, "a kitchen". Saturation is validated on both sides; the earlier choice, background, fails round 3 on rewritten images. It shows the image axis, scatter, matrix and statements in the tool, and the tables, grid and texts in the baseline.
 
 ## 2. Counterbalancing (five experts)
 - Each expert does every task twice: once with the tool and once with the baseline, on different cases.
@@ -30,15 +30,15 @@ The expected answers below come from the frozen analyses. They are fixed before 
 
 Within a condition, the tasks run in the order T1, T2, T3, T4.
 
-## 3. Session script (up to about 75 minutes; timing checked in a pilot session)
+## 3. Session script (about 60 minutes; timing checked in a pilot session)
 1. **Consent and background (3 min):** role, years with generative models, experience with CLIP-based metrics. Record as E1–E5 only.
-2. **Training (up to 8 min per condition)** on the training case, directly before that condition's tasks.
-3. **Tasks (about 6 min each), with think-aloud.** For each trial, record:
+2. **Training (up to 6 min per condition)** on the training case, directly before that condition's tasks.
+3. **Tasks (about 5 min each; a final answer is asked for at 7 min), with think-aloud.** For each trial, record:
    - the answer;
    - the evidence cited (views, images);
    - confidence (1–5);
    - the time.
-4. **Interview (8 min):**
+4. **Interview (6 min):**
    - Which reading would you have got wrong with the table and grid alone? Why?
    - When did you go to the images, and did that change your answer?
    - Would you trust a VLM's description of how two models differ? What would you need to check?
@@ -62,7 +62,7 @@ expert,condition,order,task,case,answer,correct,evidence,confidence,seconds,note
 - **Participants.**
   - At least two of the five experts should come from outside the authors' group. If that is not possible, the paper says so.
   - For each expert, record prior involvement with this project: none / saw a demo / contributed.
-- **Pilot.** One pilot session with a person who is not among the five, to check timing (up to 75 minutes), wording and the training case. The pilot's answers are not analysed.
+- **Pilot.** One pilot session with a person who is not among the five, to check timing (about 60 minutes), wording and the training case. The pilot's answers are not analysed.
 - **Blinded judging.** A second judge, who does not know which condition produced an answer, scores every answer from the recording sheet by the rules of section 4. Agreement between the two judges is reported, and disagreements are resolved by discussion and listed.
 - **Independence of the answers.** The expected answers come from the frozen analyses. The tool displays the same audit, so with the tool correctness partly means "read the audit correctly". This is stated in the paper. The baseline shows the same numbers (pooled intervals, per-subject box plots, sortable images), so the comparison isolates the visual encoding and linking, not access to the numbers.
 - **Claims.** Results are reported as a formative study with descriptive counts (correct answers out of five per task and condition, evidence cited, confidence) and interview themes. There are no statistical or general effectiveness claims.
@@ -80,3 +80,9 @@ expert,condition,order,task,case,answer,correct,evidence,confidence,seconds,note
   - The sheets do not contain the expected answers.
   - `sessions_template.csv` has the eight pre-filled rows per expert.
 - **Setup by the moderator.** Before reading a question, the moderator sets A, B and the aspect (and the subject for T4), so that navigation time is not counted and the configuration names do not need to be found.
+
+## 7. Revision for the PacificVis paper (2026-10-26, before any session)
+- **Role in the paper.** The study tests whether visual analysis helps experts avoid the failures reported in the paper (numbers alone, language alone, eyes alone). Each task targets one failure: T1 shift or narrowing (F1c), T2 pooled or per subject (F1b), T3 trust a reading (F1a), T4 verify a VLM statement (F2). The tool-versus-baseline design is kept, because only a comparison with the same numbers and images shows what the visualization adds.
+- **Length.** About 60 minutes: training up to 6 minutes per condition, tasks about 5 minutes each, interview 6 minutes. The pilot checks this.
+- **Encoder.** The tool now has an encoder switch (CLIP | SigLIP 2). The expected answers are CLIP results, and the baseline shows CLIP only. Questions refer to the CLIP measurement; an expert who switches is asked for the final answer under CLIP, and the switch is noted as an observation.
+- **Package.** The offline package is rebuilt from the final tool before the pilot. User-defined aspects are not part of the tasks, so the package can still be opened from disk.

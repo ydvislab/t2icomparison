@@ -22,15 +22,16 @@ Language now measures, changes and explains the appearance defaults of text-to-i
 | Statistical figures (Q1, validation, Q5) | done | `docs/manuscript/figures/` |
 | External review of manuscript v2 | done 2026-10-22: reject today, major revision likely after pending work | `REVIEW_2026-10-22.md` |
 
-## 3. Running now (2026-10-26)
-- **User-defined aspects with an in-tool check** (`PACIFICVIS_PLAN.md`): in-browser CLIP text encoder; the fidelity test against PyTorch (cosine ≥ 0.99) has not passed yet.
-- **PacificVis draft** (`docs/manuscript/pacificvis/paper_pvis_en.md`): first full draft; numbers checked against the result files on 2026-10-26; references 19–25 verified.
+## 3. Done on 2026-10-26
+- **Audit tool:** user-defined aspects with an in-tool check (bundled CLIP text encoder, ONNX fp16, cosine 1.0000 to PyTorch; self-check on first use) and an encoder switch (CLIP | SigLIP 2, with each encoder's scale and validity). Deployed on the server build.
+- **PacificVis draft 3** (`docs/manuscript/pacificvis/`, English and Chinese): the experiments are organised as three failure modes of judging without visual analysis; Table 3 links each failure to a requirement, a design, a case and an expert task.
+- **Expert study:** tool versus baseline, about 60 minutes (`EXPERT_SESSION.md` section 7, sheets regenerated).
 
 ## 4. Missing before submission (paper 2026-11-09; abstract 2026-11-02)
 1. **Owner:** authors and affiliations; single- or double-blind; abstract registration in PCS by 11-02.
-2. **Expert study:** the draft (§7, 45-minute open exploration) and `EXPERT_SESSION.md` with the sheets (75 minutes, tool vs. baseline, T1–T4) disagree; one design must be chosen, then the offline package rebuilt with the final tool and the sheets updated.
-3. **User-defined aspects:** finish, pass the fidelity test, run scenario 6.5 on real data.
-4. **Scenarios 6.1–6.4 on real data:** fill the bracketed subjects and statements; decide whether the tool gets a seed-split null contrast (6.4 step 4).
-5. **Figures:** teaser, interface, set across views, three scenario figures (real-data screenshots).
-6. **VGTC LaTeX** (no TeX locally: tectonic or Overleaf), page fit to 9 + 2, AI-use disclosure.
+2. **Expert sessions:** five experts and a pilot, a blinded second judge; the offline package is rebuilt from the final tool before the pilot.
+3. **Case 6.5:** the owner's own in-tool check of a user-defined aspect on real data.
+4. **Cases 6.1–6.4:** the bracketed details read on real data; screenshots.
+5. **Figures:** teaser, framework, failure evidence, interface, two case figures.
+6. **VGTC LaTeX** (tectonic or Overleaf), page fit to 9 + 2, abstract shortened, AI-use disclosure.
 7. Owner's coder check of `results/q5/coding_check_sample.csv` (464 statements).
