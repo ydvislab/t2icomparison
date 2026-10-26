@@ -266,6 +266,17 @@ g.axi.dim { opacity: .16; }
 #findDrawer .fr .q { font-size: 13px; color: var(--ink); } #findDrawer .fr .ctx { font-size: 11px; color: var(--muted); }
 #findDrawer .fr .vs { display: flex; gap: 2px; } #findDrawer .fr .vs i { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 10px; font-style: normal; }
 #findDrawer .fr .x { color: var(--muted); }
+/* user-defined aspects: definition and in-tool check */
+.dlg { position: fixed; top: 56px; left: 50%; transform: translateX(-50%); width: min(620px, 94vw); max-height: 84vh; overflow: auto; background: var(--panel);
+  border-radius: 14px; box-shadow: 0 10px 30px rgba(16,24,40,.18); padding: 12px 14px; z-index: 8; font-size: 13px; color: var(--ink-2); }
+.dlg .fhead { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; } .dlg .fhead b { font-size: 14px; color: var(--ink); margin-right: auto; }
+.dlg label { display: grid; grid-template-columns: 80px 1fr; gap: 8px; align-items: center; margin: 4px 0; }
+.dlg input { font: inherit; border: 1px solid var(--grid); border-radius: 8px; padding: 5px 8px; background: var(--page); color: var(--ink); }
+.dlg .st { min-height: 18px; margin: 6px 0; color: var(--muted); } .dlg .st.bad { color: var(--bad); }
+.dlg .ul { display: grid; grid-template-columns: 1fr auto auto; gap: 4px 8px; align-items: center; margin-top: 8px; border-top: 1px solid var(--grid); padding-top: 8px; }
+.dlg .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; } .dlg .pair img { width: 100%; aspect-ratio: 1; border-radius: 8px; display: block; }
+.dlg .ans { display: flex; gap: 6px; justify-content: center; }
+.seg button.user { font-style: italic; }
 /* tooltip */
 .tip { position: fixed; pointer-events: none; background: var(--panel); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(16,24,40,.18);
   display: none; z-index: 9; font-size: 13px; color: var(--ink-2); max-width: 300px; }
@@ -292,6 +303,7 @@ g.axi.dim { opacity: .16; }
   <aside id="side"></aside>
 </main>
 <div id="findDrawer" style="display:none"></div>
+<div id="uaDlg" class="dlg" style="display:none"></div>
 <div class="tip" id="tip"></div>
 <script src="d3.min.js"></script>
 <script src="data.js"></script>
@@ -348,10 +360,11 @@ function setChips() {
   host.select("select").raise();
 }
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
-const aspName = k => k === "sat" ? "saturation" : k === "bg" ? "background" : k;
+const aspName = k => ASP.find(a => a.key === k)?.name || (k === "sat" ? "saturation" : k === "bg" ? "background" : k);
 // validated aspects of a configuration pair (META.validity: annotation rounds 1-3); unknown groups count as validated
 const valid = (k, A = st.A, B = st.B) => [A, B].every(g => (META.validity?.[g]?.aspects ?? []).includes(k));   // unknown counts as not validated
-const nvTitle = (A = st.A, B = st.B) => `not validated by people on these configurations (${[...new Set([A, B].map(g => META.validity?.[g]?.set ?? "validity unknown"))].join(", ")})`;
+const nvTitle = (A = st.A, B = st.B, k = st.aspect) => ASP.find(a => a.key === k)?.user ? "defined by you and not yet passed your check on these configurations (+ → check on set)"
+  : `not validated by people on these configurations (${[...new Set([A, B].map(g => META.validity?.[g]?.set ?? "validity unknown"))].join(", ")})`;
 const box = sel => { const n = d3.select(sel).node(); return { w: n.clientWidth, h: n.clientHeight }; };
 const fd = d3.format("+.2f"), fr = v => "×" + d3.format(".2f")(Math.exp(v)), f2 = d3.format(".2f");
 
@@ -422,10 +435,14 @@ function panelControls() {
 }
 // aspect buttons choose the aspect for every view; struck through when people have not validated it for the pair
 function aspectSeg() {
-  d3.select("#aspSeg").selectAll("button").data(RET).join("button").text(a => aspName(a.key))
-    .classed("on", a => a.key === st.aspect).classed("nv", a => !valid(a.key))
-    .attr("title", a => valid(a.key) ? null : nvTitle())
+  const seg = d3.select("#aspSeg");
+  seg.selectAll("button.asp").data(RET, a => a.key).join("button").attr("class", "asp").text(a => aspName(a.key))
+    .classed("on", a => a.key === st.aspect).classed("nv", a => !valid(a.key)).classed("user", a => !!a.user)
+    .attr("title", a => [a.user ? `${a.left} ↔ ${a.right}` : null, valid(a.key) ? null : nvTitle(st.A, st.B, a.key)].filter(Boolean).join("\n") || null)
     .on("click", (e, a) => pick(st.subj, a.key));
+  seg.selectAll("button.uadd").data([0]).join("button").attr("class", "uadd").text("+")
+    .attr("title", "Define an aspect in words; it counts as validated only after you check it on the configurations in the set")
+    .on("click", () => uaOpen()).raise();
 }
 function diffChips() {
   const a = G[st.A].settings, b = G[st.B].settings;
@@ -1614,6 +1631,169 @@ function drawFindings() {
   rows.append("span").attr("class", "x").text("✕").attr("title", "delete").on("click", (e, t) => { saveT(loadT().filter(x => x.id !== t.id)); drawFindings(); });
 }
 
+// ---------------- user-defined aspects ----------------
+// An analyst defines an aspect by two pole phrases. The phrases are embedded in the browser with the same CLIP ViT-L/14
+// text encoder as the frozen aspects (ONNX fp16 export, bundled in vendor/; it matches PyTorch at cosine 1.0000), and
+// every image is scored from its stored image embedding (emb.bin) as cos(image, right) − cos(image, left), exactly as
+// the frozen scores. The scale follows the frozen definition (square root of the mean within-cell variance over the
+// subject × configuration cells of the scale configurations). The aspect enters every view at once but counts as
+// validated only for the configurations on which the analyst has checked it: 12 large-gap pairs from the set, sampled
+// as in round 1 (one image from a subject's top 15%, one from its bottom 15%, pooled over the set members), judged
+// blind, with the frozen acceptance rule (agreement ≥ 0.75 on decided pairs, "can't tell" ≤ 0.40).
+const UA = { enc: null, E: null, S: null, off: null, n: 0, checked: null };
+const UA_RULE = { agree: .75, cant: .40, n: 12 };
+function uaLoad() { try { return JSON.parse(localStorage.getItem("auditUserAspects") || "[]"); } catch (e) { return []; } }
+function uaSave(L) { try { localStorage.setItem("auditUserAspects", JSON.stringify(L)); return true; } catch (e) { return false; } }
+// row offset of every group and subject in emb.bin (groups in META order, subjects, rows in SCORES order)
+function uaOffsets() {
+  if (UA.off) return UA.off;
+  UA.off = {}; let i = 0;
+  for (const g of META.groups) UA.off[g.id] = SUBJ.map((_, si) => { const o = i; i += SCORES[g.id][si].length; return o; });
+  UA.n = i; return UA.off;
+}
+function uaInstall(u) {
+  const a = { key: u.key, name: u.name, left: u.left, right: u.right, retained: true, user: true };
+  ASP.push(a); RET.push(a); AIDX[u.key] = ASP.length - 1;
+  const ai = 3 + AIDX[u.key], off = uaOffsets();
+  for (const g of META.groups) SCORES[g.id].forEach((rows, si) => rows.forEach((r, i) => { r[ai] = u.scores[off[g.id][si] + i]; }));
+  const v = [];
+  for (const g of META.scale_groups) (SCORES[g] || []).forEach(rows => { if (rows.length > 1) v.push(d3.variance(rows, r => r[ai])); });
+  META.scale[u.key] = Math.sqrt(d3.mean(v));
+  if (u.check?.pass) for (const g of u.check.members) META.validity[g]?.aspects.push(u.key);
+}
+function uaRestore() { uaOffsets(); for (const u of uaLoad()) if (u.scores?.length === UA.n) uaInstall(u); }
+const h2f = h => { const s = h & 0x8000 ? -1 : 1, e = (h >> 10) & 31, f = h & 1023; return e === 0 ? s * 2 ** -14 * (f / 1024) : e === 31 ? s * Infinity : s * 2 ** (e - 15) * (1 + f / 1024); };
+async function uaEncoder(say) {
+  if (UA.enc) return UA.enc;
+  const base = new URL("vendor/", location.href).href;
+  say("Loading the CLIP text encoder (about 250 MB from this folder, once per session) …");
+  const T = await import(base + "transformers.min.js");
+  Object.assign(T.env, { allowRemoteModels: false, allowLocalModels: true, localModelPath: base + "models/" });
+  T.env.backends.onnx.wasm.wasmPaths = base; T.env.backends.onnx.wasm.numThreads = 1;
+  const tok = await T.AutoTokenizer.from_pretrained("clip-vit-large-patch14");
+  const model = await T.CLIPTextModelWithProjection.from_pretrained("clip-vit-large-patch14",
+    { dtype: "fp16", device: "wasm", session_options: { graphOptimizationLevel: "disabled" } });
+  UA.enc = async texts => {
+    const out = [];
+    for (const t of texts) {
+      const { text_embeds: e } = await model(tok([t], { padding: true, truncation: true }));
+      const v = e.data instanceof Uint16Array ? Array.from(e.data, h2f) : Array.from(e.data), n = Math.hypot(...v);
+      out.push(Float32Array.from(v, x => x / n));
+    }
+    return out;
+  };
+  return UA.enc;
+}
+async function uaEmb(say) {
+  if (UA.E) return;
+  say("Loading the image embeddings …");
+  const [a, b] = await Promise.all(["emb.bin", "emb_scale.bin"].map(f => fetch(f).then(r => { if (!r.ok) throw new Error(`${f} is missing`); return r.arrayBuffer(); })));
+  UA.E = new Int16Array(a); UA.S = new Float32Array(b);
+  if (UA.S.length !== UA.n || UA.E.length !== UA.n * META.emb.dim) throw new Error("the embeddings do not match the scores of this build");
+}
+function uaScore(tl, tr) {
+  const d = META.emb.dim, w = Float32Array.from(tr, (x, j) => x - tl[j]), out = new Array(UA.n);
+  for (let i = 0; i < UA.n; i++) { let s = 0; const o = i * d; for (let j = 0; j < d; j++) s += UA.E[o + j] * w[j]; out[i] = Math.round(s * UA.S[i] * 1e5) / 1e5; }
+  return out;
+}
+// on first use, the in-browser encoder must reproduce the stored saturation scores of every image
+async function uaSelfCheck() {
+  if (UA.checked) return;
+  const a = ASP.find(x => x.key === "sat"), [tl, tr] = await UA.enc([a.left, a.right]), sc = uaScore(tl, tr), ai = 3 + AIDX.sat, off = uaOffsets();
+  let worst = 0;
+  for (const g of META.groups) SCORES[g.id].forEach((rows, si) => rows.forEach((r, i) => { worst = Math.max(worst, Math.abs(sc[off[g.id][si] + i] - r[ai]) / META.scale.sat); }));
+  if (worst > .05) throw new Error(`Encoder self-check failed: saturation differs by up to ${worst.toFixed(3)} scale units from the stored scores.`);
+  UA.checked = `Encoder self-check passed: the stored saturation scores of all ${UA.n.toLocaleString()} images are reproduced within ${worst.toFixed(3)} scale units.`;
+}
+function uaOpen() {
+  const dlg = d3.select("#uaDlg").style("display", null); dlg.selectAll("*").remove();
+  const top = dlg.append("div").attr("class", "fhead"); top.append("b").text("Define an aspect in words");
+  top.append("button").attr("class", "mini").text("✕").on("click", () => dlg.style("display", "none"));
+  dlg.append("div").text("Two pole phrases, scored with the same CLIP text encoder as the five aspects. The aspect enters every view at once, marked as not validated until it passes your check on the configurations in the set.");
+  const L = dlg.append("label"); L.append("span").text("left pole"); const il = L.append("input").attr("placeholder", "a scene in daylight");
+  const Rr = dlg.append("label"); Rr.append("span").text("right pole"); const ir = Rr.append("input").attr("placeholder", "a scene at night");
+  const N = dlg.append("label"); N.append("span").text("short name"); const inm = N.append("input").attr("placeholder", "night");
+  const stl = dlg.append("div").attr("class", "st"), say = (t, bad) => stl.classed("bad", !!bad).text(t);
+  const go = dlg.append("button").attr("class", "chipbtn").text("score all images");
+  if (location.protocol === "file:") { go.attr("disabled", true); say("This needs the folder served over http. In the folder that holds index.html, run:  python -m http.server 8000   then open http://localhost:8000/", true); }
+  else if (!META.emb) { go.attr("disabled", true); say("This build has no image embeddings (rebuild with system/audit/build.py).", true); }
+  else if (UA.checked) say(UA.checked);
+  go.on("click", async () => {
+    const left = il.property("value").trim(), right = ir.property("value").trim();
+    if (!left || !right) return say("Enter both poles.", true);
+    if (RET.filter(a => a.user).length >= 3) return say("At most three user-defined aspects at a time; delete one first.", true);
+    go.attr("disabled", true);
+    try {
+      await uaEmb(say); await uaEncoder(say); say("Checking the encoder against the stored scores …"); await uaSelfCheck();
+      say("Scoring all images …");
+      const [tl, tr] = await UA.enc([left, right]);
+      const key = "u" + Date.now().toString(36), name = inm.property("value").trim() || right.split(" ").slice(-2).join(" ");
+      const u = { key, name, left, right, scores: uaScore(tl, tr), check: null, created: new Date().toISOString().slice(0, 16) };
+      uaInstall(u);
+      const Ls = uaLoad(); Ls.push(u);
+      const kept = uaSave(Ls);
+      buildScatters(); update(); pick(st.subj, key); uaOpen();
+      if (!kept) d3.select("#uaDlg .st").classed("bad", true).text("Scored, but this browser could not store the aspect; it will be gone after a reload.");
+    } catch (e) { say(e.message || String(e), true); go.attr("disabled", null); }
+  });
+  const us = uaLoad();
+  if (us.length) {
+    const ul = dlg.append("div").attr("class", "ul");
+    for (const u of us) {
+      const c = u.check;
+      ul.append("div").html(`<i>${esc(u.name)}</i> · ${esc(u.left)} ↔ ${esc(u.right)}<br><span style="color:var(--muted)">${c ? `${c.pass ? "✓ passed" : "✗ failed"} on ${c.members.map(g => sh(G[g] || { id: g, label: g })).join(", ")}: agreement ${f2(c.agree)}, can't tell ${f2(c.cant)}` : "not checked"}</span>`);
+      ul.append("button").attr("class", "chipbtn").text("check on set").attr("title", "Judge 12 large-gap image pairs from the configurations in the set").on("click", () => uaCheck(u.key));
+      ul.append("button").attr("class", "mini").text("✕").attr("title", "Delete (reloads the page)").on("click", () => { uaSave(uaLoad().filter(x => x.key !== u.key)); location.reload(); });
+    }
+  }
+}
+function uaPairs(key) {
+  const ai = 3 + AIDX[key], members = SET(), rand = rng([...(key + members.join())].reduce((h, c) => Math.imul(h, 31) + c.charCodeAt(0) | 0, 7));
+  const order = SUBJ.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  return order.slice(0, UA_RULE.n).map(si => {
+    const pool = members.flatMap(g => SCORES[g][si].map(r => ({ g, r, v: r[ai] }))).sort((x, y) => x.v - y.v), k = Math.max(1, Math.floor(pool.length * .15));
+    const lo = pool[Math.floor(rand() * k)], hi = pool[pool.length - 1 - Math.floor(rand() * k)], flip = rand() < .5;
+    return { si, L: flip ? hi : lo, R: flip ? lo : hi, clip: flip ? "L" : "R" };   // clip: the side CLIP places nearer the right pole
+  });
+}
+function uaCheck(key) {
+  const a = ASP.find(x => x.key === key);
+  if (!a) return;
+  const P = uaPairs(key), ans = [], members = SET();
+  const dlg = d3.select("#uaDlg").style("display", null);
+  const draw = () => {
+    dlg.selectAll("*").remove();
+    const top = dlg.append("div").attr("class", "fhead"); top.append("b").text(`Check “${a.name}” on ${members.map(g => sh(G[g])).join(", ")}`);
+    top.append("button").attr("class", "mini").text("✕").on("click", () => { document.onkeydown = null; uaOpen(); });
+    if (ans.length < P.length) {
+      const p = P[ans.length], choose = v => { ans.push(v); draw(); };
+      dlg.append("div").html(`Pair ${ans.length + 1} of ${P.length} · ${esc(SUBJ[p.si].name)}. Which image is closer to <b>“${esc(a.right)}”</b> (rather than “${esc(a.left)}”)? Configurations and scores are hidden.`);
+      const pr = dlg.append("div").attr("class", "pair");
+      [p.L, p.R].forEach(x => pr.append("img").attr("src", `thumbs/${x.g}/${x.r[2]}.jpg`).attr("alt", ""));
+      const b = dlg.append("div").attr("class", "ans");
+      b.append("button").attr("class", "chipbtn").text("1 · left image").on("click", () => choose("L"));
+      b.append("button").attr("class", "chipbtn").text("2 · can't tell").on("click", () => choose("?"));
+      b.append("button").attr("class", "chipbtn").text("3 · right image").on("click", () => choose("R"));
+      document.onkeydown = e => { if (e.key === "1") choose("L"); if (e.key === "2") choose("?"); if (e.key === "3") choose("R"); };
+      return;
+    }
+    document.onkeydown = null;
+    const dec = P.filter((p, i) => ans[i] !== "?"), agree = dec.length ? dec.filter(p => ans[P.indexOf(p)] === p.clip).length / dec.length : 0;
+    const cant = 1 - dec.length / P.length, pass = dec.length > 0 && agree >= UA_RULE.agree && cant <= UA_RULE.cant;
+    dlg.append("div").html(`Agreement with CLIP on decided pairs: <b>${f2(agree)}</b> (${dec.length} decided) · can't tell: <b>${f2(cant)}</b><br>Rule (the one fixed for the five aspects): agreement ≥ ${UA_RULE.agree} and can't tell ≤ ${UA_RULE.cant} → <b>${pass ? "✓ passes" : "✗ fails"}</b> for these configurations.`);
+    dlg.append("button").attr("class", "chipbtn").style("margin-top", "8px").text("keep this result").on("click", () => {
+      const Ls = uaLoad(), x = Ls.find(y => y.key === key);
+      if (x) { x.check = { members, n: P.length, agree, cant, pass, answers: ans, date: new Date().toISOString().slice(0, 16) }; uaSave(Ls); }
+      for (const g of Object.keys(META.validity)) { const v = META.validity[g]; v.aspects = v.aspects.filter(k => k !== key); }
+      if (pass) for (const g of members) META.validity[g]?.aspects.push(key);
+      addRecord({ kind: "note", src: "✎", text: `Aspect “${a.name}” (${a.left} ↔ ${a.right}) ${pass ? "passed" : "failed"} my check on ${members.map(g => sh(G[g])).join(", ")}: agreement ${f2(agree)} on ${dec.length} decided pairs, can't tell ${f2(cant)}.` });
+      update(); uaOpen();
+    });
+  };
+  draw();
+}
+
 const vid = s => [s.vlm, s.A, s.B, s.level, s.si, s.text].join("|");
 function userV() { try { return JSON.parse(localStorage.getItem("auditUserVerdicts") || "{}"); } catch (e) { return {}; } }
 function saveV(U) { try { localStorage.setItem("auditUserVerdicts", JSON.stringify(U)); } catch (e) { /* storage unavailable */ } }
@@ -1756,6 +1936,7 @@ let R = null;
 function update() { setChips(); panelControls(); clearZoom(); diffChips(); R = contrast(); drawScatters(true); drawMap(true); aspectSeg(); }
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
 d3.select("body").classed("fig", st.fig);
+uaRestore();
 header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
 d3.select("#zoomReset").on("click", resetZoom);
 d3.select("#findBtn").on("click", () => { const dr = d3.select("#findDrawer"); dr.style("display", dr.style("display") === "none" ? null : "none"); drawFindings(); });

@@ -286,6 +286,23 @@ def main():
             tsne[g][si] = [[round(float(a), 4), round(float(b), 4)] for a, b in Y[i:i + n]]
             i += n
     meta["tsne"] = "t-SNE of CLIP ViT-L/14 image embeddings per subject over all scored configurations (cosine, perplexity 30, seed 0)"
+    # user-defined aspects (index.html): the same L2-normalised CLIP image embeddings in the order of SCORES (groups as
+    # in META.groups, subjects, k), stored as int16 with one float32 scale per image (exact to about 1e-5), and the CLIP
+    # text encoder run in the browser (ONNX fp16 export; matches PyTorch at cosine 1.0000, docs/RUNBOOK.md)
+    rows = [emb[g][r.job] for g in groups for s in subjects for r in D[(D.group == g) & (D.subject == s)].sort_values("k").itertuples()]
+    E = np.stack(rows).astype(np.float32)
+    es = np.abs(E).max(1) / 32767
+    os.makedirs(OUT, exist_ok=True)
+    np.round(E / es[:, None]).astype("<i2").tofile(f"{OUT}/emb.bin")
+    es.astype("<f4").tofile(f"{OUT}/emb_scale.bin")
+    meta["emb"] = dict(dim=int(E.shape[1]), n=int(E.shape[0]), encoder="clip-vit-large-patch14", dtype="fp16")
+    vs = os.path.join(DATA, "vendor_src")
+    if os.path.isdir(vs):
+        shutil.copytree(f"{vs}/js", f"{OUT}/vendor", dirs_exist_ok=True)
+        shutil.copytree(f"{vs}/clip", f"{OUT}/vendor/models/clip-vit-large-patch14", dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns("text_model.onnx", "text_model_quantized.onnx"))
+    else:
+        print("no vendor_src: user-defined aspects will be unavailable (docs/RUNBOOK.md)")
     os.makedirs(OUT, exist_ok=True)
     with open(f"{OUT}/data.js", "w", encoding="utf-8") as f:
         f.write("const META = " + json.dumps(meta, ensure_ascii=False) + ";\n")

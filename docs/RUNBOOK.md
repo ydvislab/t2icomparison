@@ -100,3 +100,14 @@ D=$T2IC_DATA; rm -rf $D/expert_offline && mkdir -p $D/expert_offline && cp -r $D
 cd $D/expert_offline && zip -qr -0 ../expert_offline_package.zip .
 ```
 Moderator sheets: `python experiments/expert_study/make_sheets.py`.
+
+## User-defined aspects: bundled text encoder (2026-10-26)
+`system/audit/build.py` copies `$T2IC_DATA/vendor_src/` into the tool (`vendor/`) and writes the image embeddings (`emb.bin`, `emb_scale.bin`). To create `vendor_src`:
+```
+V=$T2IC_DATA/vendor_src; mkdir -p $V/js $V/clip/onnx
+for f in transformers.min.js ort-wasm-simd-threaded.jsep.mjs ort-wasm-simd-threaded.jsep.wasm; do curl -sL -o $V/js/$f https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.2/dist/$f; done
+for f in config.json tokenizer.json tokenizer_config.json special_tokens_map.json vocab.json merges.txt onnx/text_model_fp16.onnx; do curl -sL -o $V/clip/$f https://huggingface.co/Xenova/clip-vit-large-patch14/resolve/main/$f; done
+```
+- **Fidelity (2026-10-26, onnxruntime 1.23 CPU, graph optimisation disabled):** the fp16 text model matches PyTorch at cosine 1.00000 on the frozen poles. The q8 model (`text_model_quantized.onnx`) does not (cosine 0.86–0.93) and must not be used.
+- **In the browser:** the tool reproduces the stored saturation scores of all 12,288 images within 0.004 scale units, and repeats this self-check on first use.
+- **Serving:** the feature needs the folder served over http (`python -m http.server` in the folder that holds `index.html`); from `file://` it explains this.
