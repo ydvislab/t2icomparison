@@ -292,6 +292,7 @@ g.axi.dim { opacity: .16; }
   <button class="iconbtn" id="swap" title="Swap reference and focus">⇄</button>
   <button class="pillbtn" id="findBtn" title="Findings: record what you found in this view, and replay recorded findings">☆ 0</button>
   <div class="diff" id="diff"></div>
+  <div class="seg mini" id="encSeg"></div>
   <div class="seg" id="aspSeg"></div>
   <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
 </header>
@@ -402,7 +403,7 @@ function contrast(A = st.A, B = st.B) {
     R[a.key] = { cells, pool: { d: d3.median(cells, c => c.d), lr: d3.median(cells, c => c.lr), dlo: q(pd, .05), dhi: q(pd, .95), llo: q(pl, .05), lhi: q(pl, .95), src: "tool" } };
     // figure mode only: for a designed contrast with a scripted analysis, show that analysis's intervals (10,000
     // resamples), so paper figures match the paper; in analysis every interval is the tool's own, computed now
-    const off = st.fig ? META.official?.[A + "|" + B]?.[a.key] : null;
+    const off = st.fig && st.enc === "clip" ? META.official?.[A + "|" + B]?.[a.key] : null;
     if (off) Object.assign(R[a.key].pool, { dlo: off.dlo, dhi: off.dhi, llo: off.llo, lhi: off.lhi, src: off.src });
   }
   return R;
@@ -433,12 +434,45 @@ function panelControls() {
     .on("click", (e, d) => { st.ev = d[0]; panelControls(); drawRidge(); });
   d3.select("#sortBtn").classed("on", st.sortRows === "delta").on("click", () => { st.sortRows = st.sortRows === "delta" ? "cat" : "delta"; panelControls(); drawMatrix(); overviewHL(); });
 }
+// ---------------- encoder switch ----------------
+// The five aspects are scored by two independent encoders with the same text poles: CLIP ViT-L/14 (the frozen analysis)
+// and SigLIP 2 (results/encoder_check). Switching swaps the scores of the frozen aspects, their scale (each encoder's
+// frozen scale) and their validity (the same rule applied to each encoder's agreement with the same human judgements),
+// so every view and every verdict, including the VLM statement verdicts, is recomputed under the other encoder.
+// User-defined aspects are CLIP-scored in both modes.
+st.enc = "clip";
+const ENC = { clip: null };
+function encSave() {
+  const keys = ASP.filter(a => !a.user).map(a => a.key);
+  ENC.clip = { scale: Object.fromEntries(keys.map(k => [k, META.scale[k]])), validity: Object.fromEntries(Object.entries(META.validity).map(([g, v]) => [g, v.aspects.filter(k => keys.includes(k))])),
+    scores: Object.fromEntries(META.groups.map(g => [g.id, SCORES[g.id].map(rows => rows.map(r => keys.map(k => r[3 + AIDX[k]])))])) };
+}
+function setEncoder(enc) {
+  if (enc === st.enc || (enc === "siglip" && typeof SCORES_SIGLIP === "undefined")) return;
+  if (!ENC.clip) encSave();
+  const keys = ASP.filter(a => !a.user).map(a => a.key), E = META.encoders?.siglip;
+  for (const g of META.groups) SCORES[g.id].forEach((rows, si) => rows.forEach((r, i) => keys.forEach((k, j) => {
+    r[3 + AIDX[k]] = enc === "clip" ? ENC.clip.scores[g.id][si][i][j] : SCORES_SIGLIP[g.id][si][i][j];
+  })));
+  for (const k of keys) META.scale[k] = enc === "clip" ? ENC.clip.scale[k] : E.scale[k];
+  for (const [g, v] of Object.entries(META.validity)) {
+    const user = v.aspects.filter(k => !keys.includes(k));
+    v.aspects = [...(enc === "clip" ? ENC.clip.validity[g] : E.validity[g]?.aspects ?? []), ...user];
+  }
+  st.enc = enc; CO.clear(); encSeg(); update(); pick(st.subj, st.aspect);
+}
+function encSeg() {
+  const has = typeof SCORES_SIGLIP !== "undefined";
+  d3.select("#encSeg").selectAll("button").data([["clip", "CLIP", "CLIP ViT-L/14: the encoder of the frozen analysis"],
+    ["siglip", "SigLIP 2", "SigLIP 2 (so400m): the second encoder, same text poles; its own frozen scale and its own validity by the same rule (the human-check pairs were sampled by CLIP gaps, which favours CLIP). Findings that change when you switch are encoder-specific."]].filter(d => has || d[0] === "clip"))
+    .join("button").text(d => d[1]).attr("title", d => d[2]).classed("on", d => d[0] === st.enc).on("click", (e, d) => setEncoder(d[0]));
+}
 // aspect buttons choose the aspect for every view; struck through when people have not validated it for the pair
 function aspectSeg() {
   const seg = d3.select("#aspSeg");
   seg.selectAll("button.asp").data(RET, a => a.key).join("button").attr("class", "asp").text(a => aspName(a.key))
     .classed("on", a => a.key === st.aspect).classed("nv", a => !valid(a.key)).classed("user", a => !!a.user)
-    .attr("title", a => [a.user ? `${a.left} ↔ ${a.right}` : null, valid(a.key) ? null : nvTitle(st.A, st.B, a.key)].filter(Boolean).join("\n") || null)
+    .attr("title", a => [a.user ? `${a.left} ↔ ${a.right}${st.enc !== "clip" ? " (scored with CLIP)" : ""}` : null, valid(a.key) ? null : nvTitle(st.A, st.B, a.key)].filter(Boolean).join("\n") || null)
     .on("click", (e, a) => pick(st.subj, a.key));
   seg.selectAll("button.uadd").data([0]).join("button").attr("class", "uadd").text("+")
     .attr("title", "Define an aspect in words; it counts as validated only after you check it on the configurations in the set")
@@ -1577,7 +1611,7 @@ function drawTrail() {
 // trail. Each record stores the whole analysis state (set and roles, aspect, subject, panel modes, margins, brushed
 // subjects and seeds, statement, seed step, map zoom), so a click replays the view in which the finding was made.
 function snapshot() {
-  return { set: [...st.set], A: st.A, B: st.B, aspect: st.aspect, subj: st.subj, main: st.main, ev: st.ev, mloc: M_LOC, mlr: M_LR,
+  return { enc: st.enc, set: [...st.set], A: st.A, B: st.B, aspect: st.aspect, subj: st.subj, main: st.main, ev: st.ev, mloc: M_LOC, mlr: M_LR,
     subjSel: st.subjSel ? [...st.subjSel] : null, seedSel: st.seedSel ? [...st.seedSel] : null, vid: st.stSel ? vid(st.stSel) : null,
     trailK: st.trailK, zt: OVS.zt && (OVS.zt.k !== 1 || OVS.zt.x || OVS.zt.y) ? { k: OVS.zt.k, x: OVS.zt.x, y: OVS.zt.y } : null };
 }
@@ -1586,6 +1620,7 @@ function addRecord(r) {
 }
 function restoreRecord(t) {
   st.main = t.main || "trail"; st.trailK = t.trailK ?? 0;
+  if ((t.enc || "clip") !== st.enc) setEncoder(t.enc || "clip");
   if (t.set) st.set = t.set.filter(g => G[g]);
   M_LOC = t.mloc ?? PRE_LOC; M_LR = t.mlr ?? PRE_LR;
   if (t.ev) st.ev = t.ev;
@@ -1699,9 +1734,10 @@ function uaScore(tl, tr) {
 // on first use, the in-browser encoder must reproduce the stored saturation scores of every image
 async function uaSelfCheck() {
   if (UA.checked) return;
-  const a = ASP.find(x => x.key === "sat"), [tl, tr] = await UA.enc([a.left, a.right]), sc = uaScore(tl, tr), ai = 3 + AIDX.sat, off = uaOffsets();
+  if (!ENC.clip) encSave();
+  const a = ASP.find(x => x.key === "sat"), [tl, tr] = await UA.enc([a.left, a.right]), sc = uaScore(tl, tr), j = ASP.filter(x => !x.user).findIndex(x => x.key === "sat"), off = uaOffsets();
   let worst = 0;
-  for (const g of META.groups) SCORES[g.id].forEach((rows, si) => rows.forEach((r, i) => { worst = Math.max(worst, Math.abs(sc[off[g.id][si] + i] - r[ai]) / META.scale.sat); }));
+  for (const g of META.groups) ENC.clip.scores[g.id].forEach((rows, si) => rows.forEach((r, i) => { worst = Math.max(worst, Math.abs(sc[off[g.id][si] + i] - r[j]) / ENC.clip.scale.sat); }));
   if (worst > .05) throw new Error(`Encoder self-check failed: saturation differs by up to ${worst.toFixed(3)} scale units from the stored scores.`);
   UA.checked = `Encoder self-check passed: the stored saturation scores of all ${UA.n.toLocaleString()} images are reproduced within ${worst.toFixed(3)} scale units.`;
 }
@@ -1937,7 +1973,7 @@ function update() { setChips(); panelControls(); clearZoom(); diffChips(); R = c
 function layout() { buildMap(); buildScatters(); drawScatters(false); drawMap(false); }
 d3.select("body").classed("fig", st.fig);
 uaRestore();
-header(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
+header(); encSeg(); aspectSeg(); panelControls(); buildMap(); buildScatters(); update();
 d3.select("#zoomReset").on("click", resetZoom);
 d3.select("#findBtn").on("click", () => { const dr = d3.select("#findDrawer"); dr.style("display", dr.style("display") === "none" ? null : "none"); drawFindings(); });
 drawFindings();

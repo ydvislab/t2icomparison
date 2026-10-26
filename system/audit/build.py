@@ -59,6 +59,19 @@ def validity(g):
     return dict(set="round 2", aspects=["shot", "sat", "medium"])
 
 
+# second encoder (SigLIP 2, results/encoder_check): validity by the same frozen rule applied to SigLIP's agreement with
+# the same human judgements (agreement >= 0.75 on decided pairs, "can't tell" <= 0.40); the pairs were sampled by CLIP
+# gaps, which favours CLIP
+ENC_DIR = os.path.join(REPO, "results", "encoder_check")
+
+
+def validity_siglip(g):
+    H = pd.read_csv(os.path.join(ENC_DIR, "human_agreement.csv"))
+    rnd = "round 3" if "__" in g else "round 1" if g in ROUND1 else "round 2"
+    ok = set(H[(H["round"] == rnd) & (H.agree_siglip >= 0.75) & (H.cant_tell <= 0.40)].aspect)
+    return dict(set=rnd, aspects=[a for a in RETAINED if a in ok])
+
+
 Q5_CONTRASTS = {"guid_klein": ("G07_klein_base4b_cfg1", "G06_klein_base4b_cfg4"), "guid_qwen": ("G10_qwen_image_cfg1", "G09_qwen_image_cfg4"),
                 "pkg_klein4b": ("G07_klein_base4b_cfg1", "G08_klein4b"), "sdxl_turbo": ("G02_sdxl", "G03_sdxl_turbo"),
                 "rw_klein": ("G08_klein4b", "G08_klein4b__mistral"), "rw_flux": ("G05_flux2_dev", "G05_flux2_dev__mistral")}
@@ -285,6 +298,17 @@ def main():
             n = int(((D.group == g) & (D.subject == s)).sum())
             tsne[g][si] = [[round(float(a), 4), round(float(b), 4)] for a, b in Y[i:i + n]]
             i += n
+    # SigLIP 2 scores in the order of SCORES (same poles), its frozen scale (results/encoder_check/run.json; inout,
+    # shown only, by the same definition) and its validity per configuration set
+    sig, sv = {}, []
+    for g in groups:
+        x = D[D.group == g][["job", "subject", "k"]].merge(pd.read_csv(f"{gdir(g)}/siglip_scores.csv"), on="job")
+        sig[g] = [[[round(float(getattr(r, a)), 5) for a in SHOWN] for r in x[x.subject == s].sort_values("k").itertuples()] for s in subjects]
+        if g in opens:
+            sv += [(a, x[x.subject == s][a].var(ddof=1)) for s in subjects for a in SHOWN if a not in EXCLUDED.get(s, ())]
+    sscale = json.load(open(os.path.join(ENC_DIR, "run.json"), encoding="utf-8"))["scale_siglip"]
+    sscale.update({a: float(math.sqrt(np.mean([v for k, v in sv if k == a]))) for a in SHOWN if a not in sscale})
+    meta["encoders"] = dict(siglip=dict(name="SigLIP 2 (so400m-patch14-384)", scale=sscale, validity={g: validity_siglip(g) for g in groups}))
     meta["tsne"] = "t-SNE of CLIP ViT-L/14 image embeddings per subject over all scored configurations (cosine, perplexity 30, seed 0)"
     # user-defined aspects (index.html): the same L2-normalised CLIP image embeddings in the order of SCORES (groups as
     # in META.groups, subjects, k), stored as int16 with one float32 scale per image (exact to about 1e-5), and the CLIP
@@ -308,6 +332,7 @@ def main():
         f.write("const META = " + json.dumps(meta, ensure_ascii=False) + ";\n")
         f.write("const SCORES = " + json.dumps(scores, separators=(",", ":")) + ";\n")
         f.write("const TSNE = " + json.dumps(tsne, separators=(",", ":")) + ";\n")
+        f.write("const SCORES_SIGLIP = " + json.dumps(sig, separators=(",", ":")) + ";\n")
         f.write("const REWRITE = " + json.dumps(rewrite_data(groups, subjects), ensure_ascii=False, separators=(",", ":")) + ";\n")
         f.write("const STATEMENTS = " + json.dumps(statements(groups), ensure_ascii=False, separators=(",", ":")) + ";\n")
     # pages reference data.js with the build time, so a browser never shows a cached older build
