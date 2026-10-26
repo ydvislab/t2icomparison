@@ -624,7 +624,7 @@ function drawMap(animate, zoomOnly) {
       .text("x: typical location, scale units from each subject's cross-configuration centre · y: typical spread (median IQR)");
     const [dx0, dx1] = x.domain(), [, dy1] = y.domain();
     const offN = gid => per(gid).filter(p => p.x < dx0 || p.x > dx1 || p.y > dy1).length;
-    g.append("text").attr("x", W - m.r).attr("y", H - m.b - 18).attr("text-anchor", "end")
+    g.append("text").attr("x", W - m.r).attr("y", m.t + 10).attr("text-anchor", "end")
       .text(`beyond the axes (edge triangles): A ${offN(st.A)}, B ${offN(st.B)} of ${per(st.A).length} subjects`);
   });
   OVS.pl.text(poleWord(a.left)); OVS.pr.text(poleWord(a.right));

@@ -4,7 +4,7 @@
 - *Structure:* the experiments show how three common ways of judging default changes fail (numbers alone, language alone, eyes alone). The failures give the requirements, the system answers them, and the cases and the expert study test them.
 - *Sources:* `docs/manuscript/paper_v2_en.md` (source text, numbers checked against `results/`); plan `docs/PACIFICVIS_PLAN.md`.
 - *Limit:* 9 pages + 2 pages for acknowledgments and references, VGTC conference template. Target about 5,800 words of text with six figures and three tables.
-- *Markers:* [pending] = result not yet available; [read on real data] = a detail to confirm in the running system; [cite] = a verified reference still to be found (no reference is invented).
+- *Markers:* [pending] = result not yet available; [cite] = a verified reference still to be found (no reference is invented). Case details were read in the running system on 2026-10-26; screenshots in `figures/` (`shots.mjs`).
 - *Name:* "DefaultScope" is a working name.
 
 ---
@@ -116,6 +116,7 @@ These works report how much outputs converge. They do not separate a move of the
   - a ratio beyond 1.5 or below 1/1.5 is a change in spread;
   - "same place" and "same spread" require the 90% interval to lie inside the margin.
 - **Bootstrap:** a hierarchical bootstrap resamples subjects within categories and images within cells, with seeds paired when A and B share a checkpoint.
+- **Verdicts in the system:** the system marks a change only when the whole 90% interval lies beyond the margin. This is stricter than the confirmatory rule of the experiments (significant after correction, estimate beyond the margin).
 - **Pre-registration:** primary tests are Holm-corrected. Before each analysis, we committed the aspects, margins, scale and code; for the LLM study also the rewriters, VLM prompts and scoring rules.
 
 **Validity conditions.**
@@ -326,14 +327,15 @@ Each case starts from a failure of Sec. 4 and follows an analyst through Default
 2. **Scatters:** in E, the focus's diamonds lie below the spread band on four aspects, and the distilled member's lie further down on all five. Only saturation's diamond lies right of the shift band.
 3. **Seeds:** in D, the seed lines lean right and converge from guidance 1 to 4. The segment to klein 4B is rank-matched and dashed, because its checkpoint differs.
 4. **Encoder:** the analyst switches to SigLIP 2. The diamonds stay below the spread band, but on medium the focus now moves toward illustration (+1.08), and the map shows its arrow leaving the reference.
-5. **Record:** the analyst logs "narrows like guidance, more strongly; which aspects move is encoder-specific", with both states in the findings log.
+5. **Margins:** dragging the spread margin shows how robust the narrowing is. Medium, tone and saturation stay narrowed, with their whole interval beyond the margin, up to a margin of ×1.52–1.62; background and shot only up to ×1.26 and ×1.20.
+6. **Record:** the analyst logs "narrows like guidance, more strongly; which aspects move is encoder-specific", with both states in the findings log.
 
 **Without the system:** a diversity score says "less diverse" under both encoders, and a single-encoder analysis reports its own shifts as facts.
 
 ### 6.2 A pooled "no change" that hides reversals (F1b; T2, T3)
 1. **Overview:** the contrast overview shows SDXL → SDXL-Turbo with short arrows and a large ⇄ count.
 2. **Scatter:** the pooled saturation diamond sits inside the shift band, with subject dots on both sides.
-3. **Subjects:** the reversal badge steps through them. "A horse" and "a cup of coffee" turn vivid; "a bird on a branch" and "a car" turn muted.
+3. **Subjects:** the badge (⇄ 7) steps through the subjects that turn muted beyond the margin against the slightly positive pooled shift: "a bird on a branch", "a car", "a kitchen", "a library", "a city street", "a mountain" and "a picnic". In the shift column, "a horse" and "a cup of coffee" are the longest bars on the vivid side.
 4. **Images:** in C, Turbo's images of the horse sit on the vivid side, and those of the bird on the muted side.
 5. **Attribution:** the ⚠ chip lists five differing settings, so the finding is not attributed to distillation.
 
@@ -342,16 +344,23 @@ Each case starts from a failure of Sec. 4 and follows an analyst through Default
 ### 6.3 Auditing a prompt rewriter (F1a, F2; T3, T4)
 1. **Contrast:** the analyst compares FLUX.2 dev with its rewritten-prompt version.
 2. **Background:** E shows the strongest effect, toward a busy background, but the card carries ⊘.
-3. **Images:** in C, rewritten images scored "busy" are ones a person would call plain, which is the failure the round-3 check measured.
-4. **Validated aspects:** no diamond lies above the spread band, so rewriting added no validated variety.
+3. **Images:** in C, for "a picnic" (the subject with the largest shift), the rewritten images are scored far toward "busy", yet they show the same kind of grassy scene as the originals. This is the failure the round-3 check measured.
+4. **Validated aspects:** the diamonds of saturation (×1.31) and medium (×1.49) stay inside the spread band. Medium's interval reaches beyond it, so widening is undecided, not shown.
 5. **Rewrites:** in D, rewrites whose text leans toward "photograph" sit next to images that drifted toward illustration.
 
 **Without the system:** the strongest number would have become the headline, and the rewriter's text would have suggested the opposite of what the images show.
 
 ### 6.4 Checking what a VLM says (F2, F3; T4)
-1. **A contradicted statement.** In ❝ for SDXL → Turbo, a Mistral-24B statement about "a restaurant" reads: "Set B images include more detailed architectural elements such as arched windows and ornate moldings." [read on real data: its coded aspect and glyph.] The trail shows the restaurant's backgrounds becoming much plainer (−1.68) and less varied (×0.12), and the images confirm it.
+1. **A contradicted statement.** In ❝ for SDXL → Turbo, a Mistral-24B statement about "a restaurant" reads: "Set B images include more detailed architectural elements such as arched windows and ornate moldings." It is coded to background, toward busy, and marked ✗. Qwen3.5-4B made nearly the same claim, which the coder placed outside the measured aspects. The trail shows the restaurant's backgrounds becoming much plainer (−1.68 [−2.95, −1.15]) and less varied (×0.12), while the pooled shift is +0.11, so the trail also marks that pooling hides the subject. The images confirm it.
 2. **A confirmed statement.** For "a car": "Set B images have a more sepia tone and muted color palette." The trail shows tone toward vintage (+1.44) and saturation toward muted (−1.47).
-3. **Margins and encoder.** Dragging the shift margin or switching the encoder changes some verdicts live, which shows which statements are robust. [read on real data: the share of ≈ verdicts.]
+3. **The verdict bar.** Of the 290 statements about this pair:
+   - 94 fall outside or beside the measured aspects;
+   - 74 cannot be decided by the audit;
+   - 112 are confirmed, most of them statements about variety;
+   - 6 claim a shift that the audit does not find, and 4 are contradicted.
+
+   For klein guidance, 11 statements are marked ≈: a narrowing described as a change in look.
+4. **Margins and encoder.** Dragging the shift margin or switching the encoder changes some verdicts live, which shows which statements are robust.
 
 **Without the system:** the sentence reads as plausible. Eight images per side do not settle it either, because people miss most real shifts there (F3).
 
@@ -466,9 +475,9 @@ DefaultScope combines the three. It computes verdicts over all seeds under margi
 | Fig. 1 (teaser) | The three failures (a number, a sentence, eight images) beside DefaultScope resolving one contrast: scatter, reversal subjects, their images | 1 |
 | Fig. 2 | Framework: aspect in words → human check → shift and spread per subject → verdict, under two encoders | 3 |
 | Fig. 3 | Failure evidence: hidden reversals (per-subject shifts around a pooled zero); encoder dependence (CLIP vs SigLIP per-subject shift × spread); VLM vs people on null pairs | 4 |
-| Fig. 4 | Interface with panels A–E, the encoder switch and tasks T1–T5 marked (real data) | 5 |
-| Fig. 5 | Cases 6.1 and 6.2: the encoder switch on klein guidance; reversals with their images | 6 |
-| Fig. 6 | Cases 6.3 and 6.4: ⊘ background on rewrites with its images; a VLM statement traced to its images | 6 |
+| Fig. 4 | Interface with panels A–E, the encoder switch and tasks T1–T5 marked (`figures/interface_klein_chain.png`) | 5 |
+| Fig. 5 | Cases 6.1 and 6.2: the encoder switch on klein guidance (`case61_clip_medium`, `case61_siglip_medium`); reversals with their images (`case62_turbo_horse`, `case62_turbo_bird`) | 6 |
+| Fig. 6 | Cases 6.3 and 6.4: ⊘ background on rewrites with its images (`case63_rewrite_bg`); a VLM statement traced to its images (`case64_statements`, `case64_trail`) | 6 |
 | Table 1 | Human validation per round and encoder | 4.1 |
 | Table 2 | VLM answers, null control and the human grid check | 4.3 |
 | Table 3 | From failure to requirement, design, case and expert task | 4.4 |
