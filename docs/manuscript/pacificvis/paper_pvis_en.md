@@ -4,7 +4,6 @@
 
 *Markers:*
 - *[pending]: result not yet available (expert sessions, the user-defined-aspect scenario, real-data screenshots).*
-- *[verify]: a reference whose identifier must be checked before submission.*
 - *[cite]: a place where a verified reference still has to be found; no reference is invented.*
 - *The system name "DefaultScope" is a working name.*
 
@@ -85,7 +84,7 @@ We present **DefaultScope** (Fig. 1). Its design rests on three ideas:
 **Visual analytics for generative image models.**
 - ViBEx [12] and Varif.ai [13] support exploring how outputs vary for one model or prompt.
 - CUPID [14] visualizes distributions of generated images.
-- [cite: VA for prompt engineering and for model comparison of generative models.]
+- PromptMagician [23] helps users refine prompts by exploring the images they produce.
 
 These systems help users understand one model's output space. Our setting is the comparison of several declared configurations, together with the verification of claims made about them in language.
 
@@ -96,12 +95,12 @@ These systems help users understand one model's output space. Our setting is the
 
 [cite: comparison of many items and small multiples; uncertainty visualization of effects with intervals and margins.]
 
-**LLMs and VLMs in visual analytics.** Language models are increasingly used to generate hypotheses, descriptions and summaries in analysis workflows [cite]. VisDiff [10] and CompCon [11] describe differences between image sets in natural language; benchmarks score whether such descriptions name a reference difference [10, 22 verify]. None of these calibrates a description against a human-validated measurement, or gives the analyst a visual route from a sentence to the images that confirm or contradict it. DefaultScope treats generated language as a claim to verify, in line with work on provenance and analytic verification [cite].
+**LLMs and VLMs in visual analytics.** Language models are increasingly used across analysis workflows, for example to recommend insights and summarize findings [24]. VisDiff [10] and CompCon [11] describe differences between image sets in natural language. Benchmarks score whether such descriptions name a reference difference [10], or whether a model identifies a change between two images, with "no difference" as one option [22]. None of these calibrates a description against a human-validated measurement, or gives the analyst a visual route from a sentence to the images that confirm or contradict it. DefaultScope treats generated language as a claim to verify, in line with work on provenance in visual analysis [25].
 
 **Measuring defaults and diversity.**
 - **Diversity scores:** Vendi [1], DIMCIM [3], GRADE [4] and attribute-conditioned benchmarks [5] quantify diversity; studies of default images [7] characterize outputs of empty or minimal prompts.
 - **Distillation:** DefaultShift [6] compares distilled models with their teachers on a closed attribute list and observes that distillation acts like raised guidance.
-- **Prompt rewriting:** rewriters add variety in aggregate [19, 20 verify].
+- **Prompt rewriting:** rewriters add variety in aggregate [19, 20].
 
 These works report how much outputs converge. They do not separate a move of the typical output from a narrowing around it, per subject, and they offer no path from the number to the images.
 
@@ -298,8 +297,8 @@ Across all configuration pairs, 38 of 60 pooled "no change" comparisons on valid
 1. **Contrast:** the analyst compares FLUX.2 dev with its own rewritten-prompt version (official rewriter).
 2. **Background:** E shows the strongest effect of the whole rewriting study, toward a busy background (+0.67, 17 subjects in that direction, none against), but the card is marked ⊘ (not validated).
 3. **Images:** opening C, the analyst sees rewritten images rated "busy" that people would call plain. The round-3 check had found that annotators agreed with CLIP on background for only 38% of rewritten pairs.
-4. **What holds:** turning to validated aspects, the analyst finds no validated widening (ratios ×1.13–1.49, none beyond the margin) and a consistent drift toward illustration (+0.37 to +0.53).
-5. **Rewrites:** in the ✎ view, rewrites that say "photograph" sit next to images that drifted toward illustration; only for saturation does text predict image (Spearman 0.42–0.53).
+4. **What holds:** turning to validated aspects, the analyst finds no validated widening (ratios ×1.03–1.49, none beyond the margin). Medium drifts toward illustration in both rewriting contrasts (+0.37 and +0.53), but neither drift is significant after correction.
+5. **Rewrites:** in the ✎ view, rewrites whose text leans toward "photograph" sit next to images that drifted toward illustration. Across seeds, what the text says predicts where the image lands for saturation (Spearman 0.42–0.53) and background (0.41–0.58, the axis that fails here), not for medium, shot or tone.
 
 Without the per-aspect validity and the route to the images, the measurement error would have been the paper's most prominent finding.
 
@@ -307,7 +306,7 @@ Without the per-aspect validity and the route to the images, the measurement err
 1. **Statements:** in ❝ for klein-base 4B guidance 1 → 4, [a confirmed Mistral-24B statement, quoted from the real data] carries ✓ on saturation.
 2. **Contradiction:** [a contradicted pooled statement for SDXL → Turbo, quoted from the real data] carries ✗; following it into the trail, the analyst sees that the subjects disagree and the images show the reversal.
 3. **Narrowing called a shift:** where the audit finds narrowing without a shift, both VLMs answered "shift" in 12–13 of 13 cases.
-4. **Same model on both sides:** when the analyst sets the same configuration on both sides (different seeds), the statements still claim differences. The VLMs reported a shift in 98–100% of such answers, whereas the system shows every diamond inside the bands.
+4. **Same model on both sides:** in the scripted null control (one configuration on both sides, seeds shifted by 16), both VLMs reported a shift in 98–100% of their answers. Three people answering the same questions on the same grids reported a difference on a third of the null pairs (majority answers). The false alarms therefore come from the VLMs, not from the eight images they saw. [The tool does not yet offer a seed-split null contrast; add it or keep this step scripted.]
 5. **Hidden reversals:** for 49–50 of 50 pooled "no change" cases that hide reversals, the VLMs described a pooled shift.
 
 The VLM text points to where to look; the views decide what is true.
@@ -376,7 +375,7 @@ Language now measures, changes and explains the appearance defaults of text-to-i
 [Annotators; experts; funding.] AI-use disclosure per IEEE policy: [tools, parts, use].
 
 ## References
-*Verified: 1–18 (`docs/OUTLINE.md`, 2026-10-11). [verify]: 19–22. [cite] places need further verified VA references (VA for generative models and prompt engineering, LLMs in VA, provenance, uncertainty).*
+*Verified: 1–18 (`docs/OUTLINE.md`, 2026-10-11); 19–25 on 2026-10-26 (arXiv, GitHub, Crossref). One [cite] place remains (Sec. 2, visual comparison: many items and uncertainty of effects).*
 
 1. Vendi Score. arXiv:2210.02410.
 2. Classifier-Free Diffusion Guidance. arXiv:2207.12598.
@@ -396,10 +395,13 @@ Language now measures, changes and explains the appearance defaults of text-to-i
 16. Qwen-Image Technical Report. arXiv:2508.02324.
 17. CLIP. arXiv:2103.00020.
 18. SigLIP 2. arXiv:2502.14786.
-19. Prompt Expansion. arXiv:2312.16720. [verify]
-20. LLMs as prompt modifier. arXiv:2504.11104. [verify]
-21. FLUX.2 reference implementation (prompt upsampling). [verify citation form]
-22. VDiff-Bench. arXiv:2609.06245. [verify]
+19. Datta et al., Prompt Expansion for Adaptive Text-to-Image Generation. arXiv:2312.16720.
+20. Peinl, Using LLMs as prompt modifier to avoid biases in AI image generators. arXiv:2504.11104.
+21. Black Forest Labs, FLUX.2: Frontier Visual Intelligence, 2025. github.com/black-forest-labs/flux2 (prompt upsampling).
+22. Wan, Zheng, Chang, VDiff-Bench: A Challenging Benchmark for Fine-Grained Image Difference Identification. arXiv:2609.06245.
+23. Feng et al., PromptMagician: Interactive Prompt Engineering for Text-to-Image Creation. IEEE TVCG 2024. DOI 10.1109/TVCG.2023.3327168.
+24. Zhao et al., LEVA: Using Large Language Models to Enhance Visual Analytics. IEEE TVCG 2024. DOI 10.1109/TVCG.2024.3368060.
+25. Ragan, Endert, Sanyal, Chen, Characterizing Provenance in Visualization and Data Analysis. IEEE TVCG 22(1), 2016. DOI 10.1109/TVCG.2015.2467551.
 
 ## Figures (plan; 9 pages leave room for about six)
 | # | Content | Section |
