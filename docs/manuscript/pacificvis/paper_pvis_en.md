@@ -472,12 +472,13 @@ DefaultScope combines the three. It computes verdicts over all seeds under margi
 ## Figures and tables (plan)
 | # | Content | Section |
 |---|---|---|
-| Fig. 1 (teaser) | The three failures (a number, a sentence, eight images) beside DefaultScope resolving one contrast: scatter, reversal subjects, their images | 1 |
-| Fig. 2 | Framework: aspect in words → human check → shift and spread per subject → verdict, under two encoders | 3 |
-| Fig. 3 | Failure evidence: hidden reversals (per-subject shifts around a pooled zero); encoder dependence (CLIP vs SigLIP per-subject shift × spread); VLM vs people on null pairs | 4 |
-| Fig. 4 | Interface with panels A–E, the encoder switch and tasks T1–T5 marked (`figures/interface_klein_chain.png`) | 5 |
-| Fig. 5 | Cases 6.1 and 6.2: the encoder switch on klein guidance (`case61_clip_medium`, `case61_siglip_medium`); reversals with their images (`case62_turbo_horse`, `case62_turbo_bird`) | 6 |
-| Fig. 6 | Cases 6.3 and 6.4: ⊘ background on rewrites with its images (`case63_rewrite_bg`); a VLM statement traced to its images (`case64_statements`, `case64_trail`) | 6 |
+| Fig. 1 (teaser) | The interface on the klein chain (`fig4_interface.png`), or a teaser built from it [to decide at layout] | 1 |
+| Fig. 2 | Framework: aspect in words → human check → shift and spread per subject → verdict, under two encoders [to draw] | 3 |
+| Fig. 3 | Failure evidence (`fig3_failures.png/.pdf`, `make_data_figures.py`): (a) per-subject saturation shifts of SDXL → Turbo around the pooled +0.17, coloured beyond the margin (10 vivid, 7 muted; 9 and 6 with an interval excluding zero, the count in the text); (b) klein guidance, pooled shift and spread per aspect, CLIP filled vs SigLIP 2 hollow; (c) the 48 grid pairs, VLMs vs people | 4 |
+| Fig. 4 | Interface with panels A–E and the encoder switch (`fig4_interface.png`, full width) | 5 |
+| Fig. 5 | Case 6.1: the same view under CLIP and SigLIP 2, maps and the medium and tone scatters (`fig5_case61.png`, full width) | 6 |
+| Fig. 6 | (a) Case 6.2: scatter with subjects on both sides, lanes of a horse and a bird; (b) case 6.3: background ⊘ and medium scatters, the picnic lane (`fig6_cases_62_63.png`, full width) | 6 |
+| Fig. 7 | Case 6.4: the audit trail of the restaurant statement (`fig7_case64.png`, one column) | 6 |
 | Table 1 | Human validation per round and encoder | 4.1 |
 | Table 2 | VLM answers, null control and the human grid check | 4.3 |
 | Table 3 | From failure to requirement, design, case and expert task | 4.4 |
