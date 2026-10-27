@@ -11,7 +11,8 @@ ARXIV = {  # key: arXiv id
     "promptexpansion": "2312.16720", "promptmodifier": "2504.11104", "vdiffbench": "2609.06245"}
 DOI = {"varifai": "10.1145/3715336.3735847", "cupid": "10.1111/cgf.15086", "gleicher": "10.1109/TVCG.2017.2744199",
        "promptmagician": "10.1109/TVCG.2023.3327168", "leva": "10.1109/TVCG.2024.3368060", "ragan": "10.1109/TVCG.2015.2467551",
-       "gleicher2011": "10.1177/1473871611416549", "lyi": "10.1109/TVCG.2020.3030419", "hullman": "10.1109/TVCG.2018.2864889"}
+       "gleicher2011": "10.1177/1473871611416549", "lyi": "10.1109/TVCG.2020.3030419", "hullman": "10.1109/TVCG.2018.2864889",
+       "cleveland": "10.1080/01621459.1984.10478080"}
 # Crossref renders the family name L'Yi as "LYi"; the paper's byline spells it L'Yi
 NAME_FIX = {"LYi": "L'Yi"}
 MISC = {"flux2": dict(author="{Black Forest Labs}", title="{FLUX.2}: Frontier Visual Intelligence", year="2025",
