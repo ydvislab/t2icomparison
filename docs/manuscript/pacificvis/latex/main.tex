@@ -14,6 +14,11 @@
 \usetikzlibrary{arrows.meta,positioning,fit}
 \usepackage{mathptmx}
 
+% teaser caption typeset directly in the class's caption font: \caption inside \teaser lost its text in the test
+% build (XeTeX via Tectonic); this works the same under pdfLaTeX and keeps the figure number and label
+\makeatletter
+\newcommand{\teasercaption}[1]{\refstepcounter{figure}\par\vskip\abovecaptionskip{\captionfonts\figurename~\thefigure: #1\par}}
+\makeatother
 % open items, shown in red until they are resolved
 \newcommand{\pending}[1]{\textcolor{red!70!black}{[#1]}}
 \newcommand{\sysname}{DefaultScope}
@@ -29,7 +34,7 @@
 \teaser{
   \centering
   \includegraphics[width=\linewidth]{fig4_interface.png}
-  \caption{\sysname{} comparing a chain of three configurations: klein-base 4B at guidance 1 (reference, blue), at guidance 4 (focus, orange) and the distilled klein 4B (ink).
+  \teasercaption{\sysname{} comparing a chain of three configurations: klein-base 4B at guidance 1 (reference, blue), at guidance 4 (focus, orange) and the distilled klein 4B (ink).
   (A)~Configuration map: typical location and spread of every configuration on the chosen aspect, with density contours of the 24 subjects.
   (B)~Subjects $\times$ configurations, with one shift column per member.
   (C)~The images of one subject placed on the aspect axis, one lane per member.
@@ -66,7 +71,7 @@ The people who build, distil and select image models change these defaults with 
 ViBEx~\cite{vibex} and Varif.ai~\cite{varifai} support exploring how outputs vary for one model or prompt, CUPID~\cite{cupid} visualizes distributions of generated images, and PromptMagician~\cite{promptmagician} helps users refine prompts by exploring the images they produce. These systems help users understand one model's output space. We compare several declared configurations and verify the claims made about them in language.
 
 \paragraph{Visual comparison.}
-Gleicher's framework~\cite{gleicher} distinguishes juxtaposition, superposition and explicit encoding. \sysname{} encodes per-subject shift and spread ratio explicitly, superposes configurations on one map, and juxtaposes images and set members in aligned lanes and small multiples. \pending{cite: comparison of many items; uncertainty visualization of effects with intervals and margins}
+Gleicher's framework~\cite{gleicher} distinguishes juxtaposition, superposition and explicit encoding. \sysname{} encodes per-subject shift and spread ratio explicitly, superposes configurations on one map, and juxtaposes images and set members in aligned lanes and small multiples. Comparing many items calls for layouts that give each item a stable place~\cite{gleicher2011,lyi}; we follow this for the members of a comparison set, which keep their slot in every view instead of a hue. Effects are shown with their intervals against explicit margins, following work on how uncertainty displays are read and evaluated~\cite{hullman}.
 
 \paragraph{LLMs and VLMs in visual analytics.}
 Language models are used across analysis workflows, for example to recommend insights and summarize findings~\cite{leva}. VisDiff~\cite{visdiff} and CompCon~\cite{compcon} describe differences between image sets in natural language; benchmarks score whether such descriptions name a reference difference~\cite{visdiff} or whether a model identifies a change between two images, with ``no difference'' as one option~\cite{vdiffbench}. None calibrates a description against a human-validated measurement or gives the analyst a visual route from a sentence to the images. We treat generated language as a claim to verify, in line with work on provenance in visual analysis~\cite{ragan}.
@@ -223,7 +228,7 @@ F3 a few images are not enough & R3, R1 & images placed on the axis over all see
 \section{\sysname{}}
 \label{sec:system}
 
-\sysname{} is a single-screen web system built with D3, with five linked panels (\cref{fig:teaser}). It runs from disk; user-defined aspects need a local web server.
+\sysname{} is a single-screen web system built with D3, with five linked panels (\cref{fig:teaser}). A build step precomputes the encoder scores of all 12,288 images (the 9,216 study images and 3,072 from rewritten prompts); everything else is computed in the browser. Recomputing every interval of a contrast (six aspects, 24 subjects, 400 bootstrap resamples per cell) takes about 0.2\,s on a desktop browser, so verdicts follow changes of the set, the encoder or the margins without a visible delay. The system runs from disk; user-defined aspects need a local web server.
 
 \subsection{The comparison set and the encoder (R1, R2)}
 The header holds a comparison set of up to six configurations in chain order. The \emph{reference} (blue) is the configuration every contrast is measured from; the \emph{focus} (orange) is the member detailed by the per-subject views. Further members are drawn in ink and identified by their slot---a matrix column, an image lane, a parallel axis, a distribution row, a small multiple---and by a direct label, so hue never has to distinguish six members. A chip lists the declared settings that differ from the reference, and a warning chip appears when more than one differs, so the contrast is not attributed to one setting (T3). The \emph{encoder switch} (CLIP $|$ SigLIP~2) replaces the scores, the frozen scale and the validity of every aspect, and every view and verdict is recomputed; a finding that changes under the switch is encoder-specific (F1c).
@@ -282,7 +287,15 @@ In the statement view for SDXL$\rightarrow$Turbo, a Mistral-24B statement about 
 \end{figure}
 
 \subsection{Defining and checking a new aspect (F1a; R4)}
-\pending{To be run on the real data: the analyst suspects that guidance and distillation push scenes toward daylight, defines ``a scene in daylight'' $\leftrightarrow$ ``a scene at night'', inspects it in every view and checks it on the set; for contrast, the VLM-proposed pair that failed round~3 (``rich detail'' $\leftrightarrow$ ``minimal detail'', 0.34) is entered and checked.}
+The analyst suspects that guidance and distillation push scenes toward daylight and defines ``a scene in daylight'' $\leftrightarrow$ ``a scene at night''. After the encoder's self-check, the aspect is scored on all images and enters every view, marked $\oslash$. On the klein chain the numbers fit the suspicion: guidance narrows the aspect ($\times$0.52) and leans toward daylight ($-0.28$), and distillation more so ($\times$0.50, $-0.46$, with 12 subjects toward daylight beyond the margin and one the other way). The images give a first reason for caution: for ``a city street'', the images scored nearest ``at night'' are grey, hazy daylight streets rather than night scenes (\cref{fig:case65}). The system does not let these readings count before the analyst has checked the aspect on the set. \pending{Result of the analyst's in-tool check on the klein chain: agreement, can't tell, pass or fail.}
+For contrast, the analyst enters the axis a VLM proposed in the study and people rejected, ``a simple image with little detail'' $\leftrightarrow$ ``a highly detailed, intricate image'' (agreement 0.34, \cref{sec:failures}). It shows a shift toward ``detailed'' in every contrast, including the rewriter ($+0.75$, 16 subjects up, 3 down) and distillation ($+0.72$). An analyst who trusted the words would report that rewriting and distillation add detail; on this axis CLIP mostly orders images the opposite way from people, and the $\oslash$ mark and the check stop that reading. \pending{Result of the in-tool check of the detail axis.}
+
+\begin{figure}[tb]
+\centering
+\includegraphics[width=\columnwidth]{fig8_case65.png}
+\caption{Case 6.5: two aspects defined in words on the klein chain, both marked $\oslash$ until the analyst has checked them. Top: the scatters of ``daylight $\leftrightarrow$ night'' and of the VLM-proposed ``simple $\leftrightarrow$ intricate''. Bottom: ``a city street'' on the night axis; the images nearest ``at night'' are hazy daylight streets.}
+\label{fig:case65}
+\end{figure}
 
 \section{Expert Study}
 \label{sec:study}

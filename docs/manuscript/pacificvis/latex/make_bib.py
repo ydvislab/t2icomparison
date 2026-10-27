@@ -10,7 +10,10 @@ ARXIV = {  # key: arXiv id
     "vibex": "2504.19703", "qwenimage": "2508.02324", "clip": "2103.00020", "siglip2": "2502.14786",
     "promptexpansion": "2312.16720", "promptmodifier": "2504.11104", "vdiffbench": "2609.06245"}
 DOI = {"varifai": "10.1145/3715336.3735847", "cupid": "10.1111/cgf.15086", "gleicher": "10.1109/TVCG.2017.2744199",
-       "promptmagician": "10.1109/TVCG.2023.3327168", "leva": "10.1109/TVCG.2024.3368060", "ragan": "10.1109/TVCG.2015.2467551"}
+       "promptmagician": "10.1109/TVCG.2023.3327168", "leva": "10.1109/TVCG.2024.3368060", "ragan": "10.1109/TVCG.2015.2467551",
+       "gleicher2011": "10.1177/1473871611416549", "lyi": "10.1109/TVCG.2020.3030419", "hullman": "10.1109/TVCG.2018.2864889"}
+# Crossref renders the family name L'Yi as "LYi"; the paper's byline spells it L'Yi
+NAME_FIX = {"LYi": "L'Yi"}
 MISC = {"flux2": dict(author="{Black Forest Labs}", title="{FLUX.2}: Frontier Visual Intelligence", year="2025",
                       howpublished="\\url{https://github.com/black-forest-labs/flux2}")}
 
@@ -52,7 +55,7 @@ def main():
         time.sleep(.3)
     for key, doi in DOI.items():
         m = json.loads(get(f"https://api.crossref.org/works/{doi}"))["message"]
-        authors = " and ".join(tex(f"{a.get('family', '')}, {a.get('given', '')}".strip(", ")) for a in m.get("author", []))
+        authors = " and ".join(tex(f"{NAME_FIX.get(a.get('family', ''), a.get('family', ''))}, {a.get('given', '')}".strip(", ")) for a in m.get("author", []))
         year = str((m.get("published-print") or m.get("published-online") or m.get("issued"))["date-parts"][0][0])
         typ = "inproceedings" if m["type"] == "proceedings-article" else "article"
         f = dict(author=authors, title=protect(tex(m["title"][0])), year=year, doi=doi)

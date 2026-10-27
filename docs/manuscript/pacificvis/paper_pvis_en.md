@@ -1,6 +1,6 @@
 # Grounding Language in Images: Interactive Visual Analysis of Appearance Defaults in Text-to-Image Models
 
-*PacificVis 2027 Conference Paper Track, draft 3 (2026-10-26).*
+*PacificVis 2027 Conference Paper Track, draft 3 (2026-10-26; synced with `latex/main.tex` on 2026-10-27). From now on `latex/main.tex` is the primary text.*
 - *Structure:* the experiments show how three common ways of judging default changes fail (numbers alone, language alone, eyes alone). The failures give the requirements, the system answers them, and the cases and the expert study test them.
 - *Sources:* `docs/manuscript/paper_v2_en.md` (source text, numbers checked against `results/`); plan `docs/PACIFICVIS_PLAN.md`.
 - *Limit:* 9 pages + 2 pages for acknowledgments and references, VGTC conference template. Target about 5,800 words of text with six figures and three tables.
@@ -72,7 +72,7 @@ These systems help users understand one model's output space. We compare several
 - **superposition:** configurations on one map;
 - **juxtaposition:** images and set members in aligned lanes and small multiples.
 
-[cite: comparison of many items; uncertainty visualization of effects with intervals and margins.]
+Comparing many items calls for layouts that give each item a stable place [26, 27]; we follow this for the members of a comparison set, which keep their slot in every view instead of a hue. Effects are shown with their intervals against explicit margins, following work on how uncertainty displays are read and evaluated [28].
 
 **LLMs and VLMs in visual analytics.** Language models are used across analysis workflows, for example to recommend insights and summarize findings [24].
 - **Describing differences:** VisDiff [10] and CompCon [11] describe differences between image sets in natural language.
@@ -245,7 +245,9 @@ An evaluator therefore needs to move between all three, and visual analytics is 
 
 ## 5 DefaultScope
 
-DefaultScope is a single-screen web system (D3) with five linked panels (Fig. 4). It runs from disk; user-defined aspects need a local web server.
+DefaultScope is a single-screen web system (D3) with five linked panels (Fig. 4).
+- **Computation:** a build step precomputes the encoder scores of all 12,288 images (the 9,216 study images and 3,072 from rewritten prompts); everything else is computed in the browser. Recomputing every interval of a contrast (six aspects, 24 subjects, 400 bootstrap resamples per cell) takes about 0.2 s on a desktop browser, so verdicts follow changes of the set, the encoder or the margins without a visible delay.
+- **Running:** the system runs from disk; user-defined aspects need a local web server.
 
 ### 5.1 The comparison set and the encoder (R1, R2)
 The header holds a **comparison set** of up to six configurations in chain order, with two roles:
@@ -364,9 +366,16 @@ Each case starts from a failure of Sec. 4 and follows an analyst through Default
 
 **Without the system:** the sentence reads as plausible. Eight images per side do not settle it either, because people miss most real shifts there (F3).
 
-### 6.5 Defining and checking a new aspect (F1a; R4) [pending: the analyst's check on real data]
-- **A suspected default:** the analyst suspects that guidance and distillation push scenes toward daylight, and defines "a scene in daylight" ↔ "a scene at night". [Result: map, scatter, matrix; the in-tool check on the set.]
-- **A failed proposal:** for contrast, the analyst enters the VLM-proposed pair that failed round 3 ("rich detail" ↔ "minimal detail", 0.34). [Result of the in-tool check.]
+### 6.5 Defining and checking a new aspect (F1a; R4)
+Scored in the running system on 2026-10-27 (`case65.mjs`); the in-tool human check is still to be done by the analyst.
+- **A suspected default:** the analyst suspects that guidance and distillation push scenes toward daylight, and defines "a scene in daylight" ↔ "a scene at night". After the encoder's self-check, the aspect enters every view, marked ⊘.
+  - **Numbers:** they fit the suspicion. Guidance narrows the aspect (×0.52) and leans toward daylight (−0.28); distillation does so more (×0.50, −0.46; 12 subjects toward daylight beyond the margin, one the other way).
+  - **Images:** they give a first reason for caution. For "a city street", the images scored nearest "at night" are grey, hazy daylight streets rather than night scenes (Fig. 8).
+  - [pending: the analyst's in-tool check on the klein chain.]
+- **A failed proposal:** for contrast, the analyst enters the axis a VLM proposed and people rejected: "a simple image with little detail" ↔ "a highly detailed, intricate image" (agreement 0.34).
+  - **Numbers:** it shows a shift toward "detailed" in every contrast, including the rewriter (+0.75, 16 subjects up, 3 down) and distillation (+0.72).
+  - **What it means:** an analyst who trusted the words would report that rewriting and distillation add detail. On this axis CLIP mostly orders images the opposite way from people, and the ⊘ mark and the check stop that reading.
+  - [pending: the in-tool check of the detail axis.]
 
 ---
 

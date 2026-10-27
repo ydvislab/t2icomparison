@@ -109,5 +109,13 @@ def main():
     # Fig. 7 (one column), case 6.4: a VLM statement about SDXL -> Turbo traced to the measurement, the subject and its images
     save(frame(crop("case64_trail", "A")), "fig7_case64.png", width=1500)
 
+    # Fig. 8 (one column), case 6.5: two aspects defined in words on the klein chain (from case65.mjs), both marked
+    # not validated; their scatters and the image lane of one subject. With seven aspects the E cards are shorter.
+    if os.path.exists(os.path.join(FIG, "case65_night.png")):
+        PANEL.update({"E_u1": (1359, 727, 1666, 851), "E_u2": (1359, 863, 1666, 987)})
+        cards = hcat([crop("case65_night", "E_u1"), crop("case65_night", "E_u2")], gap=12)
+        lane = crop("case65_night", "C")
+        save(vcat([fit_w(cards, lane.width), lane], gap=16), "fig8_case65.png", width=1500)
+
 if __name__ == "__main__":
     main()

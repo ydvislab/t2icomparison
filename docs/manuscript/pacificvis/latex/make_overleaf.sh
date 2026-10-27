@@ -6,7 +6,7 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 B=$(mktemp -d)
 mkdir -p "$B/figures"
 cp "$HERE"/main.tex "$HERE"/refs.bib "$HERE"/vgtc.cls "$HERE"/abbrv-doi.bst "$HERE"/abbrv-doi-hyperref.bst "$B/"
-for f in fig3_failures.pdf fig4_interface.png fig5_case61.png fig6_cases_62_63.png fig7_case64.png; do cp "$HERE/../figures/$f" "$B/figures/"; done
+for f in fig3_failures.pdf fig4_interface.png fig5_case61.png fig6_cases_62_63.png fig7_case64.png fig8_case65.png; do cp "$HERE/../figures/$f" "$B/figures/"; done
 ZIPBASE=$(cygpath -w "$HERE/../pvis_overleaf" 2>/dev/null || echo "$HERE/../pvis_overleaf")
 SRCDIR=$(cygpath -w "$B" 2>/dev/null || echo "$B")
 rm -f "$HERE/../pvis_overleaf.zip"
