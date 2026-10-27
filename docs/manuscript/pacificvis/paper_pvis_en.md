@@ -1,3 +1,5 @@
+> **Superseded (2026-10-27):** the paper was restructured as a visual analytics system paper (draft 4, `latex/main.tex`): problem characterization with a formative study, three techniques, two case studies, expert study. This file keeps draft 3 for reference.
+
 # Grounding Language in Images: Interactive Visual Analysis of Appearance Defaults in Text-to-Image Models
 
 *PacificVis 2027 Conference Paper Track, draft 3 (2026-10-26; synced with `latex/main.tex` on 2026-10-27). From now on `latex/main.tex` is the primary text.*
