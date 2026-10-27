@@ -1672,10 +1672,11 @@ function drawFindings() {
 // every image is scored from its stored image embedding (emb.bin) as cos(image, right) − cos(image, left), exactly as
 // the frozen scores. The scale follows the frozen definition (square root of the mean within-cell variance over the
 // subject × configuration cells of the scale configurations). The aspect enters every view at once but counts as
-// validated only for the configurations on which the analyst has checked it: 12 large-gap pairs from the set, sampled
+// validated only for the configurations on which it has been checked: runs of 12 large-gap pairs from the set, sampled
 // as in round 1 (one image from a subject's top 15%, one from its bottom 15%, pooled over the set members), judged
-// blind, with the frozen acceptance rule (agreement ≥ 0.75 on decided pairs, "can't tell" ≤ 0.40).
-const UA = { enc: null, E: null, S: null, off: null, n: 0, checked: null };
+// blind; all runs on a set are pooled and judged with the frozen acceptance rule (agreement ≥ 0.75 on decided pairs,
+// "can't tell" ≤ 0.40).
+const UA = { enc: null, E: null, S: null, off: null, n: 0, checked: null, server: false, serverRuns: [] };
 const UA_RULE = { agree: .75, cant: .40, n: 12 };
 function uaLoad() { try { return JSON.parse(localStorage.getItem("auditUserAspects") || "[]"); } catch (e) { return []; } }
 function uaSave(L) { try { localStorage.setItem("auditUserAspects", JSON.stringify(L)); return true; } catch (e) { return false; } }
@@ -1694,9 +1695,73 @@ function uaInstall(u) {
   const v = [];
   for (const g of META.scale_groups) (SCORES[g] || []).forEach(rows => { if (rows.length > 1) v.push(d3.variance(rows, r => r[ai])); });
   META.scale[u.key] = Math.sqrt(d3.mean(v));
-  if (u.check?.pass) for (const g of u.check.members) META.validity[g]?.aspects.push(u.key);
+  uaApplyValidity(u);
 }
-function uaRestore() { uaOffsets(); for (const u of uaLoad()) if (u.scores?.length === UA.n) uaInstall(u); }
+// Check runs. Every run is kept (several people, or one person several times); runs on the same set of configurations
+// are pooled and judged by the frozen rule, as the annotation rounds pooled their annotators. A run holds the pairs it
+// showed, so it can be audited and repeated. Runs live in this browser and, when the page is served by serve.py, on the
+// server (api/checks), where runs from other browsers on the same poles are merged in.
+const memKey = m => [...m].sort().join("|");
+function uaRuns(u) {   // local and server runs for these poles, without duplicates
+  const all = [...(u.checks || []), ...(UA.serverRuns || []).filter(r => r.aspect?.left === u.left && r.aspect?.right === u.right)];
+  const seen = new Set();
+  return all.filter(r => { const k = r.client_id || r.id; if (seen.has(k)) return false; seen.add(k); return true; });
+}
+function uaCounts(r) {   // judged pairs, decided pairs, decided pairs that agree with CLIP
+  const n = r.answers.length, dec = r.answers.filter(x => x !== "?").length;
+  if (r.pairs?.length === n) return { n, dec, ok: r.answers.filter((x, i) => x !== "?" && x === r.pairs[i].clip).length };
+  return { n, dec, ok: Math.round((r.agree || 0) * dec) };   // an early run whose pairs could not be reconstructed
+}
+function uaPooled(runs) {   // members -> pooled verdict over every run on that set
+  return d3.rollups(runs, rs => {
+    const c = rs.map(uaCounts), n = d3.sum(c, d => d.n), dec = d3.sum(c, d => d.dec), ok = d3.sum(c, d => d.ok);
+    const agree = dec ? ok / dec : 0, cant = n ? 1 - dec / n : 1;
+    return { members: rs[0].members, runs: rs.length, people: new Set(rs.map(r => r.annotator || "?")).size, n, decided: dec, agree, cant,
+      pass: dec > 0 && agree >= UA_RULE.agree && cant <= UA_RULE.cant };
+  }, r => memKey(r.members)).map(d => d[1]);
+}
+function uaApplyValidity(u) {
+  for (const v of Object.values(META.validity)) v.aspects = v.aspects.filter(k => k !== u.key);
+  for (const p of uaPooled(uaRuns(u))) if (p.pass) for (const g of p.members) META.validity[g]?.aspects.push(u.key);
+}
+function uaRestore() {
+  uaOffsets();
+  const Ls = uaLoad();
+  for (const u of Ls) {   // the first version kept one check without its pairs; it becomes run 1
+    if (u.check && !u.checks) u.checks = [{ ...u.check, client_id: `${u.key}-legacy`, annotator: u.check.annotator || "", run: 1, aspect: { name: u.name, left: u.left, right: u.right }, legacy: true }];
+    delete u.check;
+  }
+  for (const u of Ls) if (u.scores?.length === UA.n) {
+    uaInstall(u);
+    // that version drew its pairs with the seed key + members; rebuild them, and keep them only if they reproduce the
+    // agreement it stored at the time
+    for (const r of u.checks || []) if (r.legacy && !r.pairs) {
+      const P = uaPairsFor(u.key, r.members, u.key + r.members.join());
+      const pairs = P.map(p => ({ subject: SUBJ[p.si].name, L: [p.L.g, p.L.r[2]], R: [p.R.g, p.R.r[2]], clip: p.clip }));
+      const c = uaCounts({ answers: r.answers, pairs });
+      if (pairs.length === r.answers.length && c.dec && Math.abs(c.ok / c.dec - r.agree) < 1e-9) r.pairs = pairs;
+    }
+    uaApplyValidity(u);
+  }
+  uaSave(Ls);
+  uaSync();
+}
+async function uaSync() {   // upload runs not yet on the server, then read every run back
+  if (location.protocol === "file:") return;
+  try {
+    if (!(await fetch("api/ping", { cache: "no-store" })).ok) return;
+    UA.server = true;
+    const Ls = uaLoad();
+    for (const u of Ls) for (const r of u.checks || []) if (!r.id) {
+      const res = await (await fetch("api/checks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(r) })).json();
+      if (res.ok) r.id = res.id;
+    }
+    uaSave(Ls);
+    UA.serverRuns = await (await fetch("api/checks", { cache: "no-store" })).json();
+    for (const u of Ls) if (AIDX[u.key] != null) uaApplyValidity(u);
+    if (typeof R !== "undefined" && R) update();
+  } catch (e) { UA.server = false; }
+}
 const h2f = h => { const s = h & 0x8000 ? -1 : 1, e = (h >> 10) & 31, f = h & 1023; return e === 0 ? s * 2 ** -14 * (f / 1024) : e === 31 ? s * Infinity : s * 2 ** (e - 15) * (1 + f / 1024); };
 async function uaEncoder(say) {
   if (UA.enc) return UA.enc;
@@ -1745,7 +1810,7 @@ function uaOpen() {
   const dlg = d3.select("#uaDlg").style("display", null); dlg.selectAll("*").remove();
   const top = dlg.append("div").attr("class", "fhead"); top.append("b").text("Define an aspect in words");
   top.append("button").attr("class", "mini").text("✕").on("click", () => dlg.style("display", "none"));
-  dlg.append("div").text("Two pole phrases, scored with the same CLIP text encoder as the five aspects. The aspect enters every view at once, marked as not validated until it passes your check on the configurations in the set.");
+  dlg.append("div").text("Two pole phrases, scored with the same CLIP text encoder as the five aspects. The aspect enters every view at once, marked as not validated until it passes the check on the configurations in the set.");
   const L = dlg.append("label"); L.append("span").text("left pole"); const il = L.append("input").attr("placeholder", "a scene in daylight");
   const Rr = dlg.append("label"); Rr.append("span").text("right pole"); const ir = Rr.append("input").attr("placeholder", "a scene at night");
   const N = dlg.append("label"); N.append("span").text("short name"); const inm = N.append("input").attr("placeholder", "night");
@@ -1764,7 +1829,7 @@ function uaOpen() {
       say("Scoring all images …");
       const [tl, tr] = await UA.enc([left, right]);
       const key = "u" + Date.now().toString(36), name = inm.property("value").trim() || right.split(" ").slice(-2).join(" ");
-      const u = { key, name, left, right, scores: uaScore(tl, tr), check: null, created: new Date().toISOString().slice(0, 16) };
+      const u = { key, name, left, right, scores: uaScore(tl, tr), checks: [], created: new Date().toISOString().slice(0, 16) };
       uaInstall(u);
       const Ls = uaLoad(); Ls.push(u);
       const kept = uaSave(Ls);
@@ -1776,15 +1841,32 @@ function uaOpen() {
   if (us.length) {
     const ul = dlg.append("div").attr("class", "ul");
     for (const u of us) {
-      const c = u.check;
-      ul.append("div").html(`<i>${esc(u.name)}</i> · ${esc(u.left)} ↔ ${esc(u.right)}<br><span style="color:var(--muted)">${c ? `${c.pass ? "✓ passed" : "✗ failed"} on ${c.members.map(g => sh(G[g] || { id: g, label: g })).join(", ")}: agreement ${f2(c.agree)}, can't tell ${f2(c.cant)}` : "not checked"}</span>`);
-      ul.append("button").attr("class", "chipbtn").text("check on set").attr("title", "Judge 12 large-gap image pairs from the configurations in the set").on("click", () => uaCheck(u.key));
-      ul.append("button").attr("class", "mini").text("✕").attr("title", "Delete (reloads the page)").on("click", () => { uaSave(uaLoad().filter(x => x.key !== u.key)); location.reload(); });
+      const pooled = uaPooled(uaRuns(u));
+      const lines = pooled.map(p => `${p.pass ? "✓ passes" : "✗ fails"} on ${p.members.map(g => sh(G[g] || { id: g, label: g })).join(", ")}: agreement ${f2(p.agree)} on ${p.decided} decided pairs, can't tell ${f2(p.cant)} · ${p.runs} run${p.runs > 1 ? "s" : ""}, ${p.people} ${p.people > 1 ? "people" : "person"}`);
+      ul.append("div").html(`<i>${esc(u.name)}</i> · ${esc(u.left)} ↔ ${esc(u.right)}<br><span style="color:var(--muted)">${lines.length ? lines.map(esc).join("<br>") : "not checked"}</span>`);
+      ul.append("button").attr("class", "chipbtn").text(pooled.length ? "check again" : "check on set").attr("title", "Judge 12 new large-gap image pairs from the configurations in the set; every run is kept and pooled with earlier runs on the same set").on("click", () => uaCheck(u.key));
+      ul.append("button").attr("class", "mini").text("✕").attr("title", "Delete from this browser (reloads the page); runs stored on the server are kept").on("click", () => { uaSave(uaLoad().filter(x => x.key !== u.key)); location.reload(); });
     }
+    const foot = dlg.append("div").style("margin-top", "8px").style("display", "flex").style("gap", "8px").style("align-items", "center");
+    foot.append("span").style("color", "var(--muted)").text(UA.server ? "Check runs are stored on the server and in this browser." : "Check runs are stored in this browser only (open the tool through serve.py to store them on the server).");
+    foot.append("button").attr("class", "chipbtn").text("⤓ runs (CSV)").on("click", uaExport);
   }
 }
-function uaPairs(key) {
-  const ai = 3 + AIDX[key], members = SET(), rand = rng([...(key + members.join())].reduce((h, c) => Math.imul(h, 31) + c.charCodeAt(0) | 0, 7));
+function uaExport() {
+  if (UA.server) { location.href = "api/checks.csv"; return; }
+  const rows = [["time", "annotator", "aspect", "left_pole", "right_pole", "members", "run", "pair", "subject", "left_image", "right_image", "clip_side", "answer"]];
+  for (const u of uaLoad()) for (const r of u.checks || []) r.answers.forEach((x, i) => {
+    const p = r.pairs?.[i] || {};
+    rows.push([r.date, r.annotator, u.name, u.left, u.right, r.members.join(" "), r.run, i + 1, p.subject || "", (p.L || []).join("/"), (p.R || []).join("/"), p.clip || "", x]);
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n")], { type: "text/csv" }));
+  a.download = "aspect_checks.csv"; a.click();
+}
+// 12 large-gap pairs from the set, sampled as in round 1; the run number enters the seed, so a repeated check shows new pairs
+function uaPairs(key, run) { return uaPairsFor(key, SET(), key + SET().join() + "#" + run); }
+function uaPairsFor(key, members, seed) {
+  const ai = 3 + AIDX[key], rand = rng([...seed].reduce((h, c) => Math.imul(h, 31) + c.charCodeAt(0) | 0, 7));
   const order = SUBJ.map((_, i) => i);
   for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
   return order.slice(0, UA_RULE.n).map(si => {
@@ -1794,17 +1876,30 @@ function uaPairs(key) {
   });
 }
 function uaCheck(key) {
-  const a = ASP.find(x => x.key === key);
-  if (!a) return;
-  const P = uaPairs(key), ans = [], members = SET();
+  const a = ASP.find(x => x.key === key), u = uaLoad().find(x => x.key === key);
+  if (!a || !u) return;
+  const members = SET(), mk = memKey(members), run = uaRuns(u).filter(r => memKey(r.members) === mk).length + 1;
+  const P = uaPairs(key, run), ans = [];
+  let who = ""; try { who = localStorage.getItem("auditAnnotator") || ""; } catch (e) { /* storage unavailable */ }
   const dlg = d3.select("#uaDlg").style("display", null);
   const draw = () => {
     dlg.selectAll("*").remove();
-    const top = dlg.append("div").attr("class", "fhead"); top.append("b").text(`Check “${a.name}” on ${members.map(g => sh(G[g])).join(", ")}`);
+    const top = dlg.append("div").attr("class", "fhead"); top.append("b").text(`Check “${a.name}” on ${members.map(g => sh(G[g])).join(", ")} · run ${run}`);
     top.append("button").attr("class", "mini").text("✕").on("click", () => { document.onkeydown = null; uaOpen(); });
+    if (!who) {   // initials first, so runs by different people can be told apart
+      dlg.append("div").text("Your initials (stored with the run; no names):");
+      const inp = dlg.append("input").style("margin", "6px 0").attr("placeholder", "e.g. YD");
+      dlg.append("button").attr("class", "chipbtn").text("start").on("click", () => {
+        who = inp.property("value").trim(); if (!who) return;
+        try { localStorage.setItem("auditAnnotator", who); } catch (e) { /* storage unavailable */ }
+        draw();
+      });
+      return;
+    }
     if (ans.length < P.length) {
       const p = P[ans.length], choose = v => { ans.push(v); draw(); };
-      dlg.append("div").html(`Pair ${ans.length + 1} of ${P.length} · ${esc(SUBJ[p.si].name)}. Which image is closer to <b>“${esc(a.right)}”</b> (rather than “${esc(a.left)}”)? Configurations and scores are hidden.`);
+      dlg.append("div").html(`Pair ${ans.length + 1} of ${P.length} · ${esc(SUBJ[p.si].name)}. Which image is closer to <b>“${esc(a.right)}”</b> (rather than “${esc(a.left)}”)? Configurations and scores are hidden. <span style="color:var(--muted)">(${esc(who)}${ans.length ? "" : ` · <a href="#" id="uaWho">not you?</a>`})</span>`);
+      d3.select("#uaWho").on("click", e => { e.preventDefault(); who = ""; try { localStorage.removeItem("auditAnnotator"); } catch (x) { /* ignore */ } draw(); });
       const pr = dlg.append("div").attr("class", "pair");
       [p.L, p.R].forEach(x => pr.append("img").attr("src", `thumbs/${x.g}/${x.r[2]}.jpg`).attr("alt", ""));
       const b = dlg.append("div").attr("class", "ans");
@@ -1815,15 +1910,21 @@ function uaCheck(key) {
       return;
     }
     document.onkeydown = null;
-    const dec = P.filter((p, i) => ans[i] !== "?"), agree = dec.length ? dec.filter(p => ans[P.indexOf(p)] === p.clip).length / dec.length : 0;
-    const cant = 1 - dec.length / P.length, pass = dec.length > 0 && agree >= UA_RULE.agree && cant <= UA_RULE.cant;
-    dlg.append("div").html(`Agreement with CLIP on decided pairs: <b>${f2(agree)}</b> (${dec.length} decided) · can't tell: <b>${f2(cant)}</b><br>Rule (the one fixed for the five aspects): agreement ≥ ${UA_RULE.agree} and can't tell ≤ ${UA_RULE.cant} → <b>${pass ? "✓ passes" : "✗ fails"}</b> for these configurations.`);
-    dlg.append("button").attr("class", "chipbtn").style("margin-top", "8px").text("keep this result").on("click", () => {
+    const rec = { client_id: `${key}-${Date.now().toString(36)}`, kind: "aspect_check", aspect: { name: a.name, left: a.left, right: a.right },
+      members, annotator: who, run, date: new Date().toISOString().slice(0, 16), build: META.built, encoder: "CLIP ViT-L/14",
+      pairs: P.map(p => ({ subject: SUBJ[p.si].name, L: [p.L.g, p.L.r[2]], R: [p.R.g, p.R.r[2]], clip: p.clip })), answers: ans };
+    const one = uaPooled([rec])[0], all = uaPooled([...uaRuns(u), rec]).find(p => memKey(p.members) === mk);
+    Object.assign(rec, { agree: one.agree, cant: one.cant, pass: one.pass });
+    dlg.append("div").html(`This run: agreement with CLIP <b>${f2(one.agree)}</b> on ${one.decided} decided pairs, can't tell <b>${f2(one.cant)}</b>.<br>
+      All ${all.runs} run${all.runs > 1 ? "s" : ""} on this set pooled (${all.people} ${all.people > 1 ? "people" : "person"}): agreement <b>${f2(all.agree)}</b> on ${all.decided} pairs, can't tell <b>${f2(all.cant)}</b> → <b>${all.pass ? "✓ passes" : "✗ fails"}</b> the rule (agreement ≥ ${UA_RULE.agree}, can't tell ≤ ${UA_RULE.cant}).`);
+    const keep = dlg.append("button").attr("class", "chipbtn").style("margin-top", "8px").text("keep this run");
+    keep.on("click", async () => {
+      keep.attr("disabled", true);
       const Ls = uaLoad(), x = Ls.find(y => y.key === key);
-      if (x) { x.check = { members, n: P.length, agree, cant, pass, answers: ans, date: new Date().toISOString().slice(0, 16) }; uaSave(Ls); }
-      for (const g of Object.keys(META.validity)) { const v = META.validity[g]; v.aspects = v.aspects.filter(k => k !== key); }
-      if (pass) for (const g of members) META.validity[g]?.aspects.push(key);
-      addRecord({ kind: "note", src: "✎", text: `Aspect “${a.name}” (${a.left} ↔ ${a.right}) ${pass ? "passed" : "failed"} my check on ${members.map(g => sh(G[g])).join(", ")}: agreement ${f2(agree)} on ${dec.length} decided pairs, can't tell ${f2(cant)}.` });
+      if (x) { (x.checks = x.checks || []).push(rec); uaSave(Ls); }
+      addRecord({ kind: "note", src: "✎", text: `Aspect “${a.name}” (${a.left} ↔ ${a.right}), check run ${run} by ${who} on ${members.map(g => sh(G[g])).join(", ")}: agreement ${f2(one.agree)}, can't tell ${f2(one.cant)}; pooled over ${all.runs} run(s): ${all.pass ? "passes" : "fails"} (agreement ${f2(all.agree)}, can't tell ${f2(all.cant)}).` });
+      await uaSync();
+      const y = uaLoad().find(z => z.key === key); if (y) uaApplyValidity(y);
       update(); uaOpen();
     });
   };

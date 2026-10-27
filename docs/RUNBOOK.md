@@ -111,3 +111,15 @@ for f in config.json tokenizer.json tokenizer_config.json special_tokens_map.jso
 - **Fidelity (2026-10-26, onnxruntime 1.23 CPU, graph optimisation disabled):** the fp16 text model matches PyTorch at cosine 1.00000 on the frozen poles. The q8 model (`text_model_quantized.onnx`) does not (cosine 0.86–0.93) and must not be used.
 - **In the browser:** the tool reproduces the stored saturation scores of all 12,288 images within 0.004 scale units, and repeats this self-check on first use.
 - **Serving:** the feature needs the folder served over http (`python -m http.server` in the folder that holds `index.html`); from `file://` it explains this.
+
+## Serving the audit tool with stored checks (2026-10-27)
+The tool is served by `system/audit/serve.py` (in the tmux session `audit` on the server), not by `python -m http.server`:
+```
+source ops/env.sh; python code/system/audit/serve.py --port 8772
+```
+- **Storage:** in-tool aspect checks are appended to `$T2IC_DATA/audit_store/checks.jsonl`, one run per line, never rewritten. The file holds initials and judgements, so it stays out of git.
+- **Endpoints:**
+  - `GET /api/checks` lists the runs;
+  - `GET /api/checks.csv` exports them, one row per judged pair.
+- **Offline package:** run `python serve.py --root . --port 8000` in the package folder; runs then go to `./checks.jsonl`.
+- **Without the server:** the page keeps runs in the browser and exports them as CSV.
