@@ -1,139 +1,216 @@
-% PacificVis 2027 Conference Paper Track, draft 4 (2026-10-27): restructured as a visual analytics system paper
-% (problem characterization, design, two case studies, expert study). Build: see README.md.
-% Review mode is double-blind; for single-blind review use \documentclass{vgtc} and fill in the authors.
-\PassOptionsToPackage{svgnames}{xcolor}   % vgtc.cls loads xcolor[svgnames] in \vgtcinsertpkg
-\documentclass[review]{vgtc}
-%\documentclass{vgtc}                          % final (conference style)
+% $Id: template.tex 11 2007-04-03 22:25:53Z jpeltier $
+% PacificVis 2027 Conference Paper Track, draft 5 (2026-10-27), built on the official VGTC conference template
+% (vgtc_conference_latex 2024.02.14). Structure: preliminary study in the text-to-image domain (method and findings),
+% design requirements, the DefaultScope system, two case studies, expert study, discussion.
 
-\graphicspath{{figures/}}
-\usepackage{times}
-\renewcommand*\ttdefault{txtt}
-\usepackage{booktabs}
-\usepackage{tabularx}
-\usepackage{mathptmx}
+%\documentclass{vgtc}                          % final (conference style)
+\documentclass[review]{vgtc}                 % review
+%\documentclass[widereview]{vgtc}             % wide-spaced review
+%\documentclass[preprint]{vgtc}               % preprint
+%\documentclass[electronic]{vgtc}             % electronic version
+
+%% Please use one of the ``review'' options in combination with the
+%% assigned online id (see below) ONLY if your paper uses a double blind
+%% review process.
+
+\graphicspath{{figures/}{pictures/}{images/}{./}} % where to search for the images
+
+\usepackage{times}                     % we use Times as the main font
+\renewcommand*\ttdefault{txtt}         % a nicer typewriter font
+\usepackage{booktabs}                  % tables
+\usepackage{tabularx}                  % tables that fill the column
+\usepackage{mathptmx}                  % use matching math font
+
+%% Float placement: several full-width figures; let them share pages instead of drifting to the end
 \renewcommand{\topfraction}{0.9}\renewcommand{\dbltopfraction}{0.9}\renewcommand{\textfraction}{0.07}
 \renewcommand{\floatpagefraction}{0.8}\renewcommand{\dblfloatpagefraction}{0.8}
 \setcounter{topnumber}{3}\setcounter{dbltopnumber}{3}\setcounter{totalnumber}{6}
 
-% teaser caption typeset directly in the class's caption font: \caption inside \teaser lost its text in the test
-% build (XeTeX via Tectonic); this works the same under pdfLaTeX and keeps the figure number and label
-\makeatletter
-\newcommand{\teasercaption}[1]{\refstepcounter{figure}\par\vskip\abovecaptionskip{\captionfonts\figurename~\thefigure: #1\par}}
-\makeatother
-% open items, shown in red until they are resolved
-\newcommand{\pending}[1]{\textcolor{red!70!black}{[#1]}}
-\newcommand{\sysname}{DefaultScope}
-\newcommand{\takeaway}[1]{\par\smallskip\noindent\fbox{\parbox{\dimexpr\columnwidth-2\fboxsep-2\fboxrule}{\small\textbf{Takeaways.} #1}}\par\smallskip}
-
+%% If you are submitting a paper to a conference for review with a double
+%% blind reviewing process, please replace the value ``0'' below with your
+%% OnlineID. Otherwise, you may safely leave it at ``0''.
 \onlineid{0}
+
+%% declare the category of your paper, only shown in review mode
 \vgtccategory{Research}
+
+%% allow for this line if you want the electronic option to work properly
 \vgtcinsertpkg
 
+%% Open items, shown in red until they are resolved; the system name
+\newcommand{\pending}[1]{\textcolor{red!70!black}{[#1]}}
+\newcommand{\sysname}{DefaultScope}
+
+%% Paper title.
 \title{\sysname{}: Visually Auditing Appearance Defaults and Language-Derived Claims in Text-to-Image Models}
 
-\author{\pending{Author}\thanks{e-mail: \pending{email}}\\ \scriptsize \pending{Affiliation}}
+%% Author and Affiliation (multiple authors with multiple affiliations)
+\author{\pending{Author}\thanks{e-mail: \pending{email}}\\ %
+        \scriptsize \pending{Affiliation}}
 
+%% A teaser figure can be included as follows
 \teaser{
   \centering
   \includegraphics[width=\linewidth]{fig4_interface.png}
-  \teasercaption{\sysname{} comparing a chain of three text-to-image configurations: klein-base 4B at guidance 1 (reference, blue), at guidance 4 (focus, orange) and the distilled klein 4B (ink). (A)~Where configurations settle: typical location and spread on the chosen aspect, with density contours over the 24 subjects. (B)~Subjects $\times$ configurations, with one shift column per member. (C)~The images of one subject on the aspect axis, one lane per member. (D)~The same seeds through all members. (E)~Shift $\times$ spread for every aspect, with intervals and the margins as bands. The header holds the comparison set, the settings that differ, the encoder and the aspects, including aspects the analyst defines in words.}
+  \caption{\sysname{} comparing a chain of three text-to-image configurations: klein-base 4B at guidance 1 (reference, blue), at guidance 4 (focus, orange) and the distilled klein 4B (ink). (A)~Where configurations settle: typical location and spread on the chosen aspect, with density contours over the 24 subjects. (B)~Subjects $\times$ configurations, with one shift column per member. (C)~The images of one subject on the aspect axis, one lane per member. (D)~The same seeds through all members. (E)~Shift $\times$ spread for every aspect, with intervals and the margins as bands. The header holds the comparison set, the settings that differ, the encoder and the aspects, including aspects the analyst defines in words.}
   \label{fig:teaser}
 }
 
-\abstract{Text-to-image models fill in what a prompt leaves unsaid---medium, framing, colour, background---and they increasingly fill it in the same way. Evaluators who change guidance, distil a model or add an LLM prompt rewriter need to know how these appearance defaults change, and they judge from summary numbers, from descriptions written by vision-language models (VLMs), or from a few images. In a formative study on 9,216 images from 12 open configurations, we show that each of these fails on its own: numbers measured the wrong thing, hid opposite changes across subjects and depended on the encoder; VLMs reported differences between two image sets from the same model in 98--100\% of answers; and people reading the same eight-image grids found 3 of 10 real shifts. We characterize the resulting analysis tasks and present \sysname{}, a visual analytics system that makes these judgements checkable. It contributes three techniques: a multi-level comparison of output distributions for a set of configurations that separates where outputs move from how much they narrow, with uncertainty and adjustable equivalence margins; validity-aware analysis, in which the human validation of every language-defined measure is a visual property and new measures defined in words are validated in situ; and claim-to-evidence verification, in which statements made by VLMs and rewriters become hypotheses with live verdicts traced to the images. Two case studies and an expert study \pending{pending} show how analysts reach and check findings that summary numbers, generated descriptions and quick looks miss.}
+%% Abstract section.
+\abstract{Text-to-image models fill in what a prompt leaves unsaid---medium, framing, colour, background---and they increasingly fill it in the same way. These appearance defaults change with routine decisions such as raising guidance, distilling a model or adding an LLM prompt rewriter, and evaluators judge the change from summary numbers, from descriptions written by vision-language models (VLMs), or from a few images. In a preliminary study of 9,216 images from 12 open configurations, with two LLM rewriters and two VLM describers, we measure appearance along axes defined in words and validated by people, and separate where outputs move from how much they narrow, per prompt. Guidance and distillation mainly narrow appearance; pooled comparisons hide opposite changes across prompts in 38 of 60 cases; a rewriter's strongest effect lies on an axis people reject; and VLMs report differences between two image sets from the same model in 98--100\% of answers, while people reading the same eight-image grids find only 3 of 10 real shifts. Each way of judging fails on its own, and each needs what another provides. We present \sysname{}, a visual analytics system that brings them together: it compares output distributions of a set of configurations at the configuration, subject and image level with live verdicts under adjustable margins and two encoders, shows and checks the human validity of every language-defined measure, and traces claims made in language to the images that decide them. Two case studies and an expert study \pending{pending} show how analysts reach and check findings that summary numbers, generated descriptions and quick looks miss.}
 
-\keywords{Visual analytics, model comparison, distribution comparison, measurement validity, LLM-assisted analysis, text-to-image generation.}
+%% Keywords that describe your work.
+\keywords{Visual analytics, model comparison, text-to-image generation, measurement validity, LLM-assisted analysis.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%% START OF THE PAPER %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 
+%% The ``\maketitle'' command must be the first command after the
+%% ``\begin{document}'' command. It prepares and prints the title block.
+
+%% the only exception to this rule is the \firstsection command
 \firstsection{Introduction}
+
 \maketitle
 
-A prompt such as ``a kitchen'' names a subject and nothing else. The model decides the rest---photograph or painting, close-up or wide view, muted or vivid, plain or cluttered---and modern models make nearly the same decision every time: in a pilot, the Vendi diversity score~\cite{vendi} fell from 7.45 for Stable Diffusion 1.5 to 2.79 for FLUX.2 klein, and from 5.95 to 2.32 within one model when classifier-free guidance~\cite{cfg} rose from 1 to 4. We call these unrequested, recurring decisions \emph{appearance defaults}. They change with routine engineering decisions---raising guidance, distilling to a few steps, swapping a checkpoint, or adding an LLM that rewrites prompts before generation, as FLUX.2 does~\cite{flux2}---and the people who make these decisions need to know what changed.
+A prompt such as ``a kitchen'' names a subject and nothing else. The model decides the rest---photograph or painting, close-up or wide view, muted or vivid, plain or cluttered---and modern models make nearly the same decision every time: in a pilot, the Vendi diversity score~\cite{vendi} fell from 7.45 for Stable Diffusion 1.5 to 2.79 for FLUX.2 klein, and from 5.95 to 2.32 within one model when classifier-free guidance~\cite{cfg} rose from 1 to 4. We call these unrequested, recurring decisions \emph{appearance defaults}. They change with routine engineering decisions, and the people who make those decisions---model developers, evaluators, and those who select a model for a product---need to know what changed.
 
-This is a comparison problem of an unusual shape. Each configuration produces, for every prompt, a distribution of images; a change can move the typical image, narrow the distribution around it, or both, and it can do so differently for different prompts. The measurements that make such distributions comparable are themselves defined in language---axes such as ``muted'' $\leftrightarrow$ ``vivid'' scored by an image--text encoder~\cite{clip}---and may not measure what their words say. And more and more of the evidence arrives as language: rewritten prompts, and VLM descriptions of how two models differ~\cite{visdiff,compcon}.
+Language is now involved in all three steps of this judgement. Appearance is measured along axes defined in words, such as ``muted'' $\leftrightarrow$ ``vivid'' scored by an image--text encoder~\cite{clip}; appearance is changed by LLMs that rewrite prompts before generation, as FLUX.2 does~\cite{flux2}; and differences are explained by VLMs that describe how two models differ~\cite{visdiff,compcon}. Each role produces claims about images, and each can be wrong. A third difficulty is the shape of the data: each configuration produces, for every prompt, a distribution of images, and a change can move the typical image, narrow the distribution around it, or both---differently for different prompts.
 
-Practitioners currently judge with one of three shortcuts: a summary number, a generated description, or a look at a few images. Our formative study shows that each fails on its own, in complementary ways (\cref{sec:problem}). Numbers mislead when the measure is wrong, when a pooled value hides opposite changes across prompts, or when the result depends on the encoder. Generated language asserts differences that are not there. A quick look at a few images misses real ones. Each failure is repaired by what another shortcut provides---numbers by the images, language by a measurement, eyes by a measurement that tells them where to look---and this is the job we give to visual analytics.
+We first studied the problem in the text-to-image domain (\cref{sec:study}). On 12 open configurations, two LLM rewriters and two VLM describers, we built an audit method---axes defined in words and kept only after people confirm them, and a per-prompt separation of displacement and concentration under explicit margins---and applied it. The study yields findings about the models, and it shows that each common way of judging, by a summary number, by a generated description or by a look at a few images, fails on its own while needing what another provides. We turn these lessons into design requirements (\cref{sec:requirements}) and build \sysname{}, a visual analytics system in which measurement, language and the images check one another (\cref{sec:system}).
 
-\noindent We contribute:
+\noindent Our contributions are:
 \begin{enumerate}\itemsep0pt
-\item \textbf{A problem characterization} of auditing appearance defaults, grounded in a formative study on 9,216 images from 12 open configurations, two LLM rewriters and two VLM describers, and distilled into data and task abstractions and five design requirements (\cref{sec:problem}).
-\item \textbf{\sysname{}}, a visual analytics system with three techniques (\cref{sec:system}): (i)~\emph{multi-level distribution comparison} for a set of configurations, which separates location from spread at the configuration, subject and image level, with uncertainty and adjustable equivalence margins; (ii)~\emph{validity-aware analysis}, which shows the human validation of each language-defined measure in every view and lets analysts validate new measures in situ, repeatably; and (iii)~\emph{claim-to-evidence verification}, which turns statements made by VLMs and rewriters into hypotheses with live, link-level verdicts traced to images.
-\item \textbf{An evaluation} with two case studies on real data and an expert study against a baseline that offers the same numbers and images without visualization and linking (\cref{sec:cases,sec:study}).
+\item \textbf{An audit method and a preliminary study} of appearance defaults across 12 open text-to-image configurations, two LLM rewriters and two VLM describers. With human-validated, language-defined aspects and a per-prompt separation of displacement and concentration, it shows that guidance and distillation mainly narrow appearance, that pooled comparisons hide opposite changes, and that language-derived judgements---encoder axes, rewritten prompts, VLM descriptions---are unreliable without image evidence (\cref{sec:study}).
+\item \textbf{\sysname{}}, a visual analytics system with three techniques (\cref{sec:system}): multi-level distribution comparison for a set of configurations with live verdicts under adjustable margins and two encoders; validity-aware analysis, which shows the human validation of each language-defined measure in every view and lets analysts validate new measures in situ; and claim-to-evidence verification, which traces statements made by VLMs and rewriters to the images that decide them.
+\item \textbf{An evaluation} with two case studies on real data and an expert study against a baseline that offers the same numbers and images without visualization and linking (\cref{sec:cases,sec:experts}).
 \end{enumerate}
 
-\section{Related Work}
+\section{Background and Related Work}
 
-\paragraph{Visual analytics for generative image models.}
-ViBEx~\cite{vibex} and Varif.ai~\cite{varifai} help users explore how outputs vary for one model or prompt, CUPID~\cite{cupid} visualizes distributions of generated images, and PromptMagician~\cite{promptmagician} supports prompt refinement by exploring the images a prompt produces. These systems help users understand one model's output space. \sysname{} addresses a different task: comparing several declared configurations, at the level of distributions per prompt, and checking claims made about them in language.
+\paragraph{Appearance defaults and diversity in text-to-image models.}
+Diversity scores~\cite{vendi,dimcim,grade,attrdiv} quantify how varied a model's outputs are, and studies of default images~\cite{defaultimages} characterize what models produce for empty or minimal prompts. DefaultShift~\cite{defaultshift} compares distilled models with their teachers on a closed attribute list and observes that distillation acts like raised guidance. These works summarize convergence in a number; they do not separate a move of the typical output from a narrowing around it, per prompt, nor lead from the number to the images.
+
+\paragraph{Language in generation and evaluation.}
+Image--text encoders~\cite{clip,siglip2} make it possible to score images along attributes stated in words. Prompt rewriters add detail before generation and are reported to add variety in aggregate~\cite{promptexpansion,promptmodifier}. VisDiff~\cite{visdiff} and CompCon~\cite{compcon} describe differences between image sets in natural language, and benchmarks score whether such descriptions name a reference difference~\cite{visdiff} or whether a model identifies a change, with ``no difference'' as an option~\cite{vdiffbench}. None checks the language against a human-validated measurement of the images.
+
+\paragraph{Visual analytics for generative models.}
+ViBEx~\cite{vibex} and Varif.ai~\cite{varifai} help users explore how outputs vary for one model or prompt, CUPID~\cite{cupid} visualizes distributions of generated images, and PromptMagician~\cite{promptmagician} supports prompt refinement by exploring the images a prompt produces. LLMs are increasingly used inside analysis workflows, for example to recommend insights~\cite{leva}. \sysname{} addresses a different task: comparing several declared configurations at the level of output distributions per prompt, and verifying claims made about them in language, with analytic provenance~\cite{ragan}.
 
 \paragraph{Visual comparison and uncertainty.}
-Gleicher et al.~\cite{gleicher2011,gleicher} distinguish juxtaposition, superposition and explicit encoding of differences; comparative layouts for many items~\cite{lyi} motivate giving each compared item a stable place. \sysname{} encodes per-subject differences explicitly, superposes configurations on one map, and juxtaposes members in fixed slots rather than hues. Effects are drawn with intervals against explicit margins, following work on how uncertainty displays are read~\cite{hullman}; unlike most effect displays, the margins are interactive and every verdict that depends on them updates.
+Gleicher et al.~\cite{gleicher2011,gleicher} distinguish juxtaposition, superposition and explicit encoding of differences, and comparative layouts for many items~\cite{lyi} motivate giving each compared item a stable place. We encode per-prompt differences explicitly, superpose configurations on one map and juxtapose members in fixed slots. Effects are drawn with intervals against explicit margins, following work on how uncertainty displays are read~\cite{hullman}; unlike most effect displays, our margins are interactive and every verdict that depends on them updates.
 
-\paragraph{Language models in visual analytics.}
-LLMs are used across analysis workflows, for example to recommend insights and summarize findings~\cite{leva}. VisDiff~\cite{visdiff} and CompCon~\cite{compcon} describe differences between image sets in natural language, and benchmarks score whether such descriptions name a reference difference~\cite{visdiff} or whether a model identifies a change, with ``no difference'' as an option~\cite{vdiffbench}. None calibrates a description against a human-validated measurement or gives the analyst a visual route from a sentence to the images. We treat generated language as a claim to verify, in line with work on analytic provenance~\cite{ragan}.
-
-\paragraph{Measuring diversity and defaults.}
-Diversity scores~\cite{vendi,dimcim,grade,attrdiv}, studies of default images~\cite{defaultimages}, analyses of distillation~\cite{defaultshift} and of prompt rewriting~\cite{promptexpansion,promptmodifier} report how much outputs converge. They summarize; they do not separate a move of the typical output from a narrowing around it, per prompt, nor lead from the number to the images. \sysname{} builds on such measures and makes their readings inspectable.
-
-\section{Problem Characterization}
-\label{sec:problem}
+\section{Preliminary Study: Appearance Defaults and Language-Derived Claims}
+\label{sec:study}
 
 \begin{figure*}[tb]
 \centering
 \includegraphics[width=\linewidth]{fig3_failures.pdf}
-\caption{Formative study. (a)~F1b: per-subject saturation shifts of SDXL$\rightarrow$SDXL-Turbo around a pooled $+0.17$; coloured subjects lie beyond the margin. (b)~F1c: klein-base 4B, guidance 1$\rightarrow$4, pooled shift and spread ratio with 90\% intervals under CLIP (filled) and SigLIP~2 (hollow): the narrowing agrees, the shifts do not. (c)~F2, F3: on the same 48 grid pairs, both VLMs report a difference on every null pair and people on a third, while people find 3 of 10 real shifts.}
-\label{fig:failures}
+\caption{Preliminary study. (a)~Per-subject saturation shifts of SDXL$\rightarrow$SDXL-Turbo around a pooled $+0.17$; coloured subjects lie beyond the margin. (b)~klein-base 4B, guidance 1$\rightarrow$4: pooled shift and spread ratio with 90\% intervals under CLIP (filled) and SigLIP~2 (hollow); the narrowing agrees, the shifts do not. (c)~On the same 48 grid pairs, both VLMs report a difference on every null pair and people on a third, while people find 3 of 10 real shifts.}
+\label{fig:prestudy}
 \end{figure*}
 
-\subsection{Domain, data and measures}
-The analysts are researchers and engineers who train, distil, evaluate or select text-to-image models and the language components around them. Our data cover 24 minimal prompts (\emph{subjects}) in six categories, each naming only a subject, rendered by 12 open configurations at their model-card settings---SD~1.5, SDXL, SDXL-Turbo, SD~3.5 Large, FLUX.2 dev, FLUX.2 klein-base 4B at guidance 4 and 1, klein 4B, klein-base 9B, klein 9B, and Qwen-Image-2512~\cite{qwenimage} at guidance 4 and 1---from the same 32 seeds (9,216 images), plus 3,072 images from rewritten prompts. Every setting is declared.
+\subsection{Data}
+We use 24 minimal prompts (\emph{subjects}) in six categories (people, animals, objects, interiors, outdoor scenes, activities), each naming only a subject, and 12 open configurations at their model-card settings: SD~1.5, SDXL, SDXL-Turbo, SD~3.5 Large; FLUX.2 dev; FLUX.2 klein-base 4B at guidance 4 and 1, klein 4B, klein-base 9B, klein 9B; and Qwen-Image-2512~\cite{qwenimage} at guidance 4 and 1. Each configuration renders each prompt from the same 32 seeds (9,216 images), and every setting is read from the weights and declared. For the language study, FLUX.2's official rewriter (Mistral-Small-3.2-24B with Black Forest Labs' instruction~\cite{flux2}) and Qwen3.5-4B with the same instruction rewrite each prompt once per seed, and klein 4B and FLUX.2 dev render the rewrites with the original seeds (3,072 images).
 
-An \emph{aspect} is an axis defined by two pole phrases; an image's score is its CLIP ViT-L/14~\cite{clip} similarity to the right pole minus that to the left, e.g., ``muted desaturated colors'' $\leftrightarrow$ ``vivid saturated colors''. Because the words may not measure what they say, people check each aspect on large-gap image pairs, and an aspect counts as \emph{valid} for a set of configurations if at least 75\% of decided judgements agree with the encoder and at most 40\% are ``can't tell''. Five aspects survived (saturation, medium, shot, tone, background), each valid only for some configuration sets. All scores are repeated with SigLIP~2~\cite{siglip2}. For a contrast A$\rightarrow$B, each subject gets a \emph{shift} $\Delta = (\mathrm{median}_B - \mathrm{median}_A)/s$, with $s$ a frozen per-aspect scale (one unit is the typical spread of one configuration on one subject), and a \emph{spread ratio} $\mathrm{IQR}_B/\mathrm{IQR}_A$. Practical margins, frozen in advance, call a shift of at least 0.5 a move and a ratio beyond $\times$1.5 or $\times$1/1.5 a change in spread.
+\subsection{Method: language-defined aspects, validated by people}
+An image's score on an aspect is its CLIP ViT-L/14~\cite{clip} similarity to a right-pole phrase minus that to a left-pole phrase, e.g., ``muted desaturated colors'' $\leftrightarrow$ ``vivid saturated colors''. Because words may not measure what they say, three annotators judged large-gap image pairs and picked the image closer to the right pole, or ``can't tell''; by a rule fixed in advance, an aspect is valid for a set of configurations if at least 75\% of decided judgements agree with the encoder and at most 40\% are ``can't tell''. In round~1, 7 of 15 candidate aspects passed and five were kept: saturation, medium (photograph vs.\ painting), shot (close-up vs.\ wide), tone (modern vs.\ vintage) and background (plain vs.\ busy). ``Style'' ran backwards: CLIP called polished photographs ``stylized'', and people agreed with its direction on only 17\% of pairs. Rounds 2 and 3 showed that validity does not transfer between configuration sets (\cref{tab:validity}). All scores were repeated with SigLIP~2~\cite{siglip2}.
 
-The data are thus four-way---configurations $\times$ subjects $\times$ seeds $\times$ aspects---with two derived quantities per cell, a validity status per aspect, configuration set and encoder, and, attached to some cells, statements in language.
-
-\begin{table*}[tb]
-\caption{From the formative study to the design: each failure, its evidence, the requirement and the technique that answers it, and where it is evaluated.}
-\label{tab:map}
+\begin{table}[tb]
+\caption{Agreement of people with the encoder on large-gap pairs, CLIP / SigLIP~2 ($\times$ = fails the rule). Round 1: the first six configurations; round 2: the later six; round 3: images from rewritten prompts.}
+\label{tab:validity}
 \scriptsize\centering
-\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.2\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}c>{\raggedright\arraybackslash}Xcc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-Failure & Evidence & Req. & Design in \sysname{} & Case & Task \\
+Aspect & Round 1 & Round 2 & Round 3 \\
 \midrule
-F1a measure is wrong & ``style'' reversed; strongest rewrite effect on a rejected axis & R4 & validity as a visual property per member and encoder; in-situ validation of aspects defined in words (\cref{sec:validity}) & 2 & T3 \\
-F1b pooling hides reversals & 38 of 60 pooled ``no change'' hide opposite shifts & R3 & subject-level shift columns, reversal navigation, subjects around the pooled estimate (\cref{sec:multilevel}) & 1 & T2 \\
-F1c shift merged with narrowing; encoder-dependent & guidance narrows under both encoders, moves different aspects & R1 & shift $\times$ spread with interactive margins; encoder switch (\cref{sec:verdicts}) & 1 & T1 \\
-F2 language asserts differences & VLMs: 98--100\% ``different'' on null pairs & R4 & statements and rewrites with live verdicts; audit trail to images (\cref{sec:claims}) & 2 & T4 \\
-F3 a few images are not enough & people: 3 of 10 real shifts & R3, R2 & images ordered on the axis over all seeds, seed correspondence through the set (\cref{sec:multilevel}) & 1, 2 & all \\
+saturation & 0.92 / 0.92 & 0.77 / 0.73$\times$ & 0.90 / 0.90 \\
+medium & 0.90 / 0.90 & 0.77 / 0.77 & 0.77 / 0.77 \\
+shot & 0.90 / 0.90 & 0.96 / 0.96 & 0.63$\times$ / 0.75 \\
+tone & 0.94 / 0.94 & 0.64$\times$ / 0.88 & 0.89 / 0.68$\times$ \\
+background & 0.81 / 0.84 & 0.70$\times$ / 0.70$\times$ & 0.38$\times$ / 0.56$\times$ \\
 \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Method: displacement and concentration, per subject}
+For a contrast A$\rightarrow$B, each subject gets a \emph{shift} $\Delta = (\mathrm{median}_B - \mathrm{median}_A)/s$, where $s$ is a per-aspect scale frozen once from the 12 configurations (one unit is the typical spread of one configuration on one subject), and a \emph{spread ratio} $\mathrm{IQR}_B/\mathrm{IQR}_A$. Practical margins, frozen before any comparison, call a shift of at least 0.5 a displacement and a ratio beyond 1.5 or below 1/1.5 a change in spread; ``same'' requires the 90\% interval to lie inside the margin. A hierarchical bootstrap resamples subjects within categories and images within cells, with seeds paired when A and B share a checkpoint. Aspects, margins, scale and code, and for the language study the rewriters, VLM prompts and scoring rules, were committed before each analysis; primary tests are Holm-corrected. A contrast that changes several settings is a package and is not attributed to one of them, and a pooled result is never read without its per-subject structure.
+
+\subsection{Findings}
+
+\paragraph{Guidance and distillation mainly narrow appearance.}
+In klein-base 4B, raising guidance from 1 to 4 narrows four aspects beyond the margin---saturation $\times$0.51 [0.43, 0.61], medium $\times$0.53, tone $\times$0.49, background $\times$0.65---and displaces only saturation, toward vivid ($+0.65$ [$+0.43$, $+0.93]$; 15 of 24 subjects, none the other way). The distilled klein 4B (new checkpoint, 50$\rightarrow$4 steps) narrows all five aspects ($\times$0.41--0.63) and displaces saturation more ($+0.95$), the guidance pattern found by DefaultShift~\cite{defaultshift}, here against a measured guidance intervention in the same family. Under SigLIP~2 the narrowing holds (guidance $\times$0.52--0.62, distillation $\times$0.48--0.58), but guidance now displaces medium ($+1.08$), shot ($-0.86$) and tone ($-1.59$) and not saturation ($+0.44$), and per-subject readings agree only moderately between the encoders (median Spearman 0.33--0.67) (\cref{fig:prestudy}b). Narrowing is robust; which aspects move is encoder-specific.
+
+\paragraph{Pooled comparisons hide opposite changes.}
+On validated aspects, 38 of the 60 pooled comparisons that fall inside the margin hide opposite shifts, with at least three subjects beyond $+0.5$ and three beyond $-0.5$. SDXL$\rightarrow$SDXL-Turbo, a package of five settings, is the clearest case: every pooled shift is ``same'' or undecided, yet four of five aspects hide opposite shifts; on saturation, 9 subjects become more vivid and 6 more muted, with ``a horse'' at $+2.33$ and ``a bird on a branch'' at $-2.07$ (\cref{fig:prestudy}a).
+
+\paragraph{Prompt rewriting adds no validated variety, and its strongest effect is a measurement failure.}
+On aspects validated for both sides, no spread widens beyond the margin ($\times$1.13--1.49). The strongest result of the 20 pre-registered tests---FLUX.2 dev's backgrounds moving toward ``busy'' ($+0.67$ [$+0.47$, $+0.91$], 17 subjects up, none down)---lies on the axis that people reject on rewritten images (agreement 0.38). Reusing one rewrite for all seeds narrows every aspect ($\times$0.71--0.79), so the variety of per-seed rewriting comes from sampling text. The rewritten text moves toward ``a photograph'' while its images move toward illustration, and per subject the text predicts the image only for saturation (Spearman 0.42--0.53).
+
+\paragraph{VLM descriptions assert differences that are not there.}
+Qwen3.5-4B and Mistral-Small-3.2-24B compared 8 vs.\ 8 images per subject for six contrasts and answered constrained questions per aspect (\cref{tab:vlm}). Shown two sets from the \emph{same} configuration (seeds shifted), they reported a shift in 98--100\% of answers, and in free text 90--93\% of their descriptions claimed a difference. The answers were stable across a second draw of images (88--93\%) and not explained by the eight images shown, which agree with the 32-seed truth in 98--100\% of decided cases. They also called narrowing movement (12--13 of 13) and claimed pooled shifts where reversals cancel (49--50 of 50); given a real difference, Mistral-24B read the direction of variety correctly in 79\% of cases. Six new axes proposed by a VLM were understood by people (``can't tell'' 11--25\%) but none passed the check (0.34--0.70).
+
+\paragraph{People with eight images miss real differences.}
+Three annotators answered the same questions on 48 of the same grid pairs. On null pairs they reported a difference in 4 of 12 (both VLMs: 12 of 12), but on real shifts they found the direction in 3 of 10 (Mistral-24B: 8 of 10), with moderate agreement (Fleiss' $\kappa$ 0.41 for shift, 0.54 for variety) (\cref{fig:prestudy}c).
+
+\begin{table}[tb]
+\caption{VLM answers against the audit. Top: the whole VLM study (people were not asked these items). Bottom: the 48 grid pairs answered by both the VLMs and people.}
+\label{tab:vlm}
+\scriptsize\centering
+\begin{tabularx}{\columnwidth}{@{}>{\raggedright\arraybackslash}Xccc@{}}
+\toprule
+ & Qwen-4B & Mistral-24B & People\textsuperscript{a} \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Whole study, six contrasts}} \\
+Per-subject shift accuracy & 0.49 & 0.48 & -- \\
+Per-subject variety accuracy & 0.63 & 0.79 & -- \\
+Narrowing without a shift, answered ``shift'' & 12/13 & 13/13 & -- \\
+Hidden reversals described as a pooled shift & 49/50 & 50/50 & -- \\
+\textbf{Null control: a shift reported} & \textbf{98\%} & \textbf{100\%} & -- \\
+Same answer on a second draw & 0.88--0.91 & 0.88--0.93 & -- \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{The same 48 grid pairs}} \\
+\textbf{Null pairs reported as different} & \textbf{12/12} & \textbf{12/12} & \textbf{4/12} \\
+Real shifts, direction correct & 6/10 & 8/10 & 3/10 \\
+No real shift, answered ``no difference'' & 0/8 & 0/8 & 2/8 \\
+Variety correct & 13/18 & 15/18 & 12/17 \\
+\bottomrule
+\multicolumn{4}{@{}l}{\textsuperscript{a}Majority of three annotators; -- = not asked.}
 \end{tabularx}
-\end{table*}
+\end{table}
 
-\subsection{Formative study: how judging without visual analysis fails}
-We ran the analyses an evaluator would run, partly pre-registered (details and all tables in the supplement), and organized the outcomes by the shortcut they test (\cref{fig:failures}).
+\subsection{Lessons}
+\label{sec:lessons}
+The study answers questions about the models, and it also shows how each way of judging fails: \textbf{L1}~a number can measure the wrong thing (style, background on rewrites); \textbf{L2}~a pooled number hides opposite changes across subjects; \textbf{L3}~one number merges displacement and narrowing, and the displacement depends on the encoder; \textbf{L4}~language---rewritten text, VLM descriptions, proposed axes---asserts what the images do not support; and \textbf{L5}~a few images are too few to decide, while all images are too many to read unguided. Each failure is repaired by what another way of judging provides: numbers by the images, language by a measurement, and eyes by a measurement over all seeds that tells them where to look.
 
-\paragraph{F1: Numbers without images mislead.}
-\emph{(a)~A number can measure the wrong thing.} The ``style'' axis ran backwards (people agreed with CLIP on 17\% of pairs), and validity found on varied configurations did not transfer to homogeneous ones. The strongest result of the pre-registered rewriting study---FLUX.2 dev's backgrounds becoming ``busier'' after rewriting ($+0.67$, 17 subjects up, none down)---lies on an axis people reject on rewritten images (agreement 0.38). \emph{(b)~A pooled number hides opposite changes.} On validated aspects, 38 of the 60 pooled comparisons inside the margin hide subjects moving both ways; for SDXL$\rightarrow$SDXL-Turbo on saturation, ``a horse'' moves $+2.33$ and ``a bird on a branch'' $-2.07$ around a pooled $+0.17$. \emph{(c)~One number merges shift and narrowing, and the shift depends on the encoder.} Raising guidance in klein-base 4B narrows four aspects (e.g., saturation $\times$0.51) and moves only saturation ($+0.65$) under CLIP; under SigLIP~2 the narrowing holds but medium, shot and tone move instead ($+1.08$, $-0.86$, $-1.59$).
-
-\paragraph{F2: Language without measurement asserts what is not there.}
-Two VLMs (Qwen3.5-4B, Mistral-Small-3.2-24B) compared 8 vs.\ 8 images per subject. Shown two sets from the \emph{same} configuration, they reported a shift in 98--100\% of answers; the answers were stable across a second draw of images and not explained by the eight images shown. They described narrowing as movement (12--13 of 13 cases) and claimed pooled shifts where reversals cancel (49--50 of 50). Rewritten prompts moved toward ``a photograph'' while their images moved toward illustration, and six axes proposed by a VLM were all rejected by people (agreement 0.34--0.70).
-
-\paragraph{F3: Eyes without measurement miss real differences.}
-Three annotators answered the VLMs' questions on 48 of the same grid pairs. On null pairs they reported a difference in 4 of 12 (both VLMs: 12 of 12), but on real shifts they found the direction in only 3 of 10 (Mistral-24B: 8 of 10), with moderate agreement among themselves (Fleiss' $\kappa$ 0.41). Eight images are too few to separate a default from sampling noise, while 32 images $\times$ 24 subjects $\times$ 12 configurations are too many to read unguided.
-
-
-
-\subsection{Tasks and requirements}
+\section{Design Requirements}
 \label{sec:requirements}
-No shortcut is enough on its own, and each needs what another provides. From the failures and from the decisions analysts take, we derive five tasks: \textbf{T1}~decide whether a change moves the typical output, narrows it, or both, and under which encoder (F1c); \textbf{T2}~decide whether a pooled conclusion holds for every subject and which subjects go against it (F1b); \textbf{T3}~decide whether a reading can be trusted---is the aspect valid for these configurations, can the change be attributed to one setting? (F1a); \textbf{T4}~verify a claim made in language against the images (F2); and \textbf{T5}~compare a chain or family of configurations at once. \Cref{tab:map} maps each failure to the requirement and design it calls for:
+We discussed the lessons with \pending{n} researchers who train or evaluate image models \pending{confirm, or drop this sentence} and derived five analysis tasks: \textbf{T1}~decide whether a change moves the typical output, narrows it, or both, and under which encoder (L3); \textbf{T2}~decide whether a pooled conclusion holds for every subject and which subjects go against it (L2); \textbf{T3}~decide whether a reading can be trusted---is the aspect valid for these configurations, can the change be attributed to one setting? (L1); \textbf{T4}~verify a claim made in language against the images (L4); and \textbf{T5}~compare a chain or family of configurations at once. They lead to five requirements (\cref{tab:map}):
 \textbf{R1}~every verdict is computed from the data in view, under margins and an encoder the analyst can change;
 \textbf{R2}~configurations are compared as a set against an explicit reference;
 \textbf{R3}~every number leads to its subjects and images, chosen by the measurement over all seeds;
 \textbf{R4}~language---axis names, rewrites, statements---is a hypothesis linked to its evidence, and validity is visible and checkable;
 \textbf{R5}~findings are stored with the analysis state and can be replayed.
 
-
+\begin{table*}[tb]
+\caption{From the lessons of the preliminary study to the design of \sysname{} and its evaluation.}
+\label{tab:map}
+\scriptsize\centering
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.21\linewidth}>{\raggedright\arraybackslash}p{0.23\linewidth}c>{\raggedright\arraybackslash}Xcc@{}}
+\toprule
+Lesson & Evidence & Req. & Design in \sysname{} & Case & Task \\
+\midrule
+L1 a number measures the wrong thing & ``style'' reversed; strongest rewrite effect on a rejected axis & R4 & validity as a visual property per member and encoder; in-situ validation of aspects defined in words (\cref{sec:validity}) & 2 & T3 \\
+L2 pooling hides opposite changes & 38 of 60 pooled ``no change'' hide opposite shifts & R3 & subject-level shift columns, reversal navigation, subjects around the pooled estimate (\cref{sec:multilevel}) & 1 & T2 \\
+L3 displacement merged with narrowing; encoder-dependent & guidance narrows under both encoders, moves different aspects & R1 & shift $\times$ spread with interactive margins; encoder switch (\cref{sec:verdicts}) & 1 & T1 \\
+L4 language asserts what images do not support & VLMs: 98--100\% ``different'' on null pairs; rewrite text vs.\ images & R4 & statements and rewrites with live verdicts; audit trail to images (\cref{sec:claims}) & 2 & T4 \\
+L5 a few images are not enough & people: 3 of 10 real shifts & R3, R2 & images ordered on the axis over all seeds; seeds followed through the set (\cref{sec:multilevel}) & 1, 2 & all \\
+\bottomrule
+\end{tabularx}
+\end{table*}
 
 \section{\sysname{}}
 \label{sec:system}
@@ -146,38 +223,30 @@ No shortcut is enough on its own, and each needs what another provides. From the
 \end{figure*}
 
 \subsection{Overview}
-\sysname{} is a single-screen web system built with D3 (\cref{fig:teaser}). The analyst assembles a \emph{comparison set} of up to six configurations in chain order with two roles: the \emph{reference} (blue), from which every contrast is measured, and the \emph{focus} (orange), which the subject-level views detail. Further members are drawn in ink and identified by their slot---a matrix column, an image lane, a parallel axis, a small multiple---and a direct label, so hue never has to distinguish six members (R2). A chip lists the declared settings that differ from the reference and warns when more than one does, so that a change is not attributed to a single setting (T3). Five linked panels lead from configurations (A) through subjects (B, E) to images (C, D); choosing a member, aspect or subject anywhere updates every view. A build step precomputes the encoder scores of 12,288 images; everything else is computed in the browser, where recomputing every interval of a contrast takes about 0.2\,s.
+\sysname{} is a single-screen web system built with D3 (\cref{fig:teaser}). The analyst assembles a \emph{comparison set} of up to six configurations in chain order with two roles: the \emph{reference} (blue), from which every contrast is measured, and the \emph{focus} (orange), which the subject-level views detail. Further members are drawn in ink and identified by their slot---a matrix column, an image lane, a parallel axis, a small multiple---and a direct label, so hue never has to distinguish six members (R2). A chip lists the declared settings that differ from the reference and warns when more than one does, so that a change is not attributed to a single setting (T3). Five linked panels lead from configurations (A) through subjects (B, E) to images (C, D); choosing a member, aspect or subject anywhere updates every view. A build step precomputes the encoder scores of all 12,288 images; everything else runs in the browser, where recomputing every interval of a contrast takes about 0.2\,s.
 
 \subsection{Verdicts under uncertainty and adjustable margins (R1)}
 \label{sec:verdicts}
-Every reading in \sysname{} is a \emph{verdict}---moved, narrowed, same, or undecided---computed live from a hierarchical bootstrap (subjects within categories, images within cells, seeds paired when a checkpoint is shared) and the current margins. The contrast scatters (E; \cref{fig:design}a) place each subject at (shift, log spread ratio) with its interval; the margins are bands, the pooled estimate is a diamond, and every further member is a labelled diamond. A change is marked only when its whole interval lies beyond the margin, and ``same'' only when it lies inside. Dragging the band edges changes the margins for exploration, and every verdict in the system follows, which shows the analyst which conclusions depend on the margin; a chip restores the frozen values. The \emph{encoder switch} replaces scores, scale and validity with those of SigLIP~2 and recomputes every view, so a finding that changes under the switch reveals itself as encoder-specific (F1c).
-
-
+Every reading is a \emph{verdict}---moved, narrowed, same, or undecided---computed live from the bootstrap of \cref{sec:study} and the current margins. The contrast scatters (E; \cref{fig:design}a) place each subject at (shift, log spread ratio) with its interval; the margins are bands, the pooled estimate is a diamond, and every further member is a labelled diamond. A change is marked only when its whole interval lies beyond the margin, which is stricter than the confirmatory rule of the study. Dragging the band edges changes the margins for exploration and every verdict in the system follows, which shows which conclusions depend on the margin; a chip restores the frozen values. The \emph{encoder switch} replaces scores, scale and validity with those of SigLIP~2 and recomputes every view, so a finding that changes under the switch reveals itself as encoder-specific (L3).
 
 \subsection{Multi-level distribution comparison (R2, R3)}
 \label{sec:multilevel}
-The views form a path from a configuration-level summary to single images, and each level encodes location and spread separately. At the \emph{configuration level}, the map (A) places each configuration at its typical location (x) and typical spread (y) on the chosen aspect; density contours of its 24 subject positions show whether it behaves consistently across subjects, and arrows join designed contrasts (solid: one setting; dashed: a package; dotted: prompt rewriting). A contrast overview gives one row per contrast and one glyph per aspect, with the count of subjects against the pooled direction. At the \emph{subject level}, the matrix (B; \cref{fig:design}b) colours each subject $\times$ configuration cell by position between the poles and adds one shift column per member on a common scale, outlining subjects that move against the pooled direction beyond the margin; a badge steps through them (T2). At the \emph{image level}, panel C places every image of the selected subject on the aspect axis, one lane per member, with the margin band and each member's median, so the measurement over all seeds decides where to look and the images show what the number means (F3). Panel D follows the same seeds through all members as parallel coordinates (\cref{fig:design}c): leaning lines read as a shift, converging lines as a narrowing, and segments between members that do not share starting noise are rank-matched and dashed rather than drawn as trajectories. Alternatives in D show the subject's distributions on every aspect and a shared t-SNE of image embeddings as an index to defaults the aspects do not name.
+The views form a path from a configuration-level summary to single images, and each level encodes location and spread separately. At the \emph{configuration level}, the map (A) places each configuration at its typical location (x) and typical spread (y) on the chosen aspect; density contours of its 24 subject positions show whether it behaves consistently, and arrows join designed contrasts (solid: one setting; dashed: a package; dotted: prompt rewriting). A contrast overview gives one row per contrast and one glyph per aspect, with the count of subjects against the pooled direction. At the \emph{subject level}, the matrix (B; \cref{fig:design}b) colours each subject $\times$ configuration cell by position between the poles and adds one shift column per member on a common scale, outlining subjects that move against the pooled direction beyond the margin; a badge steps through them (T2). At the \emph{image level}, panel C places every image of the selected subject on the aspect axis, one lane per member, with the margin band and each member's median: the measurement over all seeds decides where to look, and the images show what the number means (L5). Panel D follows the same seeds through all members as parallel coordinates (\cref{fig:design}c): leaning lines read as a shift and converging lines as a narrowing, and segments between members that do not share starting noise are rank-matched and dashed rather than drawn as trajectories. Alternatives in D show the subject's distributions on every aspect, and a shared t-SNE of image embeddings as an index to defaults the aspects do not name.
 
 \subsection{Validity-aware analysis (R4)}
 \label{sec:validity}
-Because a language-defined measure may not measure what its words say, validity is a visual property throughout. An aspect not validated for a member under the current encoder is struck through in the aspect selector, its scatter card and image lanes carry $\oslash$, and its marks are faded; validity is stated per member, so a contrast between a validated and a non-validated configuration is marked as well. Analysts can also define \emph{new aspects in words} (\cref{fig:design}f). The two pole phrases are embedded in the browser with the same CLIP text encoder, bundled and run locally (its ONNX export matches PyTorch at cosine 1.0000; on first use the tool reproduces the stored scores of all 12,288 images within 0.004 scale units), and every image is scored from its stored embedding. The aspect enters every view at once, marked $\oslash$. It counts only after an in-situ check: the analyst judges 12 large-gap pairs drawn from the current set, blind to configuration and score, and the frozen rule decides. Checks can be repeated by the same or other people, each run drawing new pairs; all runs on a set are stored on the server and pooled, as the annotation rounds pooled their annotators, and the result is shown wherever the aspect is used.
+Because a language-defined measure may not measure what its words say (L1), validity is a visual property throughout. An aspect not validated for a member under the current encoder is struck through in the aspect selector, its scatter card and image lanes carry $\oslash$, and its marks are faded; validity is stated per member, so a contrast between a validated and a non-validated configuration is marked as well. Analysts can also define \emph{new aspects in words} (\cref{fig:design}f). The two pole phrases are embedded in the browser with the same CLIP text encoder, bundled and run locally (its ONNX export matches PyTorch at cosine 1.0000; on first use the tool reproduces the stored scores of all 12,288 images within 0.004 scale units), and every image is scored from its stored embedding. The aspect enters every view at once, marked $\oslash$, and counts only after an in-situ check: the analyst judges 12 large-gap pairs drawn from the current set, blind to configuration and score, and the rule of the study decides. Checks can be repeated by the same or other people, each run drawing new pairs; all runs on a set are stored on the server and pooled, as the annotation rounds pooled their annotators, and the result is shown wherever the aspect is used.
 
 \subsection{Claim-to-evidence verification (R4)}
 \label{sec:claims}
-Statements made in language are treated as hypotheses. The \emph{statement view} (\cref{fig:design}d) places each statement a VLM made about the reference$\rightarrow$focus pair in a subject $\times$ aspect grid, coded to the aspect and direction it asserts; colour and a symbol give the audit's verdict (confirmed, narrowed but did not move, no shift, contradicted), recomputed live from the current data, margins and encoder, with the frozen verdict shown when they differ. A verdict bar summarizes the pair and filters the grid. The \emph{audit trail} (\cref{fig:design}e) follows one claim---a statement, a rewritten prompt or an axis name---through the measurement that decides it and one subject to its images, with a verdict on each link, including a mark when pooling hides the subject. For rewriting contrasts, a rewrite view places each rewritten prompt by what its text says about the aspect against where its image lands.
+Statements made in language are treated as hypotheses (L4). The \emph{statement view} (\cref{fig:design}d) places each statement a VLM made about the reference$\rightarrow$focus pair in a subject $\times$ aspect grid, coded to the aspect and direction it asserts; colour and a symbol give the audit's verdict (confirmed, narrowed but did not move, no shift, contradicted), recomputed live from the current data, margins and encoder, with the frozen verdict shown when they differ. A verdict bar summarizes the pair and filters the grid. The \emph{audit trail} (\cref{fig:design}e) follows one claim---a statement, a rewritten prompt or an axis name---through the measurement that decides it and one subject to its images, with a verdict on each link, including a mark when pooling hides the subject. For rewriting contrasts, a rewrite view places each rewritten prompt by what its text says about the aspect against where its image lands.
 
 \subsection{Provenance and design alternatives}
 A finding recorded from any view is stored with the whole analysis state---set and roles, encoder, aspect, subject, panel modes, margins, brushed subjects, statement---and replays on a click (R5). Each quantity has one home view (effects in E, images in C, distributions in D); overviews restate a number only as a pointer to its home, and no status relies on colour alone. We discarded convex hulls on a projection, which readers took for spread; baselines that changed with the visible configurations; and summary cards that pooled all prompts and hid the reversals of T2.
 
 \section{Case Studies}
 \label{sec:cases}
-Both cases follow an analyst through \sysname{} on the real data. The findings were first established by scripted analyses; the cases show how the system lets an analyst reach and check them, and what it adds.
-
-\subsection{Case 1: What does distillation do to the defaults?}
-\label{sec:case1}
-An engineer considers shipping distilled models and wants to know what is lost. With klein-base 4B at guidance 1 as reference, guidance 4 as focus and the distilled klein 4B as a third member (\cref{fig:teaser}), the scatters show both members' diamonds below the spread band on four aspects and the distilled member's further down on all five: distillation narrows appearance like raised guidance, more strongly, as DefaultShift observed~\cite{defaultshift}. Only saturation's diamond lies beyond the shift band, and in panel~D the seed lines lean toward vivid and converge. Dragging the spread margin shows that the narrowing of medium, tone and saturation survives up to a margin of $\times$1.5--1.6, background and shot only to $\times$1.2--1.3. Switching to SigLIP~2 keeps the narrowing but moves medium toward illustration (\cref{fig:case1}a): the engineer records ``narrows; which aspects move is encoder-specific''. Turning to SDXL$\rightarrow$SDXL-Turbo, the overview shows short arrows but a high reversal count; the pooled saturation diamond sits inside the band with subjects on both sides, the badge steps through seven subjects that turn muted, and the image lanes show Turbo's horses more vivid and its birds more muted (\cref{fig:case1}b). The settings chip lists five differences, so the change is recorded but not attributed to distillation.
-
-\takeaway{(1)~Separating location from spread shows that distillation removes alternatives rather than moving the typical image. (2)~Interactive margins and the encoder switch show which verdicts are robust. (3)~Subject-level views and image lanes expose reversals that a pooled number, or eight images of one subject, would hide.}
+Both cases follow an analyst through \sysname{} on the real data. Their findings were first established in the preliminary study; the cases show how the system lets an analyst reach and check them, and what it adds.
 
 \begin{figure*}[tb]
 \centering
@@ -186,11 +255,11 @@ An engineer considers shipping distilled models and wants to know what is lost. 
 \label{fig:case1}
 \end{figure*}
 
-\subsection{Case 2: Can we trust what language says about the images?}
-\label{sec:case2}
-A researcher evaluates two language components: FLUX.2's prompt rewriter and VLM descriptions of model differences. Comparing FLUX.2 dev with its rewritten-prompt version, the strongest effect---backgrounds toward ``busy''---carries $\oslash$; in panel~C the rewritten picnics scored ``busy'' show the same grassy scenes as the originals (\cref{fig:case2}a), and on validated aspects no ratio leaves the spread band, so rewriting adds no validated variety. In the statement view for SDXL$\rightarrow$Turbo, a Mistral-24B statement about ``a restaurant'' (``more detailed architectural elements such as arched windows and ornate moldings'') is coded to background and marked contradicted; its trail shows the restaurant's backgrounds becoming much plainer ($-1.68$) and less varied ($\times$0.12) while the pooled shift is $+0.11$, and the images confirm it (\cref{fig:design}e). The verdict bar shows that of 290 statements about the pair, 112 are confirmed---mostly about variety---74 cannot be decided and 94 fall outside the measured aspects. Finally, the researcher suspects that guidance and distillation push scenes toward daylight and defines ``a scene in daylight'' $\leftrightarrow$ ``a scene at night''. The numbers fit ($\times$0.52 and $-0.28$ under guidance, $\times$0.50 and $-0.46$ under distillation), but the images nearest ``at night'' are hazy daylight streets (\cref{fig:case2}b), and the in-situ check decides \pending{result of the check}. For contrast, the axis a VLM proposed in the formative study, ``a simple image with little detail'' $\leftrightarrow$ ``a highly detailed, intricate image'', shows a shift toward ``detailed'' in every contrast ($+0.75$ for the rewriter); it is the axis people rejected (agreement 0.34), and the $\oslash$ mark and the check keep it from becoming a finding.
+\subsection{Case 1: What does distillation do to the defaults?}
+\label{sec:case1}
+An engineer considers shipping distilled models and wants to know what is lost. With klein-base 4B at guidance 1 as reference, guidance 4 as focus and the distilled klein 4B as a third member (\cref{fig:teaser}), the scatters show both members' diamonds below the spread band on four aspects and the distilled member's further down on all five: distillation narrows appearance like raised guidance, more strongly. Only saturation's diamond lies beyond the shift band, and in panel~D the seed lines lean toward vivid and converge. Dragging the spread margin shows that the narrowing of medium, tone and saturation survives up to a margin of $\times$1.5--1.6, that of background and shot only to $\times$1.2--1.3. Switching to SigLIP~2 keeps the narrowing but moves medium toward illustration (\cref{fig:case1}a), and the engineer records ``narrows; which aspects move is encoder-specific''. Turning to SDXL$\rightarrow$SDXL-Turbo, the overview shows short arrows but a high reversal count; the pooled saturation diamond sits inside the band with subjects on both sides, the badge steps through seven subjects that turn muted, and the image lanes show Turbo's horses more vivid and its birds more muted (\cref{fig:case1}b). The settings chip lists five differences, so the change is recorded but not attributed to distillation.
 
-\takeaway{(1)~Making validity visible stops the most prominent number when its measure is invalid. (2)~Linking a statement to its measurement, subject and images turns a plausible sentence into a checkable hypothesis. (3)~New measures defined in words become usable only after an in-situ, repeatable human check.}
+\noindent\textbf{Takeaways.} Separating location from spread shows that distillation removes alternatives rather than moving the typical image; interactive margins and the encoder switch show which verdicts are robust; subject-level views and image lanes expose reversals that a pooled number, or eight images of one subject, would hide.
 
 \begin{figure*}[tb]
 \centering
@@ -199,34 +268,51 @@ A researcher evaluates two language components: FLUX.2's prompt rewriter and VLM
 \label{fig:case2}
 \end{figure*}
 
+\subsection{Case 2: Can we trust what language says about the images?}
+\label{sec:case2}
+A researcher evaluates two language components: FLUX.2's prompt rewriter and VLM descriptions of model differences. Comparing FLUX.2 dev with its rewritten-prompt version, the strongest effect---backgrounds toward ``busy''---carries $\oslash$; in panel~C the rewritten picnics scored ``busy'' show the same grassy scenes as the originals (\cref{fig:case2}a), and on validated aspects no ratio leaves the spread band. In the statement view for SDXL$\rightarrow$Turbo, a Mistral-24B statement about ``a restaurant'' (``more detailed architectural elements such as arched windows and ornate moldings'') is coded to background and marked contradicted; its trail shows the restaurant's backgrounds becoming much plainer ($-1.68$) and less varied ($\times$0.12) while the pooled shift is $+0.11$, and the images confirm it (\cref{fig:design}e). The verdict bar shows that of 290 statements about the pair, 112 are confirmed---mostly about variety---74 cannot be decided and 94 fall outside the measured aspects. Finally, the researcher suspects that guidance and distillation push scenes toward daylight and defines ``a scene in daylight'' $\leftrightarrow$ ``a scene at night''. The numbers fit ($\times$0.52 and $-0.28$ under guidance, $\times$0.50 and $-0.46$ under distillation), but the images nearest ``at night'' are hazy daylight streets (\cref{fig:case2}b), and the in-situ check decides \pending{result of the check}. For contrast, the axis a VLM proposed in the preliminary study, ``a simple image with little detail'' $\leftrightarrow$ ``a highly detailed, intricate image'', shows a shift toward ``detailed'' in every contrast ($+0.75$ for the rewriter); it is the axis people rejected (0.34), and the $\oslash$ mark and the check keep it from becoming a finding.
+
+\noindent\textbf{Takeaways.} Making validity visible stops the most prominent number when its measure is invalid; linking a statement to its measurement, subject and images turns a plausible sentence into a checkable hypothesis; and a new measure defined in words becomes usable only after an in-situ, repeatable human check.
+
 \section{Expert Study}
-\label{sec:study}
+\label{sec:experts}
 \pending{Results pending; the design below was fixed before the sessions.}
-\paragraph{Design.} Five researchers who train, evaluate or select generative image models (5--10 years in imaging research), at least two from outside the authors' group, solve four tasks twice, once with \sysname{} and once with a \emph{baseline}, on different cases of the same kind; condition order and case assignment are counterbalanced, and a pilot session precedes them. The baseline shows the same pooled and per-subject numbers with intervals, the settings, the validation table, sortable image grids and the VLM statements as text, but has no visual encoding of effects and no linking, so the comparison isolates visual encoding and linking. Each task targets one failure: T1 shift or narrowing (F1c), T2 pooled or per subject (F1b), T3 trust a reading (F1a), T4 verify a VLM statement (F2). We record correctness by rules fixed in advance, scored by a second judge blind to condition; the evidence cited; confidence and time; findings reached in free exploration, classified as known or new; and an interview.
+Five researchers who train, evaluate or select generative image models (5--10 years in imaging research), at least two from outside the authors' group, solved four tasks twice, once with \sysname{} and once with a \emph{baseline}, on different cases of the same kind; condition order and case assignment were counterbalanced, and a pilot session preceded them. The baseline shows the same pooled and per-subject numbers with intervals, the settings, the validation table, sortable image grids and the VLM statements as text, but has no visual encoding of effects and no linking, so the comparison isolates visual encoding and linking. Each task targets one lesson: T1 shift or narrowing (L3), T2 pooled or per subject (L2), T3 trust a reading (L1), T4 verify a VLM statement (L4). We recorded correctness by rules fixed in advance, scored by a second judge blind to condition; the evidence cited; confidence and time; findings reached in free exploration, classified as known or new; and an interview.
 \paragraph{Results.} \pending{Correct answers per task and condition; evidence cited; known and new findings; interview themes.}
 
 \section{Discussion}
 
-\paragraph{Why visual analysis.}
-The formative study shows three shortcuts failing in complementary ways, and \sysname{} is where they check one another: measurement over all seeds decides which images to look at, the images decide whether a measurement means what its words say, and language proposes what to look for. The visualization is not an illustration of results computed elsewhere but the place where this checking happens.
+\paragraph{Implications for evaluating text-to-image models.}
+Report displacement and concentration separately: across guidance, distillation and rewriting, the narrowing survived a second encoder while the set of moved aspects did not, and a single diversity number hides both. Never report a pooled change without its subjects. Validate a language-defined measure for the configurations it is applied to---validity did not transfer between configuration sets---and treat rewriter text and VLM descriptions as hypotheses, not evidence.
 
-\paragraph{Lessons for visual analytics design.}
-\emph{Treat validity as a visual channel.} Derived measures defined in language are increasingly common in VA; showing their human validation in every view, per subset and model, prevented the most prominent misreading in our data. \emph{Make verdicts interactive objects.} Equivalence margins that the analyst can move, with every dependent verdict updating, turn ``is this real?'' into an exploration of robustness. \emph{Language proposes, images decide.} LLM and VLM outputs are useful as hypotheses and summaries; a VA system should give each one a path to the evidence that decides it.
+\paragraph{Implications for visual analytics.}
+\emph{Treat validity as a visual channel}: derived measures defined in language are increasingly common in visual analytics, and showing their human validation in every view prevented the most prominent misreading in our data. \emph{Make verdicts interactive objects}: equivalence margins that the analyst can move, with every dependent verdict updating, turn ``is this real?'' into an exploration of robustness. \emph{Language proposes, images decide}: LLM and VLM outputs are useful as hypotheses and summaries, and a system should give each one a path to the evidence that decides it.
 
 \paragraph{Generality and limitations.}
-The design needs configurations rendered on shared prompts and seeds, a measure definable in words, a human check for it, and per-unit effects with uncertainty; it carries over to video or text-to-3D defaults and to comparing LLM outputs along language-defined attributes. CLIP and SigLIP aspects are approximations, and validity under SigLIP is judged on pairs sampled by CLIP gaps. The margins are practical, not perceptual, units. The language data use one rewriter instruction and two open VLMs; the human grid check has three annotators. The comparison set holds six members, and the expert study is small and formative.
+The approach needs configurations rendered on shared prompts and seeds, a measure definable in words, a human check for it, and per-unit effects with uncertainty; it carries over to video or text-to-3D defaults and to comparing LLM outputs along language-defined attributes. CLIP and SigLIP aspects are approximations, and validity under SigLIP is judged on pairs sampled by CLIP gaps. The margins are practical, not perceptual, units, and native resolutions differ (512--1328\,px). The language study uses one rewriter instruction and two open VLMs, and the human grid check has three annotators. The comparison set holds six members, and the expert study is small and formative.
 
 \section{Conclusion}
-Summary numbers, generated descriptions and quick looks each fail when evaluators judge how text-to-image defaults change. \sysname{} combines them: it compares distributions of a set of configurations at the configuration, subject and image level with live verdicts under adjustable margins and encoders, shows and checks the validity of every language-defined measure, and traces every claim made in language to the images that decide it.
+Text-to-image defaults change with every routine decision, and judging the change by a summary number, a generated description or a quick look each fails on its own. Our preliminary study shows how, and \sysname{} brings the three together: it compares distributions of a set of configurations at the configuration, subject and image level with live verdicts under adjustable margins and encoders, shows and checks the validity of every language-defined measure, and traces every claim made in language to the images that decide it.
 
 \section*{Supplemental Materials}
-\pending{Anonymized link for review.} Pre-registrations, analysis code and all result tables of the formative study; the human validation protocols and aggregated answers; the audit tool with its data (runs offline); and a video of the case studies.
+\label{sec:supplemental_materials}
+\pending{Anonymized link for review.} The supplemental materials include the pre-registrations, analysis code and all result tables of the preliminary study; the human validation protocols and aggregated answers; the audit tool with its data, which runs offline; and a video of the case studies.
+
+\section*{Figure Credits}
+\label{sec:figure_credits}
+All figures were created by the authors. The images shown in the figures were generated by the open models listed in \cref{sec:study}.
 
 \section*{AI Use Disclosure}
 \pending{To be confirmed by the authors.} An AI assistant (Claude, Anthropic) was used to write analysis and system code, to draft and edit the text, and to produce figures from the authors' data and system; the authors designed the study, checked every result against the data, and take responsibility for the content.
 
+%% if specified like this the section will be committed in review mode
 \acknowledgments{\pending{Annotators; experts; funding.}}
 
+%\bibliographystyle{abbrv}
 \bibliographystyle{abbrv-doi}
+%\bibliographystyle{abbrv-doi-narrow}
+%\bibliographystyle{abbrv-doi-hyperref}
+%\bibliographystyle{abbrv-doi-hyperref-narrow}
+
 \bibliography{refs}
 \end{document}
