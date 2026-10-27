@@ -26,13 +26,14 @@ const exe = BROWSERS.find(existsSync);
 if (!exe) throw new Error("no Edge or Chrome found");
 const proc = spawn(exe, ["--headless=new", `--remote-debugging-port=${PORT}`, "--disable-gpu", "--hide-scrollbars", `--window-size=${W},${H}`,
   `--user-data-dir=${process.env.TEMP || "/tmp"}/shots-profile`, "about:blank"], { stdio: "ignore" });
+process.on("exit", () => { try { proc.kill(); } catch (e) { /* already gone */ } });   // a failed run must not leave the headless browser holding the port
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let target;
 for (let i = 0; i < 50 && !target; i++) { await sleep(200); try { target = await (await fetch(`http://127.0.0.1:${PORT}/json/new?about:blank`, { method: "PUT" })).json(); } catch (e) { /* not up yet */ } }
 const ws = new WebSocket(target.webSocketDebuggerUrl);
 await new Promise(r => ws.addEventListener("open", r, { once: true }));
 let id = 0; const pending = new Map();
-ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } });
+ws.addEventListener("message", e => { const m = JSON.parse(e.data); if (m.method === "Runtime.exceptionThrown") console.error("page error:", m.params.exceptionDetails.exception?.description?.split(String.fromCharCode(10))[0]); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } });
 const cdp = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 const evalJS = async expr => { const r = await cdp("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails).slice(0, 400)); return r.result?.result?.value; };
 

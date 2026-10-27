@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Default Audit</title>
+<title>DefaultScope</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -336,11 +336,51 @@ g.axi.sel .axb { stroke-width: 1.4; }
 g.axi.hl .axb { stroke-width: 1.8; }
 .dragline { stroke-width: 1.5; }
 .stmt.on { box-shadow: inset 0 0 0 1.5px var(--hl); }
+
+/* rev15 type scale and spacing: titles 14px, labels 12-13px, axis and pole text 11.5px; every chart inside a padded panel */
+body { font-size: 14.5px; }
+.card h2, #mapCard h2 { font-size: 14px; color: var(--ink); padding: 10px 14px 0; gap: 8px; }
+#side .card h2 { font-size: 13.5px; padding: 8px 12px 0; }
+.card h2 small { font-size: 12px; }
+.card h2 .est { font-size: 12.5px; }
+.card .body { padding: 6px 14px 10px; }
+#side .card .body { padding: 4px 10px 8px; }
+#strip { padding: 6px 14px 10px; }
+svg text { font-size: 12px; }
+.pole { font-size: 11.5px; }
+.figax text { font-size: 11px; }
+.lab text { font-size: 13px; }
+.mx .cl { font-size: 12px; }
+.mx .shl { font-size: 11.5px; }
+.lanelab { font-size: 12.5px; }
+.ridge .rowlab { font-size: 13px; }
+.exl, .pool .exl { font-size: 10.5px; }
+.tip { font-size: 13.5px; }
+.seg button { font-size: 13.5px; }
+.setbar .sc { font-size: 13px; }
+.setbar .sc.ref, .setbar .sc.focus { font-size: 14px; }
+.diff span { font-size: 12.5px; }
+
+/* rev16 view names and condition capsules: a view is named in bold ink; the conditions it is drawn under (aspect,
+   subject) are capsules with a hairline border and a soft shadow; controls stay square-cornered and quiet, so the three
+   roles (name, condition, control) never look alike */
+.card h2 .vt { font-size: 14.5px; font-weight: 700; color: var(--ink); letter-spacing: -.005em; white-space: nowrap; }
+.cond { display: inline-flex; align-items: baseline; gap: 5px; border-radius: 999px; padding: 2px 10px 2px 9px; font-size: 12.5px; font-weight: 600;
+  color: var(--ink); background: var(--panel); box-shadow: 0 0 0 1px var(--faint), 0 1px 2px rgba(15,23,42,.08); white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+.cond:empty { display: none; }
+.cond i { font-style: normal; font-weight: 500; font-size: 11px; color: var(--muted); letter-spacing: .02em; }
+.card h2 select { border-radius: 999px; background: var(--panel); box-shadow: 0 0 0 1px var(--faint), 0 1px 2px rgba(15,23,42,.08); font-weight: 600; padding: 3px 12px; }
+#side .card h2 .vt { font-size: 14px; }
+#side .card h2 .cond { font-size: 12px; }
+#side .card h2 .est { margin-left: auto; }
+.sidehead { flex: none; padding: 2px 4px 0; }
+.sidehead .vt { font-size: 14.5px; font-weight: 700; color: var(--ink); }
+.cond { flex: none; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Default Audit</h1>
+  <h1>DefaultScope</h1>
   <div class="setbar" id="setBar"></div>
   <button class="iconbtn" id="swap" title="Swap reference and focus">⇄</button>
   <button class="pillbtn" id="findBtn" title="Findings: record what you found in this view, and replay recorded findings">☆ 0</button>
@@ -350,10 +390,10 @@ g.axi.hl .axb { stroke-width: 1.8; }
   <div class="status" id="status"><span id="mstat" title="Margins changed for exploration; click to restore the pre-registered margins"></span></div>
 </header>
 <main id="app">
-  <section class="card" id="mapCard"><h2><button class="mini" id="zoomReset" title="Reset zoom (or double-click the map)" style="display:none;order:9">⟲</button><span id="mainTitle">Configurations</span><div class="seg mini" id="mainSeg"></div></h2><div class="body" id="map"></div></section>
-  <section class="card" id="matrixCard"><h2>Subjects <small>× configurations</small><span class="revb" id="revBadge"></span><button class="mini" id="sortBtn" title="Order rows by category or by the shift of the selected pair">⇅</button></h2><div class="body" id="matrix"></div></section>
+  <section class="card" id="mapCard"><h2><button class="mini" id="zoomReset" title="Reset zoom (or double-click the map)" style="display:none;order:9">⟲</button><span class="vt" id="mainTitle">Configuration Map View</span><span class="cond" id="mapCond"></span><div class="seg mini" id="mainSeg"></div></h2><div class="body" id="map"></div></section>
+  <section class="card" id="matrixCard"><h2><span class="vt">Subject Matrix View</span><span class="cond" id="mxCond"></span><span class="revb" id="revBadge"></span><button class="mini" id="sortBtn" title="Order rows by category or by the shift of the selected pair">⇅</button></h2><div class="body" id="matrix"></div></section>
   <section class="card" id="stripCard"><h2 id="stripName"></h2><div class="body" id="strip"></div></section>
-  <section class="card" id="ridgeCard"><h2><span id="subjName"></span><div class="seg mini" id="evSeg"></div><select id="selS"></select></h2><div class="body" id="ridge"></div></section>
+  <section class="card" id="ridgeCard"><h2><span class="vt" id="evTitle">Seed View</span><span id="subjName" style="display:none"></span><div class="seg mini" id="evSeg"></div><select id="selS"></select></h2><div class="body" id="ridge"></div></section>
   <aside id="side"></aside>
 </main>
 <div id="findDrawer" style="display:none"></div>
@@ -414,12 +454,17 @@ function setChips() {
   host.select("select").raise();
 }
 const poleWord = t => t.replace(/^(a |an )/, "").replace(/ (colors|tones|light|background|from far away|with .*|in a .*)$/, "").split(" ").slice(-2).join(" ");
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const cond = (k, v) => `<i>${k}</i>${esc(v)}`;   // a condition capsule: muted key, then the value
 const aspName = k => ASP.find(a => a.key === k)?.name || (k === "sat" ? "saturation" : k === "bg" ? "background" : k);
 // validated aspects of a configuration pair (META.validity: annotation rounds 1-3); unknown groups count as validated
 const valid = (k, A = st.A, B = st.B) => [A, B].every(g => (META.validity?.[g]?.aspects ?? []).includes(k));   // unknown counts as not validated
 const nvTitle = (A = st.A, B = st.B, k = st.aspect) => ASP.find(a => a.key === k)?.user ? "defined by you and not yet passed your check on these configurations (+ → check on set)"
   : `not validated by people on these configurations (${[...new Set([A, B].map(g => META.validity?.[g]?.set ?? "validity unknown"))].join(", ")})`;
-const box = sel => { const n = d3.select(sel).node(); return { w: n.clientWidth, h: n.clientHeight }; };
+const box = sel => {   // content box: the panel's padding stays a margin around every chart
+  const n = d3.select(sel).node(), cs = getComputedStyle(n);
+  return { w: n.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h: n.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) };
+};
 const fd = d3.format("+.2f"), fr = v => "×" + d3.format(".2f")(Math.exp(v)), f2 = d3.format(".2f");
 
 // ---------------- statistics ----------------
@@ -485,6 +530,7 @@ function panelControls() {
   d3.select("#evSeg").selectAll("button").data([["seeds", "⫽", "Paired seeds: each curve follows one seed from the reference to the focus (with more members: through every member, one axis each)"], ["dist", "∿", "Distributions on every aspect (reference and focus as densities; with more members, one row per member)"], ["clusters", "⁘", "Appearance map: all images of this subject placed by CLIP image similarity (an index to images; areas and distances are not spread); with more members, one panel each"], ["rw", "✎", "Rewrites: what each rewritten prompt says (text side) against where its image lands"]].filter(d => d[0] !== "rw" || rwGroup() || SET().some(g => G[g].rewrite)))
     .join("button").text(d => d[1]).attr("title", d => d[2]).classed("on", d => d[0] === st.ev)
     .on("click", (e, d) => { st.ev = d[0]; panelControls(); drawRidge(); });
+  d3.select("#evTitle").text({ seeds: "Seed View", dist: "Distribution View", clusters: "Appearance Map View", rw: "Rewrite View" }[st.ev]);
   d3.select("#sortBtn").classed("on", st.sortRows === "delta").on("click", () => { st.sortRows = st.sortRows === "delta" ? "cat" : "delta"; panelControls(); drawMatrix(); overviewHL(); });
 }
 // ---------------- encoder switch ----------------
@@ -588,7 +634,8 @@ function overview(aspect) {
 }
 function buildMap() {
   const host = d3.select("#map"); host.selectAll("*").remove();
-  d3.select("#mainTitle").text(st.main === "contrasts" ? "Designed contrasts" : st.main === "statements" ? "VLM statements" : st.main === "trail" ? "Audit trail" : "Configurations");
+  d3.select("#mainTitle").text(st.main === "contrasts" ? "Contrast Overview" : st.main === "statements" ? "Statement View" : st.main === "trail" ? "Audit Trail View" : "Configuration Map View");
+  d3.select("#mapCond").style("display", st.main === "map" ? null : "none").html(cond("aspect", aspName(st.aspect)));
   if (st.main === "contrasts") { OVS.pts = null; OVS.co = host.append("svg"); return; }
   if (st.main === "statements" || st.main === "trail") { OVS.pts = null; OVS.co = null; OVS.coRow = null; return; }
   const { w: W, h: H } = box("#map"), m = { l: 22, r: 22, t: 22, b: 30 };
@@ -626,6 +673,7 @@ function resetZoom() {
   OVS.svg.transition().duration(350).call(OVS.zoom.transform, d3.zoomIdentity);
 }
 function drawMap(animate, zoomOnly) {
+  d3.select("#mapCond").style("display", st.main === "map" ? null : "none").html(cond("aspect", aspName(st.aspect)));
   OV = overview(st.aspect);
   if (st.main === "contrasts") { drawContrastOverview(); drawMatrix(); overviewHL(); return; }
   if (st.main === "statements") { drawStatements(); drawMatrix(); overviewHL(); return; }
@@ -673,7 +721,7 @@ function drawMap(animate, zoomOnly) {
     g.selectAll("*").remove();
     g.append("g").attr("transform", `translate(0,${H - m.b})`).call(d3.axisTop(x).ticks(6).tickSize(4).tickSizeOuter(0));
     g.append("g").attr("transform", `translate(${m.l},0)`).call(d3.axisRight(y).ticks(4).tickSize(4).tickSizeOuter(0));
-    g.append("text").attr("x", (m.l + W - m.r) / 2).attr("y", m.t - 6).attr("text-anchor", "middle")
+    g.append("text").attr("x", W - m.r).attr("y", m.t - 6).attr("text-anchor", "end")
       .text("x: typical location, scale units from each subject's cross-configuration centre · y: typical spread (median IQR)");
     const [dx0, dx1] = x.domain(), [, dy1] = y.domain();
     const offN = gid => per(gid).filter(p => p.x < dx0 || p.x > dx1 || p.y > dy1).length;
@@ -757,6 +805,7 @@ function reversals(aspect, RR = R) {
 }
 function drawMatrix() {
   const host = d3.select("#matrix"); host.selectAll("*").remove();
+  d3.select("#mxCond").html(cond("aspect", aspName(st.aspect)));
   const rcells = new Map((R?.[st.aspect]?.cells || []).map(c => [c.si, c])), rev = new Set(reversals(st.aspect));
   const a = ASP[AIDX[st.aspect]], subs = SUBJ.map((s, si) => ({ ...s, si })).filter(s => !s.excluded.includes(a.key));
   const { w: W, h: H } = box("#matrix"), legend = 34, gap = 5, cats = d3.groups(subs, s => s.category);
@@ -764,12 +813,13 @@ function drawMatrix() {
     const t = probe.append("text").style("font-size", size + "px").style("font-weight", weight).text(txt), w = t.node().getComputedTextLength(); t.remove(); return w; };
   const big = SET().length > 2, COLS = big ? [...SET().map(g => G[g]), ...CFGS.filter(g => !st.set.includes(g.id))] : CFGS;
   const cw0 = (W - 150) / COLS.length, rotate = cw0 < 44;
-  const top = rotate || big ? 18 + d3.max(COLS, g => measure(sh(g), 11, 500)) * (big ? .9 : .72) : 34;
-  const rh = Math.max(9, Math.min(20, (H - top - legend - gap * (cats.length - 1)) / subs.length)), fs = Math.max(10, Math.min(13, rh - 2));
+  const top = rotate || big ? 18 + d3.max(COLS, g => measure(sh(g), 12, 500)) * (big ? .9 : .72) : 36;
+  const rh = Math.max(9, Math.min(30, (H - top - legend - gap * (cats.length - 1)) / subs.length)), fs = Math.max(11, Math.min(14, rh - 3));
   const lw = 12 + d3.max(subs, s => measure(s.name.replace(/^an? /, ""), fs, 600));
   probe.remove();
-  const oth = OTHERS(), dw = oth.length > 1 ? Math.min(230, 46 * oth.length) : 78, nIn = big ? SET().length : COLS.length, gapC = big ? 8 : 0;
-  const cw = Math.min(54, (W - lw - 14 - dw - 12 - gapC) / (nIn + (COLS.length - nIn) * .55)), cwOf = i => i < nIn ? cw : cw * .55;
+  let oth = OTHERS(), dw = oth.length > 1 ? Math.min(W * .32, 64 * oth.length) : Math.max(90, W * .16), nIn = big ? SET().length : COLS.length, gapC = big ? 10 : 0;
+  const cw = Math.min(140, (W - lw - 14 - dw - 12 - gapC) / (nIn + (COLS.length - nIn) * .55)), cwOf = i => i < nIn ? cw : cw * .55;
+  dw += Math.max(0, W - lw - 14 - dw - 12 - gapC - cw * (nIn + (COLS.length - nIn) * .55));   // any width the capped columns leave goes to the shift columns, so the matrix spans the panel
   const CX = [];
   COLS.forEach((g, i) => CX.push(i ? CX[i - 1] + cwOf(i - 1) + (i === nIn ? gapC : 0) : lw));
   const matW = CX[COLS.length - 1] + cwOf(COLS.length - 1) - lw;
@@ -788,7 +838,7 @@ function drawMatrix() {
   mx.append("g").selectAll("g").data(COLS).join("g").attr("transform", (g, i) => `translate(${cx(i) + cwOf(i) / 2 - 1},${top - 8})`)
     .call(g => g.append("path").attr("d", c => d3.symbol(famShape(c), 30)()).attr("transform", "translate(0,2)").attr("fill", c => colOf(c.id) === "var(--dot)" ? "var(--ink-2)" : colOf(c.id)))
     .call(g => g.append("text").attr("class", "cl").attr("text-anchor", rotate || big ? "start" : "middle").style("opacity", (c, i) => i < nIn ? 1 : .7)
-      .style("font-size", (c, i) => i < nIn ? null : "9.5px")
+      .style("font-size", (c, i) => i < nIn ? null : "11px")
       .attr("transform", (c, i) => i >= nIn ? "translate(3,-6) rotate(-90)" : rotate ? "translate(-2,-6) rotate(-45)" : "translate(0,-8)").text(d => sh(d)));
   mx.append("g").selectAll("text").data(subs).join("text").attr("class", s => "rl" + (rev.has(s.si) ? " rev" : "")).style("font-size", fs + "px")
     .attr("x", lw - 8).attr("y", s => rowY.get(s.si) + rh / 2).attr("dy", "0.35em").attr("text-anchor", "end").text(s => s.name.replace(/^an? /, ""))
@@ -904,15 +954,15 @@ function setPair(a, b) {
 const SC = {};
 function buildScatters() {
   const side = d3.select("#side"); side.selectAll("*").remove();
+  side.append("div").attr("class", "sidehead").append("span").attr("class", "vt").attr("title", "x: shift of the median (scale units) · y: spread ratio, up = wider · dots: subjects, reference → focus · diamonds: pooled estimate of each member against the reference, labelled with its name; hover any mark for its values").text("Effect View");   // one view: five small multiples, one per aspect
   for (const a of RET) {
     const card = side.append("section").attr("class", "card").attr("data-a", a.key).on("click", e => { if (e.target.tagName !== "circle") pick(st.subj, a.key); });
-    card.append("h2").call(h => { if (a === RET[0]) h.append("span").attr("class", "pl").text("E"); h.append("span").text(aspName(a.key));
-      if (a === RET[0]) h.append("small").style("margin-left", "auto").style("white-space", "nowrap").style("font-size", "10.5px").attr("title", "x: shift of the median (scale units) · y: spread ratio, up = wider · dots: subjects, reference → focus · diamonds: pooled estimate of each member against the reference, labelled with its name; hover any mark for its values").text("x shift · y spread");
+    card.append("h2").call(h => { h.append("span").attr("class", "cond").html(cond("aspect", aspName(a.key)));
       h.append("span").attr("class", "est figonly"); });
     card.append("div").attr("class", "body");
   }
   side.selectAll(".card").each(function () {
-    const a = ASP[AIDX[this.dataset.a]], body = d3.select(this).select(".body"), W = body.node().clientWidth, H = body.node().clientHeight;
+    const a = ASP[AIDX[this.dataset.a]], body = d3.select(this).select(".body"), { w: W, h: H } = box(body.node());
     const m = { l: 10, r: 10, t: 4, b: 18 };
     const svg = body.append("svg").attr("width", W).attr("height", H);
     const s = { svg, W, H, m, x: d3.scaleLinear().range([m.l, W - m.r]), y: d3.scaleLinear().range([H - m.b, m.t]) };
@@ -931,8 +981,8 @@ function buildScatters() {
       .call(d3.drag().on("start", function () { d3.select(this).classed("drag", true); }).on("end", function () { d3.select(this).classed("drag", false); })
         .on("drag", e => { M_LR = Math.max(.05, Math.min(1.5, Math.abs(s.y.invert(e.y)))); marginsChanged(); }))
       .on("mousemove", e => showTip(e, `spread margin <b>×${f2(Math.exp(M_LR))}</b> (pre-registered ×${f2(Math.exp(PRE_LR))})`)).on("mouseleave", hideTip);
-    svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", m.l).attr("y", H - 4).text("← " + poleWord(a.left));
-    svg.append("text").attr("class", "pole").style("font-size", "11px").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text(poleWord(a.right) + " →");
+    svg.append("text").attr("class", "pole").style("font-size", "12px").attr("x", m.l).attr("y", H - 4).text("← " + poleWord(a.left));
+    svg.append("text").attr("class", "pole").style("font-size", "12px").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text(poleWord(a.right) + " →");
     s.mlab = svg.append("g").attr("class", "figonly");
     s.ci = svg.append("g").attr("class", "focusfx"); s.dots = svg.append("g").attr("class", "focusfx"); s.pool = svg.append("g").attr("class", "pool focusfx");
     s.pool.append("line").attr("class", "px"); s.pool.append("line").attr("class", "py");
@@ -1147,7 +1197,7 @@ function drawSetDist(host, si) {
       gg.append("line").attr("x1", qq(.25)).attr("x2", qq(.75)).attr("y1", yy).attr("y2", yy).attr("stroke", c).attr("stroke-width", Math.max(2, sub * .42)).attr("stroke-linecap", "round");
       gg.append("line").attr("x1", qq(.5)).attr("x2", qq(.5)).attr("y1", yy - sub * .4).attr("y2", yy + sub * .4).attr("stroke", "var(--panel)").attr("stroke-width", 1.4);
       gg.append("text").attr("x", m.l - 8).attr("y", yy).attr("dy", "0.35em").attr("text-anchor", "end")
-        .style("font-size", Math.max(9, Math.min(11, sub)) + "px").style("fill", role ? "var(--ink)" : "var(--ink-2)").style("font-weight", role ? 650 : 500).text((ok ? "" : "⊘ ") + sh(G[gid]));
+        .style("font-size", Math.max(10, Math.min(12.5, sub)) + "px").style("fill", role ? "var(--ink)" : "var(--ink-2)").style("font-weight", role ? 650 : 500).text((ok ? "" : "⊘ ") + sh(G[gid]));
     });
   });
   svg.append("text").attr("class", "pole").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text("line 10–90% · bar IQR · gap median · from the reference's median");
@@ -1367,7 +1417,6 @@ const FAMILIES = { lighting: ["light", "lit", "glow", "sunlight", "shadow"], "ti
   colour: ["warm", "vibrant", "muted", "saturated", "pastel", "color", "colour"], background: ["background", "surrounded", "scene", "environment"],
   style: ["painting", "illustration", "watercolor", "render", "style"] };
 const FAMRE = new RegExp("\\b(" + Object.values(FAMILIES).flat().map(w => w.replace(/ /g, "\\s+")).join("|") + ")\\w*", "gi");
-const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 function drawRewrites(host, si) {
   const { w: W, h: H } = box("#ridge"), svg = host.append("svg").attr("width", W).attr("height", H);
   const gid = rwGroup(), rw = SET().find(g => G[g].rewrite);
@@ -1488,18 +1537,18 @@ function drawStatements() {
     .on("click", (e, d) => { st.vFilter = st.vFilter === d.k ? null : d.k; drawStatements(); });
   const VSYM = { confirmed: "✓", "narrowed, did not move": "≈", "audit: no shift": "○", contradicted: "✗", other: "?" };
   svg.append("g").selectAll("text").data(keys.map(k => { let x0 = 0; for (const k2 of keys) { if (k2 === k) break; x0 += counts.get(k2); } return { k, x0, n: counts.get(k) }; }))
-    .join("text").attr("x", d => bx(d.x0) + 2).attr("y", 28).style("font-size", "11px").style("fill", "var(--ink-2)")
+    .join("text").attr("x", d => bx(d.x0) + 2).attr("y", 28).style("font-size", "12px").style("fill", "var(--ink-2)")
     .text(d => bx(d.x0 + d.n) - bx(d.x0) > 34 ? `${VSYM[d.k]} ${d.n}` : VSYM[d.k]);
   // glyph matrix
   const rows = [{ key: -1, name: "pooled" }, ...SUBJ.map((s, i) => ({ key: i, name: s.name.replace(/^an? /, "") }))];
   const rh = Math.max(8, (H - m.t - m.b) / rows.length), cw = bw / SCOLS.length, gsz = Math.max(4, Math.min(8, rh - 4));
   const ry = d3.scaleBand(rows.map(r => r.key), [m.t, H - m.b]).paddingInner(.08);
   svg.append("g").selectAll("text").data(SCOLS).join("text").attr("x", (c, i) => m.l + (i + .5) * cw).attr("y", m.t - 4).attr("text-anchor", "middle")
-    .style("font-size", "11px").style("fill", "var(--ink-2)").style("font-weight", 500).text(c => SCOLS.indexOf(c) < 5 ? aspName(c) : c);
+    .style("font-size", "12px").style("fill", "var(--ink-2)").style("font-weight", 500).text(c => SCOLS.indexOf(c) < 5 ? aspName(c) : c);
   svg.append("g").selectAll("rect").data(rows).join("rect").attr("class", "strow").attr("x", 6).attr("width", W - 12).attr("y", r => ry(r.key)).attr("height", ry.bandwidth()).attr("rx", 3)
     .attr("fill", r => r.key === st.subj ? "var(--band)" : "none");
   svg.append("g").selectAll("text").data(rows).join("text").attr("x", m.l - 8).attr("y", r => ry(r.key) + ry.bandwidth() / 2).attr("dy", "0.35em").attr("text-anchor", "end")
-    .style("font-size", Math.min(11, rh - 1) + "px").style("fill", r => r.key === st.subj ? "var(--ink)" : "var(--ink-2)").style("font-weight", r => r.key < 0 ? 600 : 400)
+    .style("font-size", Math.min(12.5, rh - 1) + "px").style("fill", r => r.key === st.subj ? "var(--ink)" : "var(--ink-2)").style("font-weight", r => r.key < 0 ? 600 : 400)
     .text(r => r.name).style("cursor", "pointer").on("click", (e, r) => { if (r.key >= 0) pick(r.key, st.aspect); });
   svg.append("g").selectAll("line").data(d3.range(SCOLS.length + 1)).join("line").attr("x1", i => m.l + i * cw).attr("x2", i => m.l + i * cw)
     .attr("y1", m.t).attr("y2", H - m.b).attr("stroke", "var(--grid)");
@@ -2051,8 +2100,9 @@ function drawStrip() {
   const si = cur(), a = ASP[AIDX[st.aspect]], ai = 3 + AIDX[a.key], sc = META.scale[a.key];
   if (st.hover == null && st.seedSubj !== si) { st.seedSel = null; st.seedSubj = si; }
   const head = d3.select("#stripName"); head.selectAll("*").remove();
-  head.append("span").attr("class", "pl").text("C");
-  head.append("span").text(`${aspName(a.key)} · ${SUBJ[si].name}`);
+  head.append("span").attr("class", "vt").text("Image Lane View");
+  head.append("span").attr("class", "cond").html(cond("aspect", aspName(a.key)));
+  head.append("span").attr("class", "cond").html(cond("subject", SUBJ[si].name));
   if (SET().length <= 2 && !valid(a.key)) head.append("span").attr("class", "nvmark").style("margin-left", "0").text("⊘").attr("title", nvTitle());
   head.append("span").attr("id", "selCount").style("margin-left", "auto");
   head.append("button").attr("class", "mini").attr("id", "selClear").attr("title", "Clear the selected seeds").text("✕")
@@ -2138,12 +2188,9 @@ header(); encSeg(); aspectSeg(); panelControls(); buildMap(); buildScatters(); u
 d3.select("#zoomReset").on("click", resetZoom);
 d3.select("#findBtn").on("click", () => { const dr = d3.select("#findDrawer"); dr.style("display", dr.style("display") === "none" ? null : "none"); drawFindings(); });
 drawFindings();
-[["#mapCard h2", "A"], ["#matrixCard h2", "B"], ["#ridgeCard h2", "D"], ["#stripCard", "C"]].forEach(([sel, l]) => {
-  const h = sel === "#stripCard" ? d3.select("#stripName") : d3.select(sel);
-  if (sel !== "#stripCard") { const sp = document.createElement("span"); sp.className = "pl"; sp.textContent = l; h.node().prepend(sp); }
-});
 let rt = null;
 new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(layout, 120); }).observe(document.getElementById("app"));
+document.fonts?.ready.then(layout);   // header wrapping depends on the web font, so size the views again once it has loaded
 </script>
 </body>
 </html>

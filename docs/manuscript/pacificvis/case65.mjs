@@ -9,6 +9,7 @@ const W = 1680, H = 1000, PORT = 9341;
 const exe = ["C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "C:/Program Files/Microsoft/Edge/Application/msedge.exe"].find(existsSync);
 const proc = spawn(exe, ["--headless=new", `--remote-debugging-port=${PORT}`, "--disable-gpu", "--hide-scrollbars", `--window-size=${W},${H}`,
   `--user-data-dir=${process.env.TEMP || "/tmp"}/case65-profile`, "about:blank"], { stdio: "ignore" });
+process.on("exit", () => { try { proc.kill(); } catch (e) { /* already gone */ } });   // a failed run must not leave the headless browser holding the port
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let target;
 for (let i = 0; i < 50 && !target; i++) { await sleep(200); try { target = await (await fetch(`http://127.0.0.1:${PORT}/json/new?about:blank`, { method: "PUT" })).json(); } catch (e) { /* not up yet */ } }
