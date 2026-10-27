@@ -13,6 +13,9 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit}
 \usepackage{mathptmx}
+\renewcommand{\topfraction}{0.9}\renewcommand{\dbltopfraction}{0.9}\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.8}\renewcommand{\dblfloatpagefraction}{0.8}
+\setcounter{topnumber}{3}\setcounter{dbltopnumber}{3}\setcounter{totalnumber}{6}
 
 % teaser caption typeset directly in the class's caption font: \caption inside \teaser lost its text in the test
 % build (XeTeX via Tectonic); this works the same under pdfLaTeX and keeps the figure number and label
@@ -162,25 +165,29 @@ In the pre-registered VLM study, Qwen3.5-4B and Mistral-Small-3.2-24B saw 8 vs.\
 Both VLMs reported a shift between two sets from the same configuration in 98--100\% of answers (\cref{tab:vlm}). This is not sampling noise: a second draw gives the same answer in 88--93\% of cases, and where the eight shown seeds decide, they agree with the 32-seed truth in 98--100\% of cases. The VLMs also called narrowing movement (12--13 of 13 cases) and described a pooled shift in 49--50 of 50 pooled ``no change'' cases that hide reversals. Given a real difference, however, Mistral-24B reads the direction of variety correctly in 79\% of per-subject cases. Other language fails in the same way. Rewritten prompts move toward ``a photograph'' while their images move toward illustration ($+0.53$ and $+0.37$, not significant after correction), and per subject the text predicts the image only for saturation (Spearman 0.42--0.53). Six new axes proposed by a VLM (sharpness, level of detail, natural vs.\ idealized, contrast, lighting, texture) were understood by people (``can't tell'' in 11--25\% of judgements), but none passed the check (0.34--0.70).
 
 \begin{table}[tb]
-\caption{VLM answers against the audit; the lower block compares people and VLMs on the same 48 grid pairs.}
+\caption{VLM answers against the audit. Top: the whole VLM study (people were not asked these items). Bottom: the 48 grid pairs answered by both the VLMs and people.}
 \label{tab:vlm}
 \scriptsize\centering
 \begin{tabularx}{\columnwidth}{@{}>{\raggedright\arraybackslash}Xccc@{}}
 \toprule
  & Qwen-4B & Mistral-24B & People\textsuperscript{a} \\
 \midrule
-Per-subject shift accuracy & 0.49 & 0.48 & \\
-Per-subject variety accuracy & 0.63 & 0.79 & \\
-Narrowing without a shift, answered ``shift'' & 12/13 & 13/13 & \\
-Hidden reversals described as a pooled shift & 49/50 & 50/50 & \\
-\textbf{Null control: a shift reported} & \textbf{98\%} & \textbf{100\%} & \\
-Same answer on a second draw & 0.88--0.91 & 0.88--0.93 & \\
+\multicolumn{4}{@{}l}{\textit{Whole study, six contrasts}} \\
+Per-subject shift accuracy & 0.49 & 0.48 & -- \\
+Per-subject variety accuracy & 0.63 & 0.79 & -- \\
+Narrowing without a shift, answered ``shift'' & 12/13 & 13/13 & -- \\
+Hidden reversals described as a pooled shift & 49/50 & 50/50 & -- \\
+\textbf{Null control: a shift reported} & \textbf{98\%} & \textbf{100\%} & -- \\
+Same answer on a second draw & 0.88--0.91 & 0.88--0.93 & -- \\
 \midrule
-Null pairs reported as different & \textbf{12/12} & \textbf{12/12} & \textbf{4/12} \\
+\multicolumn{4}{@{}l}{\textit{The same 48 grid pairs}} \\
+\textbf{Null pairs reported as different} & \textbf{12/12} & \textbf{12/12} & \textbf{4/12} \\
 Real shifts, direction correct & 6/10 & 8/10 & 3/10 \\
+No real shift, answered ``no difference'' & 0/8 & 0/8 & 2/8 \\
 Variety correct & 13/18 & 15/18 & 12/17 \\
+``No difference'' among answers on real pairs & 0\% & 0\% & 34\% \\
 \bottomrule
-\multicolumn{4}{@{}l}{\textsuperscript{a}Majority of three annotators.}
+\multicolumn{4}{@{}l}{\textsuperscript{a}Majority of three annotators; -- = not asked.}
 \end{tabularx}
 \end{table}
 
@@ -236,6 +243,13 @@ The header holds a comparison set of up to six configurations in chain order. Th
 \subsection{Panel A: where configurations settle}
 The \emph{configuration map} (T1, T5) places each configuration at its typical location (x) and spread (y) on the chosen aspect; families are shapes, and arrows join designed contrasts (solid: guidance only; dashed: a package; dotted: prompt rewriting). Density contours of the 24 per-subject positions show whether a member behaves consistently across subjects, and semantic zoom keeps the estimate fixed in scale units. The \emph{contrast overview} gives one row per contrast and one glyph per aspect: an arrow for the pooled shift (dashed while its interval reaches into the margin), a disc against a unit ring for the spread ratio, and a count of subjects against the pooled direction. The \emph{statement view} (T4) places each VLM statement about the pair as a glyph in a subject $\times$ aspect grid; colour and a symbol give the audit's verdict (confirmed, narrowed but did not move, no shift, contradicted), recomputed live from the current data, margins and encoder (R1), with the frozen verdict shown when the two differ. The \emph{audit trail} (T3, T4) follows one claim---a statement, a rewrite or an axis name---through the measurement that decides it and one subject to its images (same seed, or rank-matched and labelled so), with a verdict on each link.
 
+\begin{figure*}[tb]
+\centering
+\includegraphics[width=\linewidth]{fig5_case61.png}
+\caption{Case \ref{sec:case61}: the same view of klein-base 4B, guidance 1$\rightarrow$4$\rightarrow$distilled, on medium under CLIP (left) and SigLIP~2 (right): configuration maps, then the medium and tone scatters. Under both encoders the diamonds lie below the spread band (narrowing); only under SigLIP~2 does guidance move medium toward illustration.}
+\label{fig:case61}
+\end{figure*}
+
 \subsection{Panels B--E: from subjects to images (R3)}
 Panel~B (T2) colours each subject $\times$ configuration cell by where the configuration puts the subject between the poles; one shift column per member shows each subject's shift from the reference on a common scale, subjects that move against that member's pooled direction beyond the margin are outlined, and a badge steps through them. Panel~C (T3) places every image of the selected subject by its score, one lane per member, with the margin band and each member's median: the measurement over all seeds decides where to look, and the images show what the number means (F3). Panel~D (T1, T5) shows the same seeds as parallel coordinates through all members---joined seed by seed where members share the starting noise, rank-matched and dashed otherwise, so that leaning lines read as a shift and converging lines as a narrowing---and alternatively the subject's distributions on every aspect, an appearance map (a shared t-SNE of image embeddings, one small multiple per member) and, for rewriting contrasts, each rewrite placed by what its text says against where its image lands. Panel~E (T1, T2) has one scatter per aspect, each subject a dot at (shift, log spread ratio) with its interval, the margins as bands, and the pooled estimate and further members as labelled diamonds. Dragging the margin handles changes the margins for exploration and every verdict updates; brushing subjects highlights them everywhere and adds their median for every member; an aspect not validated for a member under the current encoder is marked $\oslash$.
 
@@ -247,29 +261,26 @@ Choosing a member, aspect or subject in any view updates every other view. A fin
 
 \section{Cases}
 \label{sec:cases}
-Each case starts from a failure of \cref{sec:failures} and follows an analyst through \sysname{} on the real data. The findings were first established by the scripted analyses; the cases show how the system reaches and checks them, and what it adds that a number, a sentence or a few images do not.
-
-\subsection{Shift, narrowing, or the encoder? (F1c; T1, T5)}
-\label{sec:case61}
-With klein-base 4B at guidance 1 as reference, guidance 4 as focus and the distilled klein 4B as a third member (\cref{fig:case61}), panel~E shows the focus's diamonds below the spread band on four aspects and the distilled member's further down on all five; only saturation's lies right of the shift band. In panel~D the seed lines lean right and converge from guidance 1 to 4; the segment to klein 4B is rank-matched and dashed, because its checkpoint differs. Switching to SigLIP~2 keeps the diamonds below the spread band, but on medium the focus now moves toward illustration ($+1.08$) and the map shows its arrow leaving the reference. Dragging the spread margin shows how robust the narrowing is: medium, tone and saturation stay narrowed, with their whole interval beyond the margin, up to a margin of $\times$1.52--1.62, background and shot only up to $\times$1.26 and $\times$1.20. The analyst logs ``narrows like guidance, more strongly; which aspects move is encoder-specific'' with both states. Without the system, a diversity score says ``less diverse'' under both encoders, and a single-encoder analysis reports its own shifts as facts.
-
-\begin{figure*}[tb]
-\centering
-\includegraphics[width=\linewidth]{fig5_case61.png}
-\caption{Case \ref{sec:case61}: the same view of klein-base 4B, guidance 1$\rightarrow$4$\rightarrow$distilled, on medium under CLIP (left) and SigLIP~2 (right): configuration maps, then the medium and tone scatters. Under both encoders the diamonds lie below the spread band (narrowing); only under SigLIP~2 does guidance move medium toward illustration.}
-\label{fig:case61}
-\end{figure*}
-
-\subsection{A pooled ``no change'' that hides reversals (F1b; T2, T3)}
-\label{sec:case62}
-The contrast overview shows SDXL$\rightarrow$SDXL-Turbo with short arrows and a large reversal count. With the pair as reference and focus, the pooled saturation diamond sits inside the shift band with subject dots on both sides (\cref{fig:cases6263}a). The badge (7) steps through the subjects that turn muted beyond the margin against the slightly positive pooled shift---``a bird on a branch'', ``a car'', ``a kitchen'', ``a library'', ``a city street'', ``a mountain'', ``a picnic''---while in the shift column ``a horse'' and ``a cup of coffee'' are the longest bars on the vivid side. In panel~C, Turbo's images of the horse sit on the vivid side and those of the bird on the muted side. The warning chip lists five differing settings, so the finding is not attributed to distillation. Without the system, the pooled number says ``no difference'', and eight images of one subject show only one direction.
-
 \begin{figure*}[tb]
 \centering
 \includegraphics[width=\linewidth]{fig6_cases_62_63.png}
 \caption{(a)~Case \ref{sec:case62}: SDXL$\rightarrow$SDXL-Turbo on saturation; subjects lie on both sides of a pooled diamond inside the margin, and the image lanes show one subject each way. (b)~Case \ref{sec:case63}: FLUX.2 dev with and without its official rewriter; the strongest effect (background, toward busy) lies on an aspect not validated for rewritten images ($\oslash$), and the picnic images scored ``busy'' look like the originals; medium's ratio stays inside the spread band.}
 \label{fig:cases6263}
 \end{figure*}
+
+Each case starts from a failure of \cref{sec:failures} and follows an analyst through \sysname{} on the real data. The findings were first established by the scripted analyses; the cases show how the system reaches and checks them, and what it adds that a number, a sentence or a few images do not.
+
+\subsection{Shift, narrowing, or the encoder? (F1c; T1, T5)}
+\label{sec:case61}
+With klein-base 4B at guidance 1 as reference, guidance 4 as focus and the distilled klein 4B as a third member (\cref{fig:case61}), panel~E shows the focus's diamonds below the spread band on four aspects and the distilled member's further down on all five; only saturation's lies right of the shift band. In panel~D the seed lines lean right and converge from guidance 1 to 4; the segment to klein 4B is rank-matched and dashed, because its checkpoint differs. Switching to SigLIP~2 keeps the diamonds below the spread band, but on medium the focus now moves toward illustration ($+1.08$) and the map shows its arrow leaving the reference. Dragging the spread margin shows how robust the narrowing is: medium, tone and saturation stay narrowed, with their whole interval beyond the margin, up to a margin of $\times$1.52--1.62, background and shot only up to $\times$1.26 and $\times$1.20. The analyst logs ``narrows like guidance, more strongly; which aspects move is encoder-specific'' with both states. Without the system, a diversity score says ``less diverse'' under both encoders, and a single-encoder analysis reports its own shifts as facts.
+
+
+
+\subsection{A pooled ``no change'' that hides reversals (F1b; T2, T3)}
+\label{sec:case62}
+The contrast overview shows SDXL$\rightarrow$SDXL-Turbo with short arrows and a large reversal count. With the pair as reference and focus, the pooled saturation diamond sits inside the shift band with subject dots on both sides (\cref{fig:cases6263}a). The badge (7) steps through the subjects that turn muted beyond the margin against the slightly positive pooled shift---``a bird on a branch'', ``a car'', ``a kitchen'', ``a library'', ``a city street'', ``a mountain'', ``a picnic''---while in the shift column ``a horse'' and ``a cup of coffee'' are the longest bars on the vivid side. In panel~C, Turbo's images of the horse sit on the vivid side and those of the bird on the muted side. The warning chip lists five differing settings, so the finding is not attributed to distillation. Without the system, the pooled number says ``no difference'', and eight images of one subject show only one direction.
+
+
 
 \subsection{Auditing a prompt rewriter (F1a, F2; T3, T4)}
 \label{sec:case63}
