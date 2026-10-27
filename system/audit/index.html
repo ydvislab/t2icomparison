@@ -283,6 +283,59 @@ g.axi.dim { opacity: .16; }
 .tip b { color: var(--ink); font-weight: 600; }
 .tip img { width: 200px; height: 200px; display: block; border-radius: 8px; margin-top: 8px; }
 .tip .bar { display: grid; grid-template-columns: 64px 1fr; gap: 4px 8px; margin-top: 6px; align-items: center; }
+
+/* rev14 refinement: quieter chrome, lighter auxiliary marks, selections drawn inside their element */
+header h1 { font-size: 16px; font-weight: 650; }
+.card { border-radius: 6px; }
+.card h2, #mapCard h2 { font-size: 12.5px; font-weight: 600; color: var(--ink-2); padding-top: 8px; }
+.pl, #mapCard .pl { width: 15px; height: 15px; border-radius: 3px; background: transparent; color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--faint); font-size: 9.5px; font-weight: 650; }
+.seg, .pill, .setbar .sc, .setbar select, .pillbtn, .iconbtn, .diff span { border-radius: 6px; }
+.seg button { border-radius: 4px; }
+.seg button.on { background: var(--grid); color: var(--ink); }
+.seg.mini { border-radius: 5px; }
+button.mini { border-radius: 4px; }
+button.mini.on { background: var(--grid); color: var(--ink); }
+#side .card.on { box-shadow: inset 0 0 0 1px var(--ink-2); }
+/* map */
+.cfg .ring { stroke-width: 1.5; }
+.lab text { font-size: 12px; stroke-width: 2.5px; }
+.arrow path.shaft { stroke-width: 1.3; }
+.arrow:hover path.shaft, .arrow.sel path.shaft { stroke-width: 1.7; }
+.arrow.adhoc path.shaft { stroke-width: 1.5; }
+.arrow.mem path.shaft { stroke-width: 1.1; }
+.detail path.link { stroke-width: .9; }
+/* matrix: hover and selection outlines stay inside the cell */
+.mx rect.cell:hover, .mx rect.cell.on { stroke: none; }
+.mx rect.cellsel { fill: none; stroke: var(--ink); stroke-width: 1; pointer-events: none; }
+.mx .dbar.rev { stroke-width: 1.1; }
+/* scatters */
+.subj { stroke-width: .8; }
+.subj.rev { stroke-width: 1.2; }
+.ci { stroke-width: 1.1; }
+.pool path { stroke-width: 1.3; }
+.pool line { stroke-width: 1.1; }
+.pool, .exd { cursor: pointer; }
+.pool:hover path, .exd:hover path { stroke: var(--hl); stroke-width: 1.6; }
+.exl, .pool .exl { font-size: 9.5px; font-weight: 500; fill: var(--ink-2); paint-order: stroke; stroke: var(--panel); stroke-width: 2.5px; pointer-events: none; }
+.seld path { stroke-width: 1.4; }
+.mh { opacity: .28; }
+/* subject evidence */
+.ridge .area { stroke-width: 1.3; }
+.rug { stroke-width: 1.4; }
+.rug.hl { stroke-width: 2.2; }
+.rug.sel { stroke-width: 2; }
+.traj { stroke-width: .9; }
+.traj.hl { stroke-width: 1.8; }
+.traj.sel { stroke-width: 1.5; }
+.trajmed { stroke-width: 2; }
+.cpt.ab.hl { stroke-width: 1.8; }
+.cpt.ab.sel { stroke-width: 1.5; }
+/* image lanes: highlight inside the thumbnail, never over its neighbours */
+.lane img.hl { box-shadow: inset 0 0 0 2px var(--hl); outline: 2px solid var(--hl); outline-offset: -2px; }
+g.axi.sel .axb { stroke-width: 1.4; }
+g.axi.hl .axb { stroke-width: 1.8; }
+.dragline { stroke-width: 1.5; }
+.stmt.on { box-shadow: inset 0 0 0 1.5px var(--hl); }
 </style>
 </head>
 <body>
@@ -827,6 +880,11 @@ function matrixHL(hs, hc) {
     OVS.mx.selectAll(".colhl").attr("fill", g => g.id === hc ? "var(--band)" : SET().includes(g.id) ? `color-mix(in srgb, ${colOf(g.id)} 15%, transparent)` : "none");
     OVS.mx.selectAll(".rl").classed("on", s => s.si === (hs ?? st.subj)).classed("pick", s => !!st.subjSel?.has(s.si));
     OVS.mx.selectAll("rect.cell").classed("on", d => d.s.si === (hs ?? st.subj) && (d.g.id === st.A || d.g.id === st.B));
+    // the outline of the selected (and hovered) cells is drawn inside the cell, so it never covers its neighbours
+    const on = OVS.mx.selectAll("rect.cell").filter(d => (d.s.si === (hs ?? st.subj) && (d.g.id === st.A || d.g.id === st.B)) || (d.s.si === hs && d.g.id === hc)).nodes();
+    OVS.mx.selectAll("rect.cellsel").data(on).join("rect").attr("class", "cellsel").attr("rx", n => n.getAttribute("rx"))
+      .attr("x", n => +n.getAttribute("x") + .5).attr("y", n => +n.getAttribute("y") + .5)
+      .attr("width", n => Math.max(0, +n.getAttribute("width") - 1)).attr("height", n => Math.max(0, +n.getAttribute("height") - 1)).raise();
   }
 }
 // a new reference and focus: members already in the set only change role; a configuration from outside takes the slot
@@ -849,7 +907,7 @@ function buildScatters() {
   for (const a of RET) {
     const card = side.append("section").attr("class", "card").attr("data-a", a.key).on("click", e => { if (e.target.tagName !== "circle") pick(st.subj, a.key); });
     card.append("h2").call(h => { if (a === RET[0]) h.append("span").attr("class", "pl").text("E"); h.append("span").text(aspName(a.key));
-      if (a === RET[0]) h.append("small").style("margin-left", "auto").attr("title", "x: shift of the median (scale units) · y: spread ratio, up = wider").text("↔ shift · ↕ spread");
+      if (a === RET[0]) h.append("small").style("margin-left", "auto").style("white-space", "nowrap").style("font-size", "10.5px").attr("title", "x: shift of the median (scale units) · y: spread ratio, up = wider · dots: subjects, reference → focus · diamonds: pooled estimate of each member against the reference, labelled with its name; hover any mark for its values").text("x shift · y spread");
       h.append("span").attr("class", "est figonly"); });
     card.append("div").attr("class", "body");
   }
@@ -878,7 +936,8 @@ function buildScatters() {
     s.mlab = svg.append("g").attr("class", "figonly");
     s.ci = svg.append("g").attr("class", "focusfx"); s.dots = svg.append("g").attr("class", "focusfx"); s.pool = svg.append("g").attr("class", "pool focusfx");
     s.pool.append("line").attr("class", "px"); s.pool.append("line").attr("class", "py");
-    s.pool.append("path").attr("d", d3.symbol(d3.symbolDiamond, 110)());
+    s.pool.append("path").attr("d", d3.symbol(d3.symbolDiamond, 90)());
+    s.pool.append("text").attr("class", "exl");   // the focus is named like every other member
     s.pool.on("mousemove", e => showTip(e, poolTip(a))).on("mouseleave", hideTip);
     s.exg = svg.append("g");   // further members of the comparison set against A
     s.exsel = svg.append("g");  // the brushed subjects' median for every further member
@@ -916,10 +975,11 @@ function drawScatters(animate) {
     s.pool.select(".px").transition(t).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
     s.pool.select(".py").transition(t).attr("x1", x(p.d)).attr("x2", x(p.d)).attr("y1", y(p.llo)).attr("y2", y(p.lhi));
     s.pool.select("path").transition(t).attr("transform", `translate(${x(p.d)},${y(p.lr)})`);
+    s.pool.select("text").text(sh(G[st.B])).attr("x", x(p.d) + 7);
     s.exg.selectAll("g.exd").data(ex, d => d.g).join(en => { const g = en.append("g").attr("class", "exd").style("cursor", "pointer");
-        g.append("line").attr("class", "px").attr("stroke-width", 2).attr("stroke-linecap", "round"); g.append("line").attr("class", "py").attr("stroke-width", 2).attr("stroke-linecap", "round");
-        g.append("path").attr("d", d3.symbol(d3.symbolDiamond, 70)()).attr("stroke", "var(--panel)").attr("stroke-width", 1.2);
-        g.append("text").attr("class", "exl").style("font-size", "10px").style("fill", "var(--ink-2)").style("font-weight", 600).attr("dy", "-0.5em"); return g; })
+        g.append("line").attr("class", "px").attr("stroke-width", 1.1).attr("stroke-linecap", "round"); g.append("line").attr("class", "py").attr("stroke-width", 1.1).attr("stroke-linecap", "round");
+        g.append("path").attr("d", d3.symbol(d3.symbolDiamond, 60)()).attr("stroke", "var(--panel)").attr("stroke-width", 1);
+        g.append("text").attr("class", "exl").attr("dy", "-0.5em"); return g; })
       .style("opacity", d => valid(a.key, st.A, d.g) ? 1 : .3)
       .each(function (d) { const g = d3.select(this), p = d.p, c = colOf(d.g);
         g.select(".px").attr("stroke", c).attr("x1", x(p.dlo)).attr("x2", x(p.dhi)).attr("y1", y(p.lr)).attr("y2", y(p.lr));
@@ -929,15 +989,15 @@ function drawScatters(animate) {
       .on("mousemove", (e, d) => showTip(e, `<b>${G[st.A].label} → ${G[d.g].label}</b> · ${aspName(a.key)}<div class="bar"><span>shift</span><span><b>${fd(d.p.d)}</b> [${fd(d.p.dlo)}, ${fd(d.p.dhi)}]</span><span>spread</span><span><b>${fr(d.p.lr)}</b> [${fr(d.p.llo)}, ${fr(d.p.lhi)}]</span></div><span style="color:var(--muted)">click: make it the focus</span>`))
       .on("mouseleave", hideTip).on("click", (e, d) => { e.stopPropagation(); setPair(st.A, d.g); });
     // member labels: placed right of each diamond, pushed apart vertically where they would overlap
-    const labs = s.exg.selectAll("g.exd").nodes().map(n => ({ n, d: d3.select(n).datum() })).map(o => ({ ...o, y: y(o.d.p.lr) - 6, x: x(o.d.p.d) })).sort((p, q2) => p.y - q2.y);
-    labs.forEach((o, i) => { for (let k = 0; k < i; k++) { const q2 = labs[k]; if (Math.abs(q2.x - o.x) < 34 && o.y - q2.y < 11) o.y = q2.y + 11; } });
+    const labs = [{ n: s.pool.node(), y: y(p.lr) - 6, x: x(p.d) }, ...s.exg.selectAll("g.exd").nodes().map(n => ({ n, d: d3.select(n).datum() })).map(o => ({ ...o, y: y(o.d.p.lr) - 6, x: x(o.d.p.d) }))].sort((p1, q2) => p1.y - q2.y);
+    labs.forEach((o, i) => { for (let k = 0; k < i; k++) { const q2 = labs[k]; if (Math.abs(q2.x - o.x) < 40 && o.y - q2.y < 11) o.y = q2.y + 11; } });
     labs.forEach(o => d3.select(o.n).select("text").attr("y", o.y).attr("dy", null));
     s.hLoc.attr("x", d => x(d * M_LOC) - 4).attr("y", m.t);
     s.hLr.attr("x", W - m.r - 14).attr("y", d => y(d * M_LR) - 4);
     // figure mode: margin values at the band edges and the pooled estimate in the card title
     s.mlab.selectAll("text").data([[x(-M_LOC), m.t + 10, "end", fd(-M_LOC)], [x(M_LOC), m.t + 10, "start", fd(M_LOC)],
       [m.l + 2, y(M_LR) - 3, "start", fr(M_LR)], [m.l + 2, y(-M_LR) + 11, "start", fr(-M_LR)]])
-      .join("text").attr("class", "pole").attr("x", d => d[0] + (d[2] === "end" ? -3 : d[2] === "start" && d[1] === m.t + 10 ? 3 : 0)).attr("y", d => d[1]).attr("text-anchor", d => d[2]).text(d => d[3]);
+      .join("text").attr("class", "pole").attr("x", d => d[0] + (d[2] === "end" ? -8 : d[2] === "start" && d[1] === m.t + 10 ? 8 : 0)).attr("y", d => d[1]).attr("text-anchor", d => d[2]).text(d => d[3]);
     d3.select(`#side .card[data-a="${a.key}"] h2 .est`).text(`${fd(p.d)} · ${fr(p.lr)}${p.src === "tool" ? "" : " ★"}`)
       .attr("title", `pooled shift ${fd(p.d)} [${fd(p.dlo)}, ${fd(p.dhi)}], spread ${fr(p.lr)} [${fr(p.llo)}, ${fr(p.lhi)}]; 90% interval from ${p.src === "tool" ? "the tool (400 resamples)" : p.src + " (10,000 resamples); ★ = scripted analysis"}`);
     s.brushG.call(s.brush.move, null);
@@ -977,7 +1037,7 @@ function subjHL() {
     const ex = S ? OTHERS().filter(g => g !== st.B).map(g => { const cs = extraContrast(g)[a.key].cells.filter(c => S.has(c.si));
       return cs.length ? { g, d: d3.median(cs, c => c.d), lr: d3.median(cs, c => c.lr) } : null; }).filter(Boolean) : [];
     s.exsel.selectAll("path").data(ex, d => d.g).join("path").attr("d", d3.symbol(d3.symbolDiamond, 110)()).attr("fill", "none")
-      .attr("stroke", "var(--hl)").attr("stroke-width", 1.8).attr("transform", d => `translate(${s.x(d.d)},${s.y(d.lr)})`)
+      .attr("stroke", "var(--hl)").attr("stroke-width", 1.3).attr("transform", d => `translate(${s.x(d.d)},${s.y(d.lr)})`)
       .on("mousemove", (e, d) => showTip(e, `<b>${st.subjSel.size} brushed subjects</b> · ${sh(G[st.A])} → ${sh(G[d.g])}<div class="bar"><span>shift</span><span><b>${fd(d.d)}</b></span><span>spread</span><span><b>${fr(d.lr)}</b></span></div>`)).on("mouseleave", hideTip);
   }
 }
@@ -1083,9 +1143,9 @@ function drawSetDist(host, si) {
     members.forEach((gid, k) => {
       const v = vals[k], yy = 3 + (k + .5) * sub, c = colOf(gid), qq = pp => x(d3.quantileSorted(v, pp)), role = gid === st.A || gid === st.B, ok = valid(a.key, st.A, gid);
       const gg = g.append("g").style("opacity", ok ? 1 : .3).on("mousemove", e => showTip(e, `<b>${G[gid].label}</b> · ${aspName(a.key)}<div class="bar"><span>median</span><span><b>${fd(d3.quantileSorted(v, .5))}</b></span><span>IQR</span><span><b>${f2(d3.quantileSorted(v, .75) - d3.quantileSorted(v, .25))}</b></span></div>`)).on("mouseleave", hideTip);
-      gg.append("line").attr("x1", qq(.1)).attr("x2", qq(.9)).attr("y1", yy).attr("y2", yy).attr("stroke", c).attr("stroke-width", 1.3).attr("opacity", .7);
-      gg.append("line").attr("x1", qq(.25)).attr("x2", qq(.75)).attr("y1", yy).attr("y2", yy).attr("stroke", c).attr("stroke-width", Math.max(3, sub * .6)).attr("stroke-linecap", "round");
-      gg.append("line").attr("x1", qq(.5)).attr("x2", qq(.5)).attr("y1", yy - sub * .4).attr("y2", yy + sub * .4).attr("stroke", "var(--panel)").attr("stroke-width", 2);
+      gg.append("line").attr("x1", qq(.1)).attr("x2", qq(.9)).attr("y1", yy).attr("y2", yy).attr("stroke", c).attr("stroke-width", 1).attr("opacity", .7);
+      gg.append("line").attr("x1", qq(.25)).attr("x2", qq(.75)).attr("y1", yy).attr("y2", yy).attr("stroke", c).attr("stroke-width", Math.max(2, sub * .42)).attr("stroke-linecap", "round");
+      gg.append("line").attr("x1", qq(.5)).attr("x2", qq(.5)).attr("y1", yy - sub * .4).attr("y2", yy + sub * .4).attr("stroke", "var(--panel)").attr("stroke-width", 1.4);
       gg.append("text").attr("x", m.l - 8).attr("y", yy).attr("dy", "0.35em").attr("text-anchor", "end")
         .style("font-size", Math.max(9, Math.min(11, sub)) + "px").style("fill", role ? "var(--ink)" : "var(--ink-2)").style("font-weight", role ? 650 : 500).text((ok ? "" : "⊘ ") + sh(G[gid]));
     });
@@ -1216,7 +1276,7 @@ function drawContrastOverview() {
    "disc vs dashed ring: spread ratio vs ×1 (outlined once beyond the margin) · ⇄n: subjects against the pooled direction"]
     .forEach((t, i) => svg.append("text").attr("class", "pole").attr("x", 12).attr("y", ky + i * 13).text(t));
   OVS.coRow = rg.append("rect").attr("x", 4).attr("width", W - 8).attr("height", ch - 4).attr("rx", 8).attr("fill", "none");
-  rg.append("line").attr("x1", 12).attr("x2", 34).attr("y1", ch / 2).attr("y2", ch / 2).attr("stroke", "var(--ink-2)").attr("stroke-width", 1.8)
+  rg.append("line").attr("x1", 12).attr("x2", 34).attr("y1", ch / 2).attr("y2", ch / 2).attr("stroke", "var(--ink-2)").attr("stroke-width", 1.2)
     .attr("stroke-dasharray", r => r.kind === "package" ? "5 4" : r.kind === "prompt" ? "1.5 4" : r.kind === "selected" ? "8 2 1 2" : null).attr("marker-end", "url(#ah)");
   rg.append("text").attr("x", 42).attr("y", ch / 2).attr("dy", "0.35em").style("font-size", "13px").style("fill", "var(--ink-2)").style("font-weight", 500)
     .text(r => `${sh(r.f)} → ${sh(r.to)}`);
@@ -1232,9 +1292,9 @@ function drawContrastOverview() {
   g.append("rect").attr("x", -cw / 2 + 4).attr("y", -ch / 2 + 2).attr("width", cw - 8).attr("height", ch - 8).attr("fill", "transparent");
   g.append("circle").attr("r", r0).attr("fill", "none").attr("stroke", "var(--faint)").attr("stroke-dasharray", "3 3");
   g.append("circle").attr("r", c => r0 * Math.max(.2, Math.min(1.7, Math.exp(c.p.lr)))).attr("fill", "var(--band)")
-    .attr("stroke", c => verdict(c.p.llo, c.p.lhi, M_LR) === "moved" ? "var(--ink)" : "var(--faint)").attr("stroke-width", 1.6);
+    .attr("stroke", c => verdict(c.p.llo, c.p.lhi, M_LR) === "moved" ? "var(--ink)" : "var(--faint)").attr("stroke-width", 1.1);
   g.append("line").attr("x1", 0).attr("y1", 0).attr("x2", c => c.p.d * len).attr("y2", 0).attr("stroke", c => col(c.p.d))
-    .attr("stroke-width", 4).attr("stroke-linecap", "round").attr("stroke-dasharray", c => verdict(c.p.dlo, c.p.dhi, M_LOC) === "moved" ? null : "4 3")
+    .attr("stroke-width", 2.4).attr("stroke-linecap", "round").attr("stroke-dasharray", c => verdict(c.p.dlo, c.p.dhi, M_LOC) === "moved" ? null : "3 3")
     .attr("marker-end", c => Math.abs(c.p.d * len) > 8 ? "url(#coah)" : null);
   g.append("circle").attr("r", 2.5).attr("fill", "var(--ink)");
   g.filter(c => c.rev >= 3).append("text").attr("x", cw / 2 - 14).attr("y", -ch / 2 + 16).attr("text-anchor", "end")
@@ -1245,7 +1305,7 @@ function coHL() {
   if (!OVS.coRow) return;
   OVS.coRow.attr("fill", r => r.f.id === st.A && r.to.id === st.B ? "var(--band)" : "none")
     .attr("stroke", r => r.f.id === st.A && st.set.includes(r.to.id) ? "var(--faint)" : "none");
-  OVS.coCol.attr("stroke", a => a.key === st.aspect ? "var(--hl)" : "none").attr("stroke-width", 2);
+  OVS.coCol.attr("stroke", a => a.key === st.aspect ? "var(--hl)" : "none").attr("stroke-width", 1.1);
 }
 
 // ---------------- auxiliary, third mode: appearance map of one subject ----------------
@@ -1454,7 +1514,7 @@ function drawStatements() {
     .attr("d", d => d3.symbol(d.s.vlm === "qwen" ? d3.symbolCircle : d3.symbolSquare, gsz * gsz * (d.s.vlm === "qwen" ? .85 : .7))())
     .attr("transform", d => `translate(${d.x},${d.y})`).attr("fill", d => vOf(d.s) === "contradicted" ? "var(--panel)" : VCOL(vOf(d.s)))
     .attr("stroke", d => d.s === st.stSel ? "var(--ink)" : vOf(d.s) === "contradicted" ? "var(--bad)" : U[vid(d.s)] ? "var(--ink-2)" : "var(--panel)")
-    .attr("stroke-width", d => d.s === st.stSel ? 2 : vOf(d.s) === "contradicted" ? 1.8 : 1)
+    .attr("stroke-width", d => d.s === st.stSel ? 1.5 : vOf(d.s) === "contradicted" ? 1.3 : .8)
     .style("cursor", "pointer")
     .on("mousemove", (e, d) => showTip(e, `<b style="color:${VCOL(vOf(d.s))}">${vOf(d.s)}</b>${vOf(d.s) !== d.s.verdict ? ` <span style="color:var(--muted)">(frozen analysis: ${d.s.verdict})</span>` : ""}<br>${esc(d.s.text)}<br><span style="color:var(--muted)">${d.s.vlm === "qwen" ? "Qwen3.5-4B" : "Mistral-24B"}</span>`))
     .on("mouseleave", hideTip)
@@ -1552,10 +1612,10 @@ function drawTrail() {
     g1.append("text").attr("class", "pole").attr("x", cw / 2).attr("y", ch - 2).attr("text-anchor", "middle").text(C.dir === "less" ? "B less varied" : "B more varied");
   } else {
     const y0 = ch / 2, x0 = 10, x1 = cw - 10;
-    g1.append("line").attr("x1", x0).attr("x2", x1).attr("y1", y0).attr("y2", y0).attr("stroke", "var(--grid)").attr("stroke-width", 6).attr("stroke-linecap", "round");
+    g1.append("line").attr("x1", x0).attr("x2", x1).attr("y1", y0).attr("y2", y0).attr("stroke", "var(--grid)").attr("stroke-width", 4).attr("stroke-linecap", "round");
     if ((C.dir === "right" || C.dir === "left") && C.l1 !== "silent") {
       const d = C.dir === "right" ? 1 : -1, xm = (x0 + x1) / 2;
-      g1.append("path").attr("d", `M${xm},${y0} L${xm + d * (x1 - x0) * .38},${y0}`).attr("stroke", "var(--ink)").attr("stroke-width", 2.2).attr("marker-end", "url(#tah)");
+      g1.append("path").attr("d", `M${xm},${y0} L${xm + d * (x1 - x0) * .38},${y0}`).attr("stroke", "var(--ink)").attr("stroke-width", 1.6).attr("marker-end", "url(#tah)");
     }
     g1.append("defs").append("marker").attr("id", "tah").attr("viewBox", "0 0 10 10").attr("refX", 8).attr("refY", 5).attr("markerWidth", 6).attr("markerHeight", 6)
       .attr("orient", "auto").append("path").attr("d", "M0,1 L9,5 L0,9 z").attr("fill", "var(--ink)");
